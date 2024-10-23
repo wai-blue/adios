@@ -37,20 +37,22 @@ class MySQLi extends \ADIOS\Core\DB
     //   throw new \ADIOS\Core\Exceptions\DBException("Database connection string is not configured.");
     // }
 
-    if (!empty($dbHost) && !empty($dbPort) && is_numeric($dbPort)) {
-      $this->connection = new \mysqli(
-        $dbHost,
-        $dbUser,
-        $dbPassword,
-        $dbName,
-        $dbPort
-      );
-    } else {
-      $this->connection = new \mysqli(
-        $dbHost,
-        $dbUser,
-        $dbPassword
-      );
+    if (!empty($dbHost)) {
+      if (!empty($dbPort) && is_numeric($dbPort)) {
+        $this->connection = new \mysqli(
+          $dbHost,
+          $dbUser,
+          $dbPassword,
+          $dbName,
+          $dbPort
+        );
+      } else {
+        $this->connection = new \mysqli(
+          $dbHost,
+          $dbUser,
+          $dbPassword
+        );
+      }
     }
 
     if (!empty($this->connection->connect_error)) {

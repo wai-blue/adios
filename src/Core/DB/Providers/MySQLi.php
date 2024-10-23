@@ -33,11 +33,11 @@ class MySQLi extends \ADIOS\Core\DB
     $dbName = $this->app->getConfig('db_name', '');
     $dbCodepage = $this->app->getConfig('db_codepage', '');
 
-    if (empty($dbHost)) {
-      throw new \ADIOS\Core\Exceptions\DBException("Database connection string is not configured.");
-    }
+    // if (empty($dbHost)) {
+    //   throw new \ADIOS\Core\Exceptions\DBException("Database connection string is not configured.");
+    // }
 
-    if (!empty($dbPort) && is_numeric($dbPort)) {
+    if (!empty($dbHost) && !empty($dbPort) && is_numeric($dbPort)) {
       $this->connection = new \mysqli(
         $dbHost,
         $dbUser,

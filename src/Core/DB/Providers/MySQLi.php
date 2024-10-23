@@ -53,33 +53,33 @@ class MySQLi extends \ADIOS\Core\DB
           $dbPassword
         );
       }
-    }
 
-    if (!empty($this->connection->connect_error)) {
-      throw new \ADIOS\Core\Exceptions\DBException($this->connection->connect_error);
-    }
+      if (!empty($this->connection->connect_error)) {
+        throw new \ADIOS\Core\Exceptions\DBException($this->connection->connect_error);
+      }
 
-    if (!empty($dbName)) {
-      $this->connection->select_db($dbName);
-    }
+      if (!empty($dbName)) {
+        $this->connection->select_db($dbName);
+      }
 
-    if ($this->connection->errno == 1049) {
-      // unknown database
-      $this->query("
-        create database if not exists `{$dbName}`
-        default charset = utf8mb4
-        default collate = utf8mb4_unicode_ci
-      ");
+      if ($this->connection->errno == 1049) {
+        // unknown database
+        $this->query("
+          create database if not exists `{$dbName}`
+          default charset = utf8mb4
+          default collate = utf8mb4_unicode_ci
+        ");
 
-      $this->app->console->info("Created database `{$dbName}`");
+        $this->app->console->info("Created database `{$dbName}`");
 
-      $this->connection->select_db($dbName);
-    } else if ($this->connection->errno > 0) {
-      throw new \ADIOS\Core\Exceptions\DBException($this->connection->errno);
-    }
+        $this->connection->select_db($dbName);
+      } else if ($this->connection->errno > 0) {
+        throw new \ADIOS\Core\Exceptions\DBException($this->connection->errno);
+      }
 
-    if (!empty($dbCodepage)) {
-      $this->connection->set_charset($dbCodepage);
+      if (!empty($dbCodepage)) {
+        $this->connection->set_charset($dbCodepage);
+      }
     }
   }
 

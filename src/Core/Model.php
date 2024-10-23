@@ -141,9 +141,9 @@ class Model
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();
 
-    if ($lastVersion == 0) {
-      $this->saveConfig('installed-version', $lastVersion);
-    }
+    // if ($lastVersion == 0) {
+    //   $this->saveConfig('installed-version', $lastVersion);
+    // }
 
     if ($this->hasAvailableUpgrades()) {
 
@@ -1080,6 +1080,51 @@ class Model
     return $record;
   }
 
+  public function recordGetList(
+    array|null $includeRelations = null,
+    int $maxRelationLevel = 0,
+    string $search = '',
+    array $filterBy = [],
+    array $where = [],
+    array $orderBy = [],
+    int $itemsPerPage = 15,
+    int $page = 0,
+  ): array
+  {
+    $query = $this->prepareLoadRecordsQuery(
+      $includeRelations,
+      $maxRelationLevel,
+      $search,
+      $filterBy,
+      $where,
+      $orderBy,
+      $itemsPerPage,
+      $page
+    );
+
+    // Laravel pagination
+    $data = $query->paginate(
+      $itemsPerPage,
+      ['*'],
+      'page',
+      $page
+    )->toArray();
+
+    if (!is_array($data)) $data = [];
+    if (!is_array($data['data'])) $data['data'] = [];
+
+    foreach ($data['data'] as $key => $record) {
+      $data['data'][$key] = $this->recordEncryptIds($record);
+      $data['data'][$key] = $this->recordAddCustomData($record);
+      $data['data'][$key] = $this->onAfterLoadRecord($record);
+      $data['data'][$key]['_RELATIONS'] = array_keys($this->relations);
+    }
+
+    return $data;
+  }
+
+
+  // prepare load query for ONE record
   public function prepareLoadRecordQuery(array|null $includeRelations = null, int $maxRelationLevel = 0, $query = null, int $level = 0) {
     $tmpColumns = $this->columns();
 
@@ -1183,6 +1228,71 @@ class Model
 
     return $query;
   }
+
+  // prepare load query for MULTIPLE records
+  public function prepareLoadRecordsQuery(
+    array|null $includeRelations = null,
+    int $maxRelationLevel = 0,
+    string $search = '',
+    array $filterBy = [],
+    array $where = [],
+    array $orderBy = []
+  ): \Illuminate\Database\Eloquent\Builder
+  {
+    $params = $this->params;
+
+    $search = null;
+    if (isset($params['search'])) {
+      $search = strtolower(Str::ascii($params['search']));
+    }
+
+    $columns = $this->columns();
+    $relations = $this->relations;
+
+    $query = $this->prepareLoadRecordQuery(
+      $includeRelations,
+      $maxRelationLevel
+    );
+
+    // FILTER BY
+    if (count($filterBy) > 0) {
+      // TODO
+    }
+
+    // WHERE
+    foreach ($where as $whereItem) {
+      $query->where($whereItem[0], $whereItem[1], $whereItem[2]);
+    }
+
+    // Search
+    if (!empty($search)) {
+      foreach ($columns as $columnName => $column) {
+        if (isset($column['enumValues'])) {
+          foreach ($column['enumValues'] as $enumValueKey => $enumValue) {
+            if (str_contains(strtolower(Str::ascii($enumValue)), $search)) {
+              $query->orHaving($columnName, $enumValueKey);
+            }
+          }
+        }
+
+        if ($column['type'] == 'lookup') {
+          $query->orHaving('_LOOKUP[' . $columnName . ']', 'like', "%{$search}%");
+        } else {
+          $query->orHaving($columnName, 'like', "%{$search}%");
+        }
+      }
+    }
+
+    // orderBy
+    if (isset($params['orderBy']['field']) && isset($params['orderBy']['direction'])) {
+      $query->orderBy(
+        $params['orderBy']['field'],
+        $params['orderBy']['direction']);
+    }
+
+    return $query;
+  }
+
 
   // public function getDependentRecords(int $parentId): array {
   //   $dependentRecords = [];

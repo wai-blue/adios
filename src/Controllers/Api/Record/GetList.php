@@ -16,62 +16,62 @@ class GetList extends \ADIOS\Core\ApiController {
     $this->model = $this->app->getModel($this->params['model']);
   }
 
-  public function prepareLoadRecordQuery(): \Illuminate\Database\Eloquent\Builder
-  {
-    $params = $this->params;
+  // public function prepareLoadRecordQuery(): \Illuminate\Database\Eloquent\Builder
+  // {
+  //   $params = $this->params;
 
-    $search = null;
-    if (isset($params['search'])) {
-      $search = strtolower(Str::ascii($params['search']));
-    }
+  //   $search = null;
+  //   if (isset($params['search'])) {
+  //     $search = strtolower(Str::ascii($params['search']));
+  //   }
 
-    $columns = $this->model->columns();
-    $relations = $this->model->relations;
+  //   $columns = $this->model->columns();
+  //   $relations = $this->model->relations;
 
-    $query = $this->model->prepareLoadRecordQuery(
-      $this->app->params['includeRelations'] ?? null,
-      (int) ($this->app->params['maxRelationLevel'] ?? 2)
-    );
+  //   $query = $this->model->prepareLoadRecordQuery(
+  //     $this->app->params['includeRelations'] ?? null,
+  //     (int) ($this->app->params['maxRelationLevel'] ?? 2)
+  //   );
 
-    // FILTER BY
-    if (isset($params['filterBy'])) {
-      // TODO
-    }
+  //   // FILTER BY
+  //   if (isset($params['filterBy'])) {
+  //     // TODO
+  //   }
 
-    // WHERE
-    if (isset($params['where']) && is_array($params['where'])) {
-      foreach ($params['where'] as $where) {
-        $query->where($where[0], $where[1], $where[2]);
-      }
-    }
+  //   // WHERE
+  //   if (isset($params['where']) && is_array($params['where'])) {
+  //     foreach ($params['where'] as $where) {
+  //       $query->where($where[0], $where[1], $where[2]);
+  //     }
+  //   }
 
-    // Search
-    if ($search !== null) {
-      foreach ($columns as $columnName => $column) {
-        if (isset($column['enumValues'])) {
-          foreach ($column['enumValues'] as $enumValueKey => $enumValue) {
-            if (str_contains(strtolower(Str::ascii($enumValue)), $search)) {
-              $query->orHaving($columnName, $enumValueKey);
-            }
-          }
-        }
+  //   // Search
+  //   if ($search !== null) {
+  //     foreach ($columns as $columnName => $column) {
+  //       if (isset($column['enumValues'])) {
+  //         foreach ($column['enumValues'] as $enumValueKey => $enumValue) {
+  //           if (str_contains(strtolower(Str::ascii($enumValue)), $search)) {
+  //             $query->orHaving($columnName, $enumValueKey);
+  //           }
+  //         }
+  //       }
 
-        if ($column['type'] == 'lookup') {
-          $query->orHaving('_LOOKUP[' . $columnName . ']', 'like', "%{$search}%");
-        } else {
-          $query->orHaving($columnName, 'like', "%{$search}%");
-        }
-      }
-    }
+  //       if ($column['type'] == 'lookup') {
+  //         $query->orHaving('_LOOKUP[' . $columnName . ']', 'like', "%{$search}%");
+  //       } else {
+  //         $query->orHaving($columnName, 'like', "%{$search}%");
+  //       }
+  //     }
+  //   }
 
-    if (isset($params['orderBy'])) {
-      $query->orderBy(
-        $params['orderBy']['field'],
-        $params['orderBy']['direction']);
-    }
+  //   if (isset($params['orderBy'])) {
+  //     $query->orderBy(
+  //       $params['orderBy']['field'],
+  //       $params['orderBy']['direction']);
+  //   }
 
-    return $query;
-  }
+  //   return $query;
+  // }
 
   // public function postprocessData(array $data): array {
   //   if (is_array($data['data'])) {
@@ -88,28 +88,15 @@ class GetList extends \ADIOS\Core\ApiController {
 
   public function response(): array
   {
-    $this->query = $this->prepareLoadRecordQuery();
-
-    $this->itemsPerPage = (int) $this->params['itemsPerPage'] ?? 15;
-
-    // Laravel pagination
-    $data = $this->query->paginate(
-      $this->itemsPerPage,
-      ['*'],
-      'page',
-      $this->params['page']
-    )->toArray();
-
-    if (!is_array($data)) $data = [];
-    if (!is_array($data['data'])) $data['data'] = [];
-
-    foreach ($data['data'] as $key => $record) {
-      $data['data'][$key] = $this->model->recordEncryptIds($record);
-      $data['data'][$key] = $this->model->recordAddCustomData($record);
-      $data['data'][$key] = $this->model->onAfterLoadRecord($record);
-      $data['data'][$key]['_RELATIONS'] = array_keys($this->model->relations);
-    }
-
-    return $data;
+    return $this->model->recordGetList(
+      $this->app->params['includeRelations'] ?? null,
+      (int) ($this->app->params['maxRelationLevel'] ?? 2),
+      (string) ($this->app->params['search'] ?? ''),
+      (array) ($this->app->params['filterBy'] ?? []),
+      (array) ($this->app->params['where'] ?? []),
+      (array) ($this->app->params['orderBy'] ?? []),
+      (int) $this->app->params['itemsPerPage'] ?? 15,
+      $this->app->params['page'],
+    );
   }
 }

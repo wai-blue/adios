@@ -49,6 +49,7 @@ class User extends \ADIOS\Core\Model {
       'password' => [
         'type' => 'password',
         'title' => $this->translate('Password'),
+        'hidden' => true,
       ],
       'is_active' => [
         'type' => 'boolean',

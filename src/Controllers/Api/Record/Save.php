@@ -83,7 +83,14 @@ class Save extends \ADIOS\Core\ApiController {
       $exceptionClass = get_class($e);
       if ($pdo) $pdo->rollBack();
 
-      throw new $exceptionClass($e->getMessage(), $e->getCode(), $e);
+      switch ($exceptionClass) {
+        case 'Illuminate\\Database\\QueryException':
+          throw new $exceptionClass($e->getConnectionName(), $e->getSql(), $e->getBindings(), $e);
+        break;
+        default:
+          throw new $exceptionClass($e->getMessage(), $e->getCode(), $e);
+        break;
+      }
     }
 
     return $savedRecord;

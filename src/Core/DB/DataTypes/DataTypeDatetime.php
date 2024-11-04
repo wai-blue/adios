@@ -53,4 +53,11 @@ class DataTypeDatetime extends \ADIOS\Core\DB\DataType
   public function toCsv($value, $params = []) {
     return $this->_toHtmlOrCsv($value, $params);
   }
+
+  public function normalize(\ADIOS\Core\Model $model, string $colName, $value, $colDefinition)
+  {
+    return strtotime((string) $value) < 1000 ? null : $value;
+  }
+  
+
 }

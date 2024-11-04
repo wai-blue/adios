@@ -1134,7 +1134,10 @@ class Model
     $withs = [];
     $joins = [];
 
-    $selectRaw[] = $this->table . '.*';
+    foreach ($this->columns() as $colName => $colDefinition) {
+      if ($colDefinition['hidden']) continue;
+      $selectRaw[] = $this->table . '.' . $colName;
+    }
     $selectRaw[] = $level . ' as _LEVEL';
     $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->lookupSqlValue()) . ') as _LOOKUP';
 

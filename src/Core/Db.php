@@ -84,7 +84,7 @@ class DB
 
   public function registerColumnType($column_type)
   {
-    $class = "\\ADIOS\\Core\\DB\\DataTypes\\{$column_type}";
+    $class = "\\ADIOS\\Core\\Db\\DataTypes\\{$column_type}";
 
     if (class_exists($class)) {
       $tmp = str_replace("DataType", "", $column_type);

@@ -331,11 +331,7 @@ class Loader
         ]);
 
         // inicializacia twigu
-        $twigLoader = \ADIOS\Core\Factory::create('Core/TwigLoader', [$this]);
-        $this->twig = new \Twig\Environment($twigLoader, array(
-          'cache' => FALSE,
-          'debug' => TRUE,
-        ));
+        $this->initTwig();
         $this->twig->addGlobal('config', $this->config);
         $this->twig->addExtension(new \Twig\Extension\StringLoaderExtension());
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
@@ -474,7 +470,8 @@ class Loader
     }
   }
 
-  public function initDatabaseConnections() {
+  public function initDatabaseConnections()
+  {
     $this->eloquent = new \Illuminate\Database\Capsule\Manager;
 
     $dbConnectionConfig = $this->getDefaultConnectionConfig();
@@ -489,6 +486,15 @@ class Loader
     $this->db = new $dbProviderClass($this);
     $this->pdo = new \ADIOS\Core\PDO($this);
     $this->pdo->connect();
+  }
+
+  public function initTwig()
+  {
+    $twigLoader = \ADIOS\Core\Factory::create('Core/TwigLoader', [$this]);
+    $this->twig = new \Twig\Environment($twigLoader, array(
+      'cache' => FALSE,
+      'debug' => TRUE,
+    ));
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -1040,7 +1046,7 @@ class Loader
         ];
 
         $contentHtml = $this->twig->render(
-          $view,
+          $view . '.twig',
           $contentParams
         );
 
@@ -1059,7 +1065,7 @@ class Loader
           $desktopParams['viewParams'] = array_merge($desktopControllerObject->viewParams, $contentParams['viewParams']);
           $desktopParams['contentHtml'] = $contentHtml;
 
-          $html = $this->twig->render(($this->config['appNamespace'] ?? 'App') . '/Views/Desktop', $desktopParams);
+          $html = $this->twig->render('@app/Views/Desktop.twig', $desktopParams);
 
           \ADIOS\Core\Helper::addSpeedLogTag("render7");
 

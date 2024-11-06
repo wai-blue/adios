@@ -10,7 +10,7 @@
 
 namespace ADIOS\Core\Db\Providers;
 
-class MySQLi extends \ADIOS\Core\DB
+class MySQLi extends \ADIOS\Core\Db
 {
 
   private $queryResult;

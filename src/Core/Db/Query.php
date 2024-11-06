@@ -1,6 +1,6 @@
 <?php
 
-namespace ADIOS\Core\DB;
+namespace ADIOS\Core\Db;
 
 class Query
 {
@@ -47,17 +47,17 @@ class Query
 
   // private properties
   private ?\ADIOS\Core\Loader $app = NULL;
-  private ?\ADIOS\Core\DB $db = NULL;
+  private ?\ADIOS\Core\Db $db = NULL;
   private ?\ADIOS\Core\Model $model = NULL;
   private int $type = 0;
   private array $statements = [];
 
   /**
-   * @param \ADIOS\Core\DB $db
+   * @param \ADIOS\Core\Db $db
    * @param \ADIOS\Core\Model $model
    * @param int $type
    */
-  public function __construct(\ADIOS\Core\DB $db, \ADIOS\Core\Model $model, int $type)
+  public function __construct(\ADIOS\Core\Db $db, \ADIOS\Core\Model $model, int $type)
   {
     $this->db = $db;
     $this->model = $model;

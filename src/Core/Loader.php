@@ -63,7 +63,7 @@ class Loader
   public array $userProfile = [];
   public array $userPasswordReset = [];
 
-  public ?\ADIOS\Core\DB $db = NULL;
+  public ?\ADIOS\Core\Db $db = NULL;
   public ?\ADIOS\Core\Console $console = NULL;
   public ?\ADIOS\Core\Locale $locale = NULL;
   public ?\ADIOS\Core\Router $router = NULL;

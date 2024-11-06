@@ -10,7 +10,7 @@
 
 namespace ADIOS\Core\Db\Providers;
 
-class DoctrineDBAL extends \ADIOS\Core\DB
+class DoctrineDBAL extends \ADIOS\Core\Db
 {
 
   private \Doctrine\DBAL\Result $statement;

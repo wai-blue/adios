@@ -62,7 +62,7 @@ class DB
       }
     }
 
-    $h = opendir(dirname(__FILE__) . '/DB/DataTypes');
+    $h = opendir(dirname(__FILE__) . '/Db/DataTypes');
     while (false !== ($file = readdir($h))) {
       if ('.' != $file && '..' != $file) {
         $col_type = substr($file, 0, -4);

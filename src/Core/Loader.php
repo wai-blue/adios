@@ -490,8 +490,10 @@ class Loader
 
   public function initTwig()
   {
-    $twigLoader = \ADIOS\Core\Factory::create('Core/TwigLoader', [$this]);
-    $this->twig = new \Twig\Environment($twigLoader, array(
+    $this->twigLoader = new \Twig\Loader\FilesystemLoader();
+    $this->twigLoader->addPath($this->config['dir'] . '/src', 'app');
+
+    $this->twig = new \Twig\Environment($this->twigLoader, array(
       'cache' => FALSE,
       'debug' => TRUE,
     ));

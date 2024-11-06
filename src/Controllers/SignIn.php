@@ -24,7 +24,7 @@ class SignIn extends \ADIOS\Core\Controller {
 
     $this->permission = "";
 
-    $this->setView($this->app->config['appNamespace'] . '/Views/SignIn');
+    $this->setView('@app/Views/SignIn');
   }
 
   public function prepareViewParams() {

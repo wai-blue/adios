@@ -8,12 +8,12 @@
   ADIOS Framework package.
 */
 
-namespace ADIOS\Core\DB\DataTypes;
+namespace ADIOS\Core\Db\DataTypes;
 
 /**
  * @package DataTypes
  */
-class DataTypeDecimal extends \ADIOS\Core\DB\DataType
+class DataTypeDecimal extends \ADIOS\Core\Db\DataType
 {
 
   protected $defaultValue = 0;

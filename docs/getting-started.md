@@ -124,7 +124,7 @@ class Orders extends \ADIOS\Core\Widget\Action {
     $customerModel = $this->adios->getModel("Widgets/Customers/Models/Customer");
 
     $customer = $this->adios->db->select($customerModel)
-      ->columns([\ADIOS\Core\DB\Query::allColumnsWithoutLookups])
+      ->columns([\ADIOS\Core\Db\Query::allColumnsWithoutLookups])
       ->where([
         ['id', '=', (int) $this->params['id']]
       ])

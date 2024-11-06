@@ -15,7 +15,7 @@ Or:
 
 ```php
 $data = $db->select($model)
-  ->columns([\ADIOS\Core\DB\Query::allColumnsWithLookups])
+  ->columns([\ADIOS\Core\Db\Query::allColumnsWithLookups])
   ->where([ ['id', '=', $id] ])
   ->fetchOne()
 ```
@@ -43,7 +43,7 @@ Fetches one row from the `$model` with `ID = $id`, including data of all models 
 
 ```php
 $data = $db->select($model)
-  ->columns([\ADIOS\Core\DB\Query::allColumnsWithLookups])
+  ->columns([\ADIOS\Core\Db\Query::allColumnsWithLookups])
   ->where([ ['id', '=', $id] ])
   ->fetchOne()
 ```

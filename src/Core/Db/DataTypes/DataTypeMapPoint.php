@@ -8,12 +8,12 @@
   ADIOS Framework package.
 */
 
-namespace ADIOS\Core\DB\DataTypes;
+namespace ADIOS\Core\Db\DataTypes;
 
 /**
  * @package DataTypes
  */
-class DataTypeMapPoint extends \ADIOS\Core\DB\DataType
+class DataTypeMapPoint extends \ADIOS\Core\Db\DataType
 {
   
   protected $defaultValue = '{"latitude": 0,"longitude": 0}';

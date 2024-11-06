@@ -10,7 +10,7 @@
 
 namespace ADIOS\Core;
 
-use ADIOS\Core\DB\Query;
+use ADIOS\Core\Db\Query;
 use ADIOS\Core\Exceptions\DBDuplicateEntryException;
 use ADIOS\Core\Exceptions\DBException;
 
@@ -135,7 +135,7 @@ class DB
   }
 
 
-  public function buildSql(\ADIOS\Core\DB\Query $query) : string
+  public function buildSql(\ADIOS\Core\Db\Query $query) : string
   {
     return "";
   }
@@ -241,25 +241,25 @@ class DB
     \ADIOS\Core\Model $model,
     array $modifiers = [],
     string $tableAlias = ''
-  ) : \ADIOS\Core\DB\Query
+  ) : \ADIOS\Core\Db\Query
   {
-    $query = new \ADIOS\Core\DB\Query(
+    $query = new \ADIOS\Core\Db\Query(
       $this,
       $model,
-      \ADIOS\Core\DB\Query::select
+      \ADIOS\Core\Db\Query::select
     );
 
     if (!empty($tableAlias)) {
       $query->add([
-        \ADIOS\Core\DB\Query::selectModifier,
-        \ADIOS\Core\DB\Query::tableAlias,
+        \ADIOS\Core\Db\Query::selectModifier,
+        \ADIOS\Core\Db\Query::tableAlias,
         $tableAlias
       ]);
     }
 
     foreach ($modifiers as $modifier) {
       $query->add([
-        \ADIOS\Core\DB\Query::selectModifier,
+        \ADIOS\Core\Db\Query::selectModifier,
         $modifier
       ]);
     }
@@ -267,19 +267,19 @@ class DB
     return $query;
   }
 
-  public function insert(\ADIOS\Core\Model $model) : \ADIOS\Core\DB\Query
+  public function insert(\ADIOS\Core\Model $model) : \ADIOS\Core\Db\Query
   {
-    return new \ADIOS\Core\DB\Query($this, $model, \ADIOS\Core\DB\Query::insert);
+    return new \ADIOS\Core\Db\Query($this, $model, \ADIOS\Core\Db\Query::insert);
   }
 
-  public function update(\ADIOS\Core\Model $model) : \ADIOS\Core\DB\Query
+  public function update(\ADIOS\Core\Model $model) : \ADIOS\Core\Db\Query
   {
-    return new \ADIOS\Core\DB\Query($this, $model, \ADIOS\Core\DB\Query::update);
+    return new \ADIOS\Core\Db\Query($this, $model, \ADIOS\Core\Db\Query::update);
   }
 
-  public function delete(\ADIOS\Core\Model $model) : \ADIOS\Core\DB\Query
+  public function delete(\ADIOS\Core\Model $model) : \ADIOS\Core\Db\Query
   {
-    return new \ADIOS\Core\DB\Query($this, $model, \ADIOS\Core\DB\Query::delete);
+    return new \ADIOS\Core\Db\Query($this, $model, \ADIOS\Core\Db\Query::delete);
   }
 
   public function insertedId()

@@ -8,9 +8,9 @@
   ADIOS Framework package.
 */
 
-namespace ADIOS\Core\DB\DataTypes;
+namespace ADIOS\Core\Db\DataTypes;
 
-use ADIOS\Core\DB\DataType;
+use ADIOS\Core\Db\DataType;
 
 /**
  * @package DataTypes

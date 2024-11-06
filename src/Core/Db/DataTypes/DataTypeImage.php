@@ -8,12 +8,12 @@
   ADIOS Framework package.
 */
 
-namespace ADIOS\Core\DB\DataTypes;
+namespace ADIOS\Core\Db\DataTypes;
 
 /**
  * @package DataTypes
  */
-class DataTypeImage extends \ADIOS\Core\DB\DataType {
+class DataTypeImage extends \ADIOS\Core\Db\DataType {
   public function sqlCreateString($table_name, $col_name, $params = []) {
     return "`$col_name` varchar(255) " . $this->getSqlDefinitions($params);
   }

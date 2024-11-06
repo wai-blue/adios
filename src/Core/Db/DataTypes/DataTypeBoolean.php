@@ -8,7 +8,7 @@
   ADIOS Framework package.
 */
 
-namespace ADIOS\Core\DB\DataTypes;
+namespace ADIOS\Core\Db\DataTypes;
 
 /**
  * Boolean data type.
@@ -28,7 +28,7 @@ namespace ADIOS\Core\DB\DataTypes;
  *
  * @package DataTypes
  */
-class DataTypeBoolean extends \ADIOS\Core\DB\DataType {
+class DataTypeBoolean extends \ADIOS\Core\Db\DataType {
   
   protected $defaultValue = 0;
 

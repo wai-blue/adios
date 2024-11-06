@@ -1,8 +1,8 @@
 # ADIOS Database
 
 ```php
-$data = $adios->db->select($model, [\ADIOS\Core\DB\Query::countRows])
-  ->columns([\ADIOS\Core\DB\Query::allColumnsWithLookups])
+$data = $adios->db->select($model, [\ADIOS\Core\Db\Query::countRows])
+  ->columns([\ADIOS\Core\Db\Query::allColumnsWithLookups])
   ->where([ ['id', '=', 1] ])
   ->having([ ['amount', '>', 0] )
   ->order($orderBy)

@@ -8,7 +8,7 @@
   ADIOS Framework package.
 */
 
-namespace ADIOS\Core\DB\Providers;
+namespace ADIOS\Core\Db\Providers;
 
 class DoctrineDBAL extends \ADIOS\Core\DB
 {
@@ -427,11 +427,11 @@ class DoctrineDBAL extends \ADIOS\Core\DB
   }
 
   /**
-   * @param \ADIOS\Core\DB\Query $query
+   * @param \ADIOS\Core\Db\Query $query
    *
    * @return string
    */
-  private function buildSqlWhere(\ADIOS\Core\DB\Query $query, ?array $wheres = NULL, string $logic = ''): string
+  private function buildSqlWhere(\ADIOS\Core\Db\Query $query, ?array $wheres = NULL, string $logic = ''): string
   {
 
     $model = $query->getModel();
@@ -439,11 +439,11 @@ class DoctrineDBAL extends \ADIOS\Core\DB
     $whereRaws = [];
 
     if ($wheres === NULL) {
-      $wheres = $query->getStatements(\ADIOS\Core\DB\Query::where);
-      $whereRaws = $query->getStatements(\ADIOS\Core\DB\Query::whereRaw);
+      $wheres = $query->getStatements(\ADIOS\Core\Db\Query::where);
+      $whereRaws = $query->getStatements(\ADIOS\Core\Db\Query::whereRaw);
     }
 
-    if (!\ADIOS\Core\DB\Query::isValidLogic($logic)) $logic = \ADIOS\Core\DB\Query::logicAnd;
+    if (!\ADIOS\Core\Db\Query::isValidLogic($logic)) $logic = \ADIOS\Core\Db\Query::logicAnd;
 
     // wheres and whereRaws
     $wheresArray = [];
@@ -454,13 +454,13 @@ class DoctrineDBAL extends \ADIOS\Core\DB
       } else {
         list($statementType, $column, $operator, $value) = $where;
 
-        if ($operator === \ADIOS\Core\DB\Query::columnFilter) {
+        if ($operator === \ADIOS\Core\Db\Query::columnFilter) {
           $wheresArray[] = $this->columnSqlFilter(
             $model,
             $column,
             $value
           );
-        } else if ($operator === \ADIOS\Core\DB\Query::like) {
+        } else if ($operator === \ADIOS\Core\Db\Query::like) {
           if (strpos($column, '`') === FALSE) {
             $wheresArray[] = '`' . $column . '` like "%' . $this->escape($value) . '%"';
           } else {
@@ -486,11 +486,11 @@ class DoctrineDBAL extends \ADIOS\Core\DB
   }
 
   /**
-   * @param \ADIOS\Core\DB\Query $query
+   * @param \ADIOS\Core\Db\Query $query
    *
    * @return string
    */
-  private function buildSqlHaving(\ADIOS\Core\DB\Query $query, ?array $havings = NULL, string $logic = ''): string
+  private function buildSqlHaving(\ADIOS\Core\Db\Query $query, ?array $havings = NULL, string $logic = ''): string
   {
 
     $model = $query->getModel();
@@ -498,11 +498,11 @@ class DoctrineDBAL extends \ADIOS\Core\DB
     $havingRaws = [];
 
     if ($havings === NULL) {
-      $havings = $query->getStatements(\ADIOS\Core\DB\Query::having);
-      $havingRaws = $query->getStatements(\ADIOS\Core\DB\Query::havingRaw);
+      $havings = $query->getStatements(\ADIOS\Core\Db\Query::having);
+      $havingRaws = $query->getStatements(\ADIOS\Core\Db\Query::havingRaw);
     }
 
-    if (!\ADIOS\Core\DB\Query::isValidLogic($logic)) $logic = \ADIOS\Core\DB\Query::logicAnd;
+    if (!\ADIOS\Core\Db\Query::isValidLogic($logic)) $logic = \ADIOS\Core\Db\Query::logicAnd;
 
     // havings and havingRaws
     $havingsArray = [];
@@ -513,13 +513,13 @@ class DoctrineDBAL extends \ADIOS\Core\DB
       } else {
         list($statementType, $column, $operator, $value) = $having;
 
-        if ($operator === \ADIOS\Core\DB\Query::columnFilter) {
+        if ($operator === \ADIOS\Core\Db\Query::columnFilter) {
           $havingsArray[] = $this->columnSqlFilter(
             $model,
             $column,
             $value
           );
-        } else if ($operator === \ADIOS\Core\DB\Query::like) {
+        } else if ($operator === \ADIOS\Core\Db\Query::like) {
           if (strpos($column, '`') === FALSE) {
             $havingsArray[] = '`' . $column . '` like "%' . $this->escape($value) . '%"';
           } else {
@@ -659,23 +659,23 @@ class DoctrineDBAL extends \ADIOS\Core\DB
   }
 
   /**
-   * @param \ADIOS\Core\DB\Query $query
+   * @param \ADIOS\Core\Db\Query $query
    *
    * @return string
    */
-  public function buildSql(\ADIOS\Core\DB\Query $query) : string
+  public function buildSql(\ADIOS\Core\Db\Query $query) : string
   {
     $model = $query->getModel();
 
     switch ($query->getType()) {
-      case \ADIOS\Core\DB\Query::select:
+      case \ADIOS\Core\Db\Query::select:
 
-        $selectModifiers = $query->getStatements(\ADIOS\Core\DB\Query::selectModifier);
-        $columns = $query->getStatements(\ADIOS\Core\DB\Query::column);
-        $joins = $query->getStatements(\ADIOS\Core\DB\Query::join);
-        $orders = $query->getStatements(\ADIOS\Core\DB\Query::order);
-        $orderRaws = $query->getStatements(\ADIOS\Core\DB\Query::orderRaw);
-        $limits = $query->getStatements(\ADIOS\Core\DB\Query::limit);
+        $selectModifiers = $query->getStatements(\ADIOS\Core\Db\Query::selectModifier);
+        $columns = $query->getStatements(\ADIOS\Core\Db\Query::column);
+        $joins = $query->getStatements(\ADIOS\Core\Db\Query::join);
+        $orders = $query->getStatements(\ADIOS\Core\Db\Query::order);
+        $orderRaws = $query->getStatements(\ADIOS\Core\Db\Query::orderRaw);
+        $limits = $query->getStatements(\ADIOS\Core\Db\Query::limit);
 
         $tableAlias = '';
 
@@ -683,16 +683,16 @@ class DoctrineDBAL extends \ADIOS\Core\DB
         $selectModifiersArray = [];
         foreach ($selectModifiers as $modifier) {
           switch ($modifier[1]) {
-            case \ADIOS\Core\DB\Query::countRows:
+            case \ADIOS\Core\Db\Query::countRows:
               $selectModifiersArray[] = 'SQL_CALC_FOUND_ROWS';
             break;
-            case \ADIOS\Core\DB\Query::distinct:
+            case \ADIOS\Core\Db\Query::distinct:
               $selectModifiersArray[] = 'DISTINCT';
             break;
-            case \ADIOS\Core\DB\Query::distinctRow:
+            case \ADIOS\Core\Db\Query::distinctRow:
               $selectModifiersArray[] = 'DISTINCTROW';
             break;
-            case \ADIOS\Core\DB\Query::tableAlias:
+            case \ADIOS\Core\Db\Query::tableAlias:
               $tableAlias = $modifier[2];
             break;
           }
@@ -766,11 +766,11 @@ class DoctrineDBAL extends \ADIOS\Core\DB
 
       break;
 
-      case \ADIOS\Core\DB\Query::insert:
+      case \ADIOS\Core\Db\Query::insert:
         $sqlTableName = $model->getFullTableSqlName();
 
-        $values = $query->getStatements(\ADIOS\Core\DB\Query::set);
-        $valuesOnDuplicateKey = $query->getStatements(\ADIOS\Core\DB\Query::setOnDuplicateKey);
+        $values = $query->getStatements(\ADIOS\Core\Db\Query::set);
+        $valuesOnDuplicateKey = $query->getStatements(\ADIOS\Core\Db\Query::setOnDuplicateKey);
 
         $data = [];
         foreach ($values as $value) {
@@ -793,10 +793,10 @@ class DoctrineDBAL extends \ADIOS\Core\DB
 
       break;
 
-      case \ADIOS\Core\DB\Query::update:
+      case \ADIOS\Core\Db\Query::update:
         $sqlTableName = $model->getFullTableSqlName();
 
-        $values = $query->getStatements(\ADIOS\Core\DB\Query::set);
+        $values = $query->getStatements(\ADIOS\Core\Db\Query::set);
 
         $data = [];
         foreach ($values as $value) {
@@ -813,7 +813,7 @@ class DoctrineDBAL extends \ADIOS\Core\DB
 
       break;
 
-      case \ADIOS\Core\DB\Query::delete:
+      case \ADIOS\Core\Db\Query::delete:
         $sqlTableName = $model->getFullTableSqlName();
 
         $where = $this->buildSqlWhere($query);

@@ -1,6 +1,6 @@
 <?php
 
-namespace ADIOS\Core\DB\DataTypes;
+namespace ADIOS\Core\Db\DataTypes;
 
 /**
  * Multiline text data type.
@@ -20,7 +20,7 @@ namespace ADIOS\Core\DB\DataTypes;
  *
  * @package DataTypes
  */
-class DataTypeText extends \ADIOS\Core\DB\DataType
+class DataTypeText extends \ADIOS\Core\Db\DataType
 {
   public function sqlCreateString($table_name, $col_name, $params = [])
   {

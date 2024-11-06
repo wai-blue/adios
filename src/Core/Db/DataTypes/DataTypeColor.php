@@ -8,13 +8,13 @@
   ADIOS Framework package.
 */
 
-namespace ADIOS\Core\DB\DataTypes;
+namespace ADIOS\Core\Db\DataTypes;
 
 /**
  * @todo Format the code properly
  * @package DataTypes
  */
-class DataTypeColor extends \ADIOS\Core\DB\DataType
+class DataTypeColor extends \ADIOS\Core\Db\DataType
 {
     public function sqlCreateString($table_name, $col_name, $params = [])
     {

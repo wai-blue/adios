@@ -11,7 +11,7 @@
 namespace ADIOS\Core;
 
 use ADIOS\Core\Db\DataType;
-use ADIOS\Core\DB\Query;
+use ADIOS\Core\Db\Query;
 use ADIOS\Core\Exceptions\DBException;
 use ADIOS\Core\Exceptions\RecordDeleteException;
 use ADIOS\Core\Exceptions\RecordSaveException;

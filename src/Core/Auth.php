@@ -15,7 +15,7 @@ class Auth {
 
   public function getUserFromSession(): ?array
   {
-    return $_SESSION[_ADIOS_ID]['userProfile'] ?? null;
+    return $this->app->session->get('userProfile');
   }
 
   public function isUserInSession(): bool
@@ -30,7 +30,7 @@ class Auth {
 
   function deleteSession()
   {
-    unset($_SESSION[_ADIOS_ID]);
+    $this->app->session->clear();
     $this->user = null;
 
     setcookie(_ADIOS_ID.'-user', '', 0);
@@ -40,7 +40,7 @@ class Auth {
   public function signIn(array $user)
   {
     $this->user = $user;
-    $_SESSION[_ADIOS_ID]['userProfile'] = $user;
+    $this->app->session->set('userProfile', $user);
   }
 
   public function signOut()

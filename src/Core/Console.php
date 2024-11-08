@@ -73,10 +73,10 @@ class Console {
    * @return void
    */
   public function log($message, $object = NULL) {
-    $_SESSION[_ADIOS_ID]['console'][] = [
+    $this->app->session->push('console', [
       'header' => date('H:i:s'),
       'message' => trim($message.(is_object($object) ? " (".get_class($object).")" : "")),
-    ];
+    ]);
   }
 
   public function clearLog($logger, $logSeverity) {
@@ -150,7 +150,7 @@ class Console {
    * @return void
    */
   public function clear() {
-    $_SESSION[_ADIOS_ID]['console'] = [];
+    $this->app->session->set('console', []);
   }
   
   /**
@@ -159,7 +159,7 @@ class Console {
    * @return array List of logged messages. Empty array in case of no messages.
    */
   public function getLogs() {
-    return $_SESSION[_ADIOS_ID]['console'] ?? [];
+    return $this->app->session->get('console') ?? [];
   }
   
   /**

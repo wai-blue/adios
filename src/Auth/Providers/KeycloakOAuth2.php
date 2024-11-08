@@ -97,11 +97,11 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
   }
 
   public function getAccessToken() {
-    return $_SESSION[_ADIOS_ID]['oauthAccessToken'];
+    return $this->app->session->get('oauthAccessToken');
   }
 
   public function setAccessToken($accessToken) {
-    $_SESSION[_ADIOS_ID]['oauthAccessToken'] = $accessToken;
+    $this->app->session->set('oauthAccessToken', $accessToken);
   }
 
   public function auth()
@@ -137,11 +137,11 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
         $authorizationUrl = $this->provider->getAuthorizationUrl(['scope' => ['openid']]);
 
         // Get the state generated for you and store it to the session.
-        $_SESSION[_ADIOS_ID]['oauth2state'] = $this->provider->getState();
+        $this->app->session->set('oauth2state', $this->provider->getState());
 
         // Optional, only required when PKCE is enabled.
         // Get the PKCE code generated for you and store it to the session.
-        $_SESSION[_ADIOS_ID]['oauth2pkceCode'] = $this->provider->getPkceCode();
+        $this->app->session->set('oauth2pkceCode', $this->provider->getPkceCode());
 
         // Redirect the user to the authorization URL.
         header('Location: ' . $authorizationUrl);
@@ -150,10 +150,10 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
       // Check given state against previously stored one to mitigate CSRF attack
       } elseif (
         empty($authState)
-        || empty($_SESSION[_ADIOS_ID]['oauth2state'])
-        || $authState !== $_SESSION[_ADIOS_ID]['oauth2state']
+        || empty($this->app->session->get('oauth2state'))
+        || $authState !== $this->app->session->get('oauth2state')
       ) {
-        if (isset($_SESSION[_ADIOS_ID]['oauth2state'])) unset($_SESSION[_ADIOS_ID]['oauth2state']);
+        if ($this->app->session->isset('oauth2state')) $this->app->session->unset('oauth2state');
         exit('Invalid state');
       } else {
 
@@ -161,7 +161,7 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
 
           // Optional, only required when PKCE is enabled.
           // Restore the PKCE code stored in the session.
-          $this->provider->setPkceCode($_SESSION[_ADIOS_ID]['oauth2pkceCode']);
+          $this->provider->setPkceCode($this->app->session->get('oauth2pkceCode'));
 
           // Try to get an access token using the authorization code grant.
           $accessToken = $this->provider->getAccessToken('authorization_code', [

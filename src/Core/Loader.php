@@ -195,14 +195,6 @@ class Loader
 
       \ADIOS\Core\Helper::addSpeedLogTag("#2.1");
 
-      // inicializacia core modelov
-      // $this->registerModel($this->getCoreClass('Models\\Config'));
-      // // $this->registerModel($this->getCoreClass('Models\\Translate'));
-      // $this->registerModel($this->getCoreClass('Models\\User'));
-      // $this->registerModel($this->getCoreClass('Models\\UserRole'));
-      // $this->registerModel($this->getCoreClass('Models\\UserHasRole'));
-      // $this->registerModel($this->getCoreClass('Models\\Token'));
-
       // inicializacia pluginov - aj pre FULL aj pre LITE mod
 
       $this->onBeforePluginsLoaded();
@@ -236,6 +228,10 @@ class Loader
 
       // inicializacia objektu notifikacii
       $this->userNotifications = \ADIOS\Core\Factory::create('Core/UserNotifications', [$this]);
+
+      $this->registerModel(get_class(\ADIOS\Core\Factory::create('Models/User', [$this])));
+      $this->registerModel(get_class(\ADIOS\Core\Factory::create('Models/UserRole', [$this])));
+      $this->registerModel(get_class(\ADIOS\Core\Factory::create('Models/UserHasRole', [$this])));
 
       // inicializacia DB - aj pre FULL aj pre LITE mod
 

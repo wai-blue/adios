@@ -10,7 +10,7 @@ class Session
   {
     $this->app = $app;
 
-    if (!is_array($_SESSION[_ADIOS_ID])) $_SESSION[_ADIOS_ID] = [];
+    if (isset($_SESSION) && is_array($_SESSION) && !is_array($_SESSION[_ADIOS_ID])) $_SESSION[_ADIOS_ID] = [];
   }
 
   public function set(string $path, mixed $value)

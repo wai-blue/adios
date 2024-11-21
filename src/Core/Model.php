@@ -119,7 +119,7 @@ class Model
 
     try {
       $this->pdo = $this->eloquent->getConnection()->getPdo();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
       $this->pdo = null;
     }
 
@@ -132,11 +132,13 @@ class Model
       //
     }
 
-    $this->app->db->addTable(
-      $this->table,
-      $this->columns(),
-      $this->isJunctionTable
-    );
+    if ($this->app->db) {
+      $this->app->db->addTable(
+        $this->table,
+        $this->columns(),
+        $this->isJunctionTable
+      );
+    }
 
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();
@@ -233,7 +235,7 @@ class Model
 
   public function hasSqlTable()
   {
-    return in_array($this->table, $this->app->db->existingSqlTables);
+    return in_array($this->table, $this->app->db->existingSqlTables ?? []);
   }
 
   /**

@@ -88,6 +88,9 @@ class Loader
 
   public string $widgetsDir = "";
 
+  public array $params = [];
+  public ?array $uploadedFiles = null;
+
   public function __construct($config = null, $mode = null) {
 
     \ADIOS\Core\Helper::setGlobalApp($this);
@@ -937,6 +940,7 @@ class Loader
 
       $this->routeUrl = $routeUrl;
       $this->params = $params;
+      $this->uploadedFiles = $_FILES;
 
       // Apply routing and find-out which controller, permision and rendering params will be used
       // list($this->controller, $this->view, $this->permission, $this->params) = $this->router->applyRouting($this->route, $this->params);

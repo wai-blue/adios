@@ -8,4 +8,5 @@ namespace ADIOS\Core\Exceptions;
  *
  * @package Exceptions
  */
-class RecordSaveException extends \Exception { }
+class RecordSaveException extends \Exception {
+}

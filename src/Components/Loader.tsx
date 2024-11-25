@@ -47,28 +47,34 @@ export class ADIOS {
 
   makeErrorResultReadable(error: any): JSX.Element {
     console.log('makeErrorResultReadable', error, error.code, error.data);
-    if (error.code && error.data) {
-      switch (error.code) {
-        case 87335:
-          return <>
-            <b>Some inputs need your attention</b><br/>
-            <br/>
-            {error.data.map((item) => <div>{item}</div>)}
-          </>;
-        break;
-        default:
-          return <>
-            <div>Error #{error.code}</div>
-            <pre style={{fontSize: '8pt', textAlign: 'left'}}>{JSON.stringify(error.data)}</pre>
-          </>;
-        break;
-      }
-    } else if (typeof error == 'object') {
-      return <>
-        <pre style={{fontSize: '8pt', textAlign: 'left'}}>{JSON.stringify(error)}</pre>
-      </>;
-    } else {
-      return error;
+
+    let message: any = null;
+
+    try {
+      message = JSON.parse(error.message);
+    } catch(ex) {
+      message = {};
+    }
+
+    switch (error.code) {
+      case 87335:
+        return <>
+          <b>Some inputs need your attention</b><br/>
+          <br/>
+          {message.map((item) => <div>{item}</div>)}
+        </>;
+      break;
+      case 1062:
+        return <>
+          <b>Unique constraint error</b><br/>
+        </>;
+      break;
+      default:
+        return <>
+          <div>Error #{error.code}</div>
+          <pre style={{fontSize: '8pt', textAlign: 'left'}}>{error.message}</pre>
+        </>;
+      break;
     }
   }
 

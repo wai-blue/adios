@@ -17,7 +17,8 @@ class ApiController extends \ADIOS\Core\Controller {
 
       return [
         'status' => 'error',
-        'message' => $e->getMessage() 
+        'code' => $e->getCode(),
+        'message' => $e->getMessage(),
       ];
     }
   }

@@ -13,7 +13,6 @@ namespace ADIOS\Core;
 use ADIOS\Core\Db\DataType;
 use ADIOS\Core\Db\Query;
 use ADIOS\Core\Exceptions\DBException;
-use ADIOS\Core\Exceptions\RecordDeleteException;
 use ADIOS\Core\Exceptions\RecordSaveException;
 use ADIOS\Core\ViewsWithController\Form;
 use ADIOS\Core\ViewsWithController\Table;
@@ -844,9 +843,7 @@ class Model
     }
 
     if (!empty($invalidInputs)) {
-      throw new RecordSaveException(
-        json_encode(['code' => 87335, 'data' => $invalidInputs])
-      );
+      throw new RecordSaveException(json_encode($invalidInputs), 87335);
     }
 
     return $this->app->dispatchEventToPlugins("onModelAfterRecordValidate", [

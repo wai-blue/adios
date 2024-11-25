@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import Swal from "sweetalert2";
-
 interface ApiResponse<T> {
   data: T;
 }
@@ -101,9 +99,9 @@ class Request {
   ) {
     if (err.response) {
       if (err.response.status == 500) {
-        this.fatalErrorNotification(err.response.data.message);
+        this.fatalErrorNotification(err.response.data);
       } else {
-        this.fatalErrorNotification(err.response.data.message ?? 'Unknown error.');
+        this.fatalErrorNotification(err.response.data);
         console.error('ADIOS: ' + err.code, err.config?.url, err.config?.params, err.response.data);
         if (errorCallback) errorCallback(err.response);
       }
@@ -116,14 +114,10 @@ class Request {
 
   private fatalErrorNotification(error: any) {
     if (typeof error == 'string') {
-      try {
-        error = JSON.parse(error);
-      } catch (ex) {
-        //
-      }
+      globalThis.app.showDialogDanger(error);
+    } else {
+      globalThis.app.showDialogDanger(globalThis.app.makeErrorResultReadable(error));
     }
-
-    globalThis.app.showDialogDanger(globalThis.app.makeErrorResultReadable(error));
   }
 
 }

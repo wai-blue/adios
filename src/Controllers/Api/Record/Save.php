@@ -86,6 +86,8 @@ class Save extends \ADIOS\Core\ApiController {
       switch ($exceptionClass) {
         case 'Illuminate\\Database\\QueryException':
           throw new $exceptionClass($e->getConnectionName(), $e->getSql(), $e->getBindings(), $e);
+        case  'Illuminate\\Database\\UniqueConstraintViolationException';
+          throw new $exceptionClass($e->getConnectionName(), $e->getSql(), $e->getBindings(), $e);
         break;
         default:
           throw new $exceptionClass($e->getMessage(), $e->getCode(), $e);

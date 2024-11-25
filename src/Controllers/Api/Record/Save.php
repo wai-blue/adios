@@ -88,10 +88,26 @@ class Save extends \ADIOS\Core\ApiController {
           throw new $exceptionClass($e->getConnectionName(), $e->getSql(), $e->getBindings(), $e);
         break;
         case 'Illuminate\\Database\\UniqueConstraintViolationException';
-          throw new \ADIOS\Core\Exceptions\RecordSaveException(
-            $e->errorInfo[2],
-            $e->errorInfo[1]
-          );
+          if ($e->errorInfo[1] == 1062) {
+            $columns = $this->model->columns();
+
+            preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $e->errorInfo[2], $m);
+            $invalidIndex = $m[2];
+            $invalidValue = $m[1];
+            $invalidIndexName = $columns[$invalidIndex]["title"];
+
+            $errorMassage = "Value '{$invalidValue}' for {$invalidIndexName} already exists.";
+
+            throw new \ADIOS\Core\Exceptions\RecordSaveException(
+              $errorMassage,
+              $e->errorInfo[1]
+            );
+          } else {
+            throw new \ADIOS\Core\Exceptions\RecordSaveException(
+              $e->errorInfo[2],
+              $e->errorInfo[1]
+            );
+          }
         break;
         default:
           throw new $exceptionClass($e->getMessage(), $e->getCode(), $e);

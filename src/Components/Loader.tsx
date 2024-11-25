@@ -66,7 +66,9 @@ export class ADIOS {
       break;
       case 1062:
         return <>
-          <b>Unique constraint error</b><br/>
+          <b>Duplicate entry error</b><br/>
+          <br/>
+          <div>{error.message}</div>
         </>;
       break;
       default:
@@ -274,7 +276,7 @@ export class ADIOS {
   }
 
   /**
-  * Render React component (create HTML tag root and render) 
+  * Render React component (create HTML tag root and render)
   */
   renderReactElements(rootElement?) {
     if (!rootElement) rootElement = document;

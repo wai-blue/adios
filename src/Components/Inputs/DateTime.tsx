@@ -165,15 +165,17 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
             options={this.options}
           />
         </div>
-        <button
-          className="btn btn-small btn-transparent ml-2"
-          onClick={() => {
-            if (!this.fp?.current?.flatpickr) return;
-            this.fp.current.flatpickr.clear();
-          }}
-        >
-          <span className="icon"><i className="fas fa-times"></i></span>
-        </button>
+        {this.state.readonly ? null :
+          <button
+            className="btn btn-small btn-transparent ml-2"
+            onClick={() => {
+              if (!this.fp?.current?.flatpickr) return;
+              this.fp.current.flatpickr.clear();
+            }}
+          >
+            <span className="icon"><i className="fas fa-times"></i></span>
+          </button>
+         }
       </>
     );
   }

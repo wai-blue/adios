@@ -502,6 +502,15 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     return <></>;
   }
 
+  deleteRecordById(id: number): void {
+    let i: number = 0;
+    for (i in this.state.data?.data) {
+      if (this.state.data?.data[i].id == id) {
+        this.state.data?.data.splice(i, 1);
+      }
+    }
+  }
+
   findRecordById(id: number): any {
     let data: any = {};
 
@@ -815,7 +824,13 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
               title={globalThis.app.translate('Delete')}
               onClick={(e) => {
                 e.preventDefault();
-                this.findRecordById(data.id)._toBeDeleted_ = true;
+
+                if (data.id < 0) {
+                  this.deleteRecordById(data.id);
+                } else {
+                  this.findRecordById(data.id)._toBeDeleted_ = true;
+                }
+
                 this.setState({data: this.state.data}, () => {
                   if (this.props.onDeleteSelectionChange) {
                     this.props.onDeleteSelectionChange(this);

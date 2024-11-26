@@ -96,10 +96,10 @@ class Save extends \ADIOS\Core\ApiController {
             $invalidValue = $m[1];
             $invalidIndexName = $columns[$invalidIndex]["title"];
 
-            $errorMassage = "Value '{$invalidValue}' for {$invalidIndexName} already exists.";
+            $errorMessage = "Value '{$invalidValue}' for {$invalidIndexName} already exists.";
 
             throw new \ADIOS\Core\Exceptions\RecordSaveException(
-              $errorMassage,
+              $errorMessage,
               $e->errorInfo[1]
             );
           } else {

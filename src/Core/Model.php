@@ -1136,7 +1136,18 @@ class Model
     foreach ($this->columns() as $colName => $colDefinition) {
       if ($colDefinition['hidden']) continue;
       $selectRaw[] = $this->table . '.' . $colName;
+
+      if (is_array($colDefinition['enumValues'])) {
+        $tmpSelect = "CASE";
+        foreach ($colDefinition['enumValues'] as $eKey => $eVal) {
+          $tmpSelect .= " WHEN `{$colName}` = '{$eKey}' THEN '{$eVal}'";
+        }
+        $tmpSelect .= " ELSE '' END AS `_ENUM[{$colName}]`";
+
+        $selectRaw[] = $tmpSelect;
+      }
     }
+
     $selectRaw[] = $level . ' as _LEVEL';
     $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->lookupSqlValue()) . ') as _LOOKUP';
 
@@ -1241,12 +1252,12 @@ class Model
     array $orderBy = []
   ): \Illuminate\Database\Eloquent\Builder
   {
-    $params = $this->params;
+    $params = $this->app->params;
 
-    $search = null;
-    if (isset($params['search'])) {
-      $search = strtolower(Str::ascii($params['search']));
-    }
+    // $search = null;
+    // if (isset($params['search'])) {
+    //   $search = strtolower(Str::ascii($params['search']));
+    // }
 
     $columns = $this->columns();
     $relations = $this->relations;
@@ -1270,11 +1281,12 @@ class Model
     if (!empty($search)) {
       foreach ($columns as $columnName => $column) {
         if (isset($column['enumValues'])) {
-          foreach ($column['enumValues'] as $enumValueKey => $enumValue) {
-            if (str_contains(strtolower(Str::ascii($enumValue)), $search)) {
-              $query->orHaving($columnName, $enumValueKey);
-            }
-          }
+          // foreach ($column['enumValues'] as $enumValueKey => $enumValue) {
+          //   if (str_contains(strtolower(Str::ascii($enumValue)), $search)) {
+          //     $query->orHaving($columnName, $enumValueKey);
+          //   }
+          // }
+          $query->orHaving('_ENUM[' . $columnName . ']', 'like', "%{$search}%");
         }
 
         if ($column['type'] == 'lookup') {

@@ -86,11 +86,17 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
     // );
 
     // var_dump(($accessToken->getValues()));exit;
-    $idToken = $accessToken->getValues()['id_token'] ?? '';
+    try {
+      $idToken = $accessToken->getValues()['id_token'] ?? '';
 
-    $this->deleteSession();
-    header("Location: {$this->app->config['auth']['urlLogout']}?id_token_hint=".\urlencode($idToken)."&post_logout_redirect_uri=".\urlencode("{$this->app->config['accountUrl']}?signed-out"));
-    exit;
+      $this->deleteSession();
+      header("Location: {$this->app->config['auth']['urlLogout']}?id_token_hint=".\urlencode($idToken)."&post_logout_redirect_uri=".\urlencode("{$this->app->config['accountUrl']}?signed-out"));
+      exit;
+    } catch (\Throwable $e) {
+      $this->deleteSession();
+      header("Location: {$this->app->config['url']}");
+      exit;
+    }
     // } else {
     //   parent::signOut();
     // }

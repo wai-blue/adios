@@ -730,7 +730,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             </>
           break;
           default:
-            cellValueElement = cellContent;
+            cellValueElement = (typeof cellContent == 'object' ? JSON.stringify(cellContent) : cellContent);
           break;
         }
 

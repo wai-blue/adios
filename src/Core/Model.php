@@ -980,7 +980,7 @@ class Model
     return $returnValue;
   }
 
-  public function recordDelete(int $id): bool
+  public function recordDelete(int|string $id): bool
   {
     return $this->eloquent->where('id', $id)->delete();
   }

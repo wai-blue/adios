@@ -287,49 +287,6 @@ class Loader
           $this->getModel($modelName);
         }
 
-        // pridam routing pre ADIOS default controllers
-        $appControllers = \ADIOS\Core\Helper::scanDirRecursively(__DIR__ . '/../Controllers');
-        $tmpRouting = [];
-        foreach ($appControllers as $tmpController) {
-          $tmpController = str_replace(".php", "", $tmpController);
-          $tmpRouting["/^".str_replace("/", "\\/", $tmpController)."$/"] = [
-            "controller" => 'ADIOS\\Controllers\\' . $tmpController,
-          ];
-        }
-        $this->router->addRouting($tmpRouting);
-
-        $this->router->addRouting([
-          // '/^auth/oauth2\/?$/' => [
-          //   'controller' => 'ADIOS/Controllers/Auth/OAuth2',
-          //   'view' => ($this->config['appNamespace'] ?? 'App') . '/Views/Auth/OAuth2',
-          // ],
-
-          '/^api\/form\/describe\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Form/Describe',
-          ],
-          '/^api\/table\/describe\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Table/Describe',
-          ],
-          '/^api\/record\/get\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Record/Get',
-          ],
-          '/^api\/record\/get-list\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Record/GetList',
-          ],
-          '/^api\/record\/lookup\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Record/Lookup',
-          ],
-          '/^api\/record\/save\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Record/Save',
-          ],
-          '/^api\/record\/delete\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Record/Delete',
-          ],
-          '/^api\/config\/set\/?$/' => [
-            'controller' => 'ADIOS/Controllers/Api/Config/Set',
-          ],
-        ]);
-
         // inicializacia twigu
         $this->initTwig();
         $this->twig->addGlobal('config', $this->config);

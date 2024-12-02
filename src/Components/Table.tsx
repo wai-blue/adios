@@ -503,7 +503,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   deleteRecordById(id: number): void {
-    let i: number = 0;
+    let i: any = 0;
     for (i in this.state.data?.data) {
       if (this.state.data?.data[i].id == id) {
         this.state.data?.data.splice(i, 1);

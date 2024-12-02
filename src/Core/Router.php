@@ -17,6 +17,27 @@ class Router {
   
   public function __construct(\ADIOS\Core\Loader $app) {
     $this->app = $app;
+
+    // $appControllers = \ADIOS\Core\Helper::scanDirRecursively(__DIR__ . '/../Controllers');
+    // $tmpRouting = [];
+    // foreach ($appControllers as $tmpController) {
+    //   $tmpController = str_replace(".php", "", $tmpController);
+    //   $tmpRouting["/^".str_replace("/", "\\/", $tmpController)."$/"] = [
+    //     "controller" => 'ADIOS\\Controllers\\' . $tmpController,
+    //   ];
+    // }
+    // $this->addRouting($tmpRouting);
+
+    $this->addRouting([
+      '/^api\/form\/describe\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Form\Describe::class ],
+      '/^api\/table\/describe\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Table\Describe::class ],
+      '/^api\/record\/get\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Get::class ],
+      '/^api\/record\/get-list\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\GetList::class ],
+      '/^api\/record\/lookup\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Lookup::class ],
+      '/^api\/record\/save\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Save::class ],
+      '/^api\/record\/delete\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Delete::class ],
+      '/^api\/config\/set\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Config\Set::class ],
+    ]);
   }
 
   public function setRouting($routing) {

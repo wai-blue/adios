@@ -11,9 +11,14 @@
 namespace ADIOS\Core;
 
 class Router {
+  const HTTP_GET = 'HTTP_GET';
+
   public ?\ADIOS\Core\Loader $app = null;
 
   public $routing = [];
+
+  protected array $routesHttpGet = [];
+  protected array $routeVars = [];
   
   public function __construct(\ADIOS\Core\Loader $app) {
     $this->app = $app;
@@ -28,17 +33,76 @@ class Router {
     // }
     // $this->addRouting($tmpRouting);
 
-    $this->addRouting([
-      '/^api\/form\/describe\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Form\Describe::class ],
-      '/^api\/table\/describe\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Table\Describe::class ],
-      '/^api\/record\/get\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Get::class ],
-      '/^api\/record\/get-list\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\GetList::class ],
-      '/^api\/record\/lookup\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Lookup::class ],
-      '/^api\/record\/save\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Save::class ],
-      '/^api\/record\/delete\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Record\Delete::class ],
-      '/^api\/config\/set\/?$/' => [ 'controller' => \ADIOS\Controllers\Api\Config\Set::class ],
+    $this->httpGet([
+      '/^api\/form\/describe\/?$/' => \ADIOS\Controllers\Api\Form\Describe::class,
+      '/^api\/table\/describe\/?$/' => \ADIOS\Controllers\Api\Table\Describe::class,
+      '/^api\/record\/get\/?$/' => \ADIOS\Controllers\Api\Record\Get::class,
+      '/^api\/record\/get-list\/?$/' => \ADIOS\Controllers\Api\Record\GetList::class,
+      '/^api\/record\/lookup\/?$/' => \ADIOS\Controllers\Api\Record\Lookup::class,
+      '/^api\/record\/save\/?$/' => \ADIOS\Controllers\Api\Record\Save::class,
+      '/^api\/record\/delete\/?$/' => \ADIOS\Controllers\Api\Record\Delete::class,
+      '/^api\/config\/set\/?$/' => \ADIOS\Controllers\Api\Config\Set::class,
     ]);
   }
+
+  // 2024-12-04 NEW PRINCIPLE.
+
+  // configure routes for HTTP GET
+  public function httpGet(array $routes)
+  {
+    $this->routesHttpGet = array_merge($this->routesHttpGet, $routes);
+  }
+
+  public function getRoutes(string $method): array
+  {
+    return match ($method) {
+      self::HTTP_GET => $this->routesHttpGet,
+      default => [],
+    };
+  }
+
+  public function findController(string $method, string $route): string|null
+  {
+    $controller = null;
+
+    foreach ($this->getRoutes($method) as $routePattern => $tmpRoute) {
+      if (preg_match($routePattern.'i', $route, $m)) {
+
+        if (!empty($tmpRoute['redirect'])) {
+          $url = $tmpRoute['redirect']['url'];
+          foreach ($m as $k => $v) {
+            $url = str_replace('$'.$k, $v, $url);
+          }
+          $this->redirectTo($url, $tmpRoute['redirect']['code'] ?? 302);
+          exit;
+        } else if (is_string($tmpRoute)) {
+          $controller = $tmpRoute;
+        }
+      }
+    }
+
+    return $controller;
+  }
+
+  public function getRouteVar($index): string
+  {
+    return $this->routeVars[$index] ?? '';
+  }
+
+  public function extractRouteVariables(string $method, string $route = '')
+  {
+    if (empty($route)) $route = $this->app->route;
+
+    foreach ($this->getRoutes($method) as $routePattern => $tmpRoute) {
+      if (preg_match($routePattern.'i', $route, $m)) {
+        $this->routeVars = $m;
+        break;
+      }
+    }
+  }
+
+
+  // 2024-12-04 OLD PRINCIPLE. ALL METHODS BELOW ARE DEPRECATED.
 
   public function setRouting($routing) {
     if (is_array($routing)) {
@@ -46,6 +110,7 @@ class Router {
     }
   }
 
+  // DEPRECATED
   public function addRouting($routing) {
     if (is_array($routing)) {
       $this->routing = array_merge($this->routing, $routing);

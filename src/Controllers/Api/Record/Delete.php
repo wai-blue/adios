@@ -10,14 +10,14 @@ class Delete extends \ADIOS\Core\ApiController {
   function __construct(\ADIOS\Core\Loader $app, array $params = [])
   {
     parent::__construct($app, $params);
-    $this->permission = $this->params['model'] . ':Read';
-    $this->model = $this->app->getModel($this->params['model']);
+    $this->permission = $this->app->params['model'] . ':Read';
+    $this->model = $this->app->getModel($this->app->params['model']);
   }
 
   public function response(): array
   {
-    $hash = $this->params['hash'] ?? '';
-    $id = $this->params['id'] ?? '';
+    $hash = $this->app->params['hash'] ?? '';
+    $id = $this->app->params['id'] ?? '';
 
     $ok = false;
     if ($this->app->config['encryptRecordIds'] ?? false) {

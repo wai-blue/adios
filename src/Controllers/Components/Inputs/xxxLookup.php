@@ -20,8 +20,8 @@ class Lookup extends \ADIOS\Core\Controller {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    $this->permission = $this->params['model'] . ':Read';
-    $this->model = $this->app->getModel($this->params['model']);
+    $this->permission = $this->app->params['model'] . ':Read';
+    $this->model = $this->app->getModel($this->app->params['model']);
   }
 
   public function prepareLoadRecordQuery(): \Illuminate\Database\Eloquent\Builder {
@@ -32,10 +32,10 @@ class Lookup extends \ADIOS\Core\Controller {
 
     $query = $this->model->prepareLoadRecordQuery()->selectRaw('id, ' . $lookupSqlValue);
 
-    if ($this->params['search']) {
+    if ($this->app->params['search']) {
       $query->where(function($q) {
         foreach ($this->model->columns() as $columnName => $column) {
-          $q->orWhere($columnName, 'LIKE', '%' . $this->params['search'] . '%');
+          $q->orWhere($columnName, 'LIKE', '%' . $this->app->params['search'] . '%');
         }
       });
     }

@@ -21,9 +21,9 @@ class Controller {
   protected string $gtp = "";
 
   /**
-   * Array of parameters (arguments) passed to the controller
+   * DEPRECATED Array of parameters (arguments) passed to the controller
    */
-  public array $params;
+  public array $params = [];
 
   /**
    * TRUE/FALSE array with permissions for the user role
@@ -51,58 +51,70 @@ class Controller {
   public static bool $webSAPIEnabled = TRUE;
 
   public array $dictionary = [];
-  public array $viewParams = [];
+  protected array $viewParams = [];
 
   public string $name = "";
   public string $shortName = "";
   public string $permission = "";
-  public string $uid = "";
-  public string $controller = "";
-  public string $twigTemplate = "";
   public string $view = "";
+
+  public Object $renderer;
 
   function __construct(\ADIOS\Core\Loader $app, array $params = [])
   {
     $this->name = str_replace("\\", "/", str_replace("ADIOS\\", "", get_class($this)));
     $this->app = $app;
-    $this->params = $params;
-    $this->uid = $this->app->uid;
-    $this->gtp = $this->app->gtp;
-    $this->controller = $this->app->controller;
+    $this->renderer = $this->app->twig;
 
     $this->shortName = $this->name;
     $this->shortName = str_replace('Controllers/', '', $this->shortName);
 
     $this->permission = $this->shortName;
 
-    if (!is_array($this->params)) {
-      $this->params = [];
-    }
+  }
 
-    if (!empty($this->app->config['templates'][static::class])) {
-      $this->twigTemplate = $this->app->config['templates'][static::class];
-    }
-
-    $this->init();
-
+  public function prepareParams(): array
+  {
+    return [];
   }
 
   /**
-    * Validates inputs ($this->params) used for the TWIG template.
+    * Validates inputs ($this->app->params) used for the TWIG template.
     *
     * return bool True if inputs are valid, otherwise false.
     */
-  public function validateInputs(): bool {
+  public function validateInputs(): bool
+  {
     return TRUE;
   }
 
   /**
-   * Executed at the end of the constructor.
-   * Could be used e.g. to validate input parameters.
+   * 1st phase of controller's initialization phase.
    *
    * @throws Exception Should throw an exception on error.
    */
-  public function init() {
+  public function preInit()
+  {
+    //
+  }
+
+  /**
+   * 2nd phase of controller's initialization phase.
+   *
+   * @throws Exception Should throw an exception on error.
+   */
+  public function init()
+  {
+    //
+  }
+
+  /**
+   * 3rd phase of controller's initialization phase.
+   *
+   * @throws Exception Should throw an exception on error.
+   */
+  public function postInit()
+  {
     //
   }
 
@@ -111,7 +123,8 @@ class Controller {
    *
    * @return array Array to be returned as a JSON.
    */
-  public function renderJson(): ?array {
+  public function renderJson(): ?array
+  {
     return null;
   }
 
@@ -123,6 +136,11 @@ class Controller {
   public function prepareViewParams()
   {
     $this->viewParams = $this->app->params ?? [];
+  }
+
+  public function prepareView(): void
+  {
+    $this->prepareViewParams(); // 2024-12-04 prepareViewParams is deprecated, thus this wrapper
   }
   
   /**
@@ -138,8 +156,25 @@ class Controller {
     return $this->app->translate($string, $vars, $this);
   }
 
-  public function setView(string $view) {
+  public function setView(string $view, array|null $viewParams = null)
+  {
     $this->view = $view;
+    if (is_array($viewParams)) $this->viewParams = $viewParams;
+  }
+
+  public function setRenderer(Object $renderer)
+  {
+    $this->renderer = $renderer;
+  }
+
+  public function getView(): string
+  {
+    return $this->view;
+  }
+
+  public function getViewParams(): array
+  {
+    return $this->viewParams;
   }
 
 }

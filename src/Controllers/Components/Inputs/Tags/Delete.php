@@ -20,14 +20,14 @@ class Delete extends \ADIOS\Core\Controller {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    //$this->permission = $this->params['model'] . ':Read';
+    //$this->permission = $this->app->params['model'] . ':Read';
   }
 
   public function renderJson(): ?array { 
     try {
-      $id = (int) $this->params['id'];
-      $model = (string) $this->params['model'];
-      $junction = (string) $this->params['junction'];
+      $id = (int) $this->app->params['id'];
+      $model = (string) $this->app->params['model'];
+      $junction = (string) $this->app->params['junction'];
 
       // Validate required params
       if ($model == '') throw new \Exception("Unknown model");

@@ -12,13 +12,13 @@ class GetList extends \ADIOS\Core\ApiController {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    $this->permission = $this->params['model'] . ':Read';
-    $this->model = $this->app->getModel($this->params['model']);
+    $this->permission = $this->app->params['model'] . ':Read';
+    $this->model = $this->app->getModel($this->app->params['model']);
   }
 
   // public function prepareLoadRecordQuery(): \Illuminate\Database\Eloquent\Builder
   // {
-  //   $params = $this->params;
+  //   $params = $this->app->params;
 
   //   $search = null;
   //   if (isset($params['search'])) {

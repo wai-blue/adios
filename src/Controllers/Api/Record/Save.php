@@ -9,8 +9,8 @@ class Save extends \ADIOS\Core\ApiController {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    $this->permission = $this->params['model'] . ':Create';
-    $this->model = $this->app->getModel($this->params['model']);
+    $this->permission = $this->app->params['model'] . ':Create';
+    $this->model = $this->app->getModel($this->app->params['model']);
   }
 
   public function recordSave(
@@ -120,8 +120,8 @@ class Save extends \ADIOS\Core\ApiController {
 
   public function response(): array
   {
-    $originalRecord = $this->params['record'] ?? [];
-    $model = $this->params['model'] ?? '';
+    $originalRecord = $this->app->params['record'] ?? [];
+    $model = $this->app->params['model'] ?? '';
 
     $decryptedRecord = $this->model->recordDecryptIds($originalRecord);
 

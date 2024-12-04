@@ -15,7 +15,7 @@ namespace ADIOS\Controllers\Components\FileBrowser;
  */
 class CreateFolder extends \ADIOS\Core\Controller {
   public function render() {
-    $folder = $this->params['folder'];
+    $folder = $this->app->params['folder'];
 
     foreach (explode("/", $folder) as $tmp) {
       if ($tmp == "..") return "Invalid folder path.";

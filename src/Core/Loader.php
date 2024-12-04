@@ -40,7 +40,7 @@ class Loader
   public string $controller = "";
   public string $permission = "";
   public string $uid = "";
-  public array $route = [];
+  public string $route = "";
 
   public ?\ADIOS\Core\Controller $controllerObject;
 
@@ -404,6 +404,15 @@ class Loader
 
   public function isWindow() {
     return isset($_REQUEST['__IS_WINDOW__']) && $_REQUEST['__IS_WINDOW__'] == "1";
+  }
+
+  public function param($pName, $pValue = null)
+  {
+    if (func_num_args() == 1) {
+      return $this->params[$pName];
+    } else {
+      $this->params[$pName] = $pValue;
+    }
   }
 
   // public function getCoreClass($class): string {
@@ -892,21 +901,32 @@ class Loader
 
       // Find-out which route is used for rendering
 
-      if (empty($routeUrl)) $routeUrl = $this->extractRouteFromRequest();
+      if (empty($route)) $route = $this->extractRouteFromRequest();
       if (count($params) == 0) $params = $this->extractParamsFromRequest();
 
-      $this->routeUrl = $routeUrl;
+      $this->route = $route;
       $this->params = $params;
       $this->uploadedFiles = $_FILES;
 
       // Apply routing and find-out which controller, permision and rendering params will be used
-      // list($this->controller, $this->view, $this->permission, $this->params) = $this->router->applyRouting($this->route, $this->params);
-      list($this->route, $this->params) = $this->router->applyRouting($this->routeUrl, $this->params);
-      $this->console->info("applyRouting for {$this->routeUrl}: " . print_r($this->route, true));
+      // First, try the new routing principle with httpGet
+      $tmpController = $this->router->findController(\ADIOS\Core\Router::HTTP_GET, $this->route);
 
-      $this->controller = $this->route['controller'] ?? '';
-      $this->view = $this->route['view'] ?? '';
-      $this->permission = $this->route['permission'] ?? '';
+      if ($tmpController !== null) {
+        $this->controller = $tmpController;
+        $this->view = '';
+        $this->permission = '';
+
+        $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
+      } else {
+        list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
+        $this->console->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
+
+        $this->controller = $tmpRoute['controller'] ?? '';
+        $this->view = $tmpRoute['view'] ?? '';
+        $this->permission = $tmpRoute['permission'] ?? '';
+
+      }
 
       $this->onAfterRouting();
 
@@ -931,7 +951,11 @@ class Loader
       \ADIOS\Core\Helper::addSpeedLogTag("render2");
 
       // Create the object for the controller
-      $this->controllerObject = new $controllerClassName($this, $this->params);
+      $this->controllerObject = new $controllerClassName($this);
+
+      $this->controllerObject->preInit();
+      $this->controllerObject->init();
+      $this->controllerObject->postInit();
 
       if (empty($this->permission) && !empty($this->controllerObject->permission)) {
         $this->permission = $this->controllerObject->permission;
@@ -991,8 +1015,8 @@ class Loader
       // ... Or a view must be applied.
       } else {
 
-        $this->controllerObject->prepareViewParams();
-        $view = empty($this->controllerObject->view) ? $this->view : $this->controllerObject->view;
+        $this->controllerObject->prepareView();
+        $view = empty($this->controllerObject->getView()) ? $this->view : $this->controllerObject->getView();
 
         $contentParams = [
           'uid' => $this->uid,
@@ -1000,14 +1024,18 @@ class Loader
           'config' => $this->config,
           'routeUrl' => $this->routeUrl,
           'routeParams' => $this->params,
-          'route' => $this->route,
+          // 'route' => $this->route,
           'session' => $this->session->get(),
-          'viewParams' => $this->controllerObject->viewParams,
-          'windowParams' => $this->controllerObject->viewParams['windowParams'] ?? null,
+          'viewParams' => $this->controllerObject->getViewParams(),
+          'windowParams' => $this->controllerObject->getViewParams()['windowParams'] ?? null,
         ];
 
-        $contentHtml = $this->twig->render(
-          $view . '.twig',
+        if ($this->controllerObject->renderer === $this->twig && !\str_ends_with($view, '.twig')) {
+          $view .= '.twig';
+        }
+
+        $contentHtml = $this->controllerObject->renderer->render(
+          $view,
           $contentParams
         );
 
@@ -1023,7 +1051,7 @@ class Loader
           $desktopControllerObject->prepareViewParams();
 
           $desktopParams = $contentParams;
-          $desktopParams['viewParams'] = array_merge($desktopControllerObject->viewParams, $contentParams['viewParams']);
+          $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
           $desktopParams['contentHtml'] = $contentHtml;
 
           $html = $this->twig->render('@app/Views/Desktop.twig', $desktopParams);

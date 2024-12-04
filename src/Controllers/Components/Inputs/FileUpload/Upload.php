@@ -41,11 +41,11 @@ class Upload extends \ADIOS\Core\Controller {
   }
 
   private function uploadFile(string $fileName, string $sourceFile): array {
-    if ($this->params['renamePattern'] != null) {
+    if ($this->app->params['renamePattern'] != null) {
       $uploadedFileExtension = strtolower($fileName, PATHINFO_EXTENSION);
       $tmpParts = pathinfo($fileName);
 
-      $fileName = $this->params['renamePattern'];
+      $fileName = $this->app->params['renamePattern'];
       $fileName = str_replace("{%Y%}", date("Y"), $fileName);
       $fileName = str_replace("{%M%}", date("m"), $fileName);
       $fileName = str_replace("{%D%}", date("d"), $fileName);
@@ -61,7 +61,7 @@ class Upload extends \ADIOS\Core\Controller {
       $fileName = str_replace("{%EXT%}", $tmpParts['extension'], $fileName);
     }
 
-    $folderPath = $this->params['folderPath'] ?? "";
+    $folderPath = $this->app->params['folderPath'] ?? "";
 
     if (strpos($folderPath, "..") !== FALSE) {
       $folderPath = "";

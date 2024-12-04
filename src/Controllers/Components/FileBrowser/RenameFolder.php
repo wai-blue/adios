@@ -15,8 +15,8 @@ namespace ADIOS\Controllers\Components\FileBrowser;
  */
 class RenameFolder extends \ADIOS\Core\Controller {
   public function render() {
-    $folder = $this->params['folder'];
-    $newFolderName = $this->params['newFolderName'];
+    $folder = $this->app->params['folder'];
+    $newFolderName = $this->app->params['newFolderName'];
 
     foreach (explode("/", $folder) as $tmp) {
       if ($tmp == "..") return "Invalid folder path. {$folder}";

@@ -20,15 +20,15 @@ class Add extends \ADIOS\Core\Controller {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    //$this->permission = $this->params['model'] . ':Read';
+    //$this->permission = $this->app->params['model'] . ':Read';
   }
 
   public function renderJson(): ?array { 
     try {
-      $id = (int) $this->params['id'];
-      $model = (string) $this->params['model'];
-      $junction = (string) $this->params['junction'];
-      $dataKey = (string) $this->params['dataKey'];
+      $id = (int) $this->app->params['id'];
+      $model = (string) $this->app->params['model'];
+      $junction = (string) $this->app->params['junction'];
+      $dataKey = (string) $this->app->params['dataKey'];
 
       // Validate required params
       if ($model == '') throw new \Exception("Unknown model");
@@ -40,7 +40,7 @@ class Add extends \ADIOS\Core\Controller {
       $junctionData = $tmpModel->junctions[$junction] ?? null;
 
       if ($junctionData == null) {
-        throw new \Exception("Junction {$this->params['junction']} in {$this->params['model']} not found");
+        throw new \Exception("Junction {$this->app->params['junction']} in {$this->app->params['model']} not found");
       }
 
       $junctionModel = $this->app->getModel($junctionData['junctionModel']);
@@ -48,7 +48,7 @@ class Add extends \ADIOS\Core\Controller {
       $junctionOptionKeyModel = $this->app->getModel($junctionOptionKeyColumn['model']);
 
       $insertedId = $junctionOptionKeyModel->insertGetId([
-        $dataKey => $this->params[$dataKey] ?? ''
+        $dataKey => $this->app->params[$dataKey] ?? ''
       ]);
 
       // Junction table insert

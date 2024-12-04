@@ -20,7 +20,7 @@ class PasswordReset extends \ADIOS\Core\Controller {
   public bool $hideDefaultDesktop = TRUE;
 
   public function prepareViewParams() {
-    $token = $this->params["token"];
+    $token = $this->app->params["token"];
     $tokenStatus = "";
     $tokenError = "";
 

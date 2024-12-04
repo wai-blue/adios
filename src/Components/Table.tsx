@@ -545,7 +545,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         request.get(
           this.getEndpointUrl('deleteRecord'),
           {
-            model: this.model,
+            ...this.getEndpointParams(),
             id: recordToDelete.id ?? 0,
             hash: recordToDelete._idHash_ ?? '',
           },

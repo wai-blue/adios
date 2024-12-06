@@ -611,12 +611,12 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       <>
         {this.input(columnName, customInputProps)}
 
-        {inputParams.description
+        {inputParams.info
           ? <>
-            <Tooltip target={'#' + this.props.uid + '_' + columnName + ' .input-description'} />
+            <Tooltip target={'#' + this.props.uid + '_' + columnName + ' .input-info'} />
             <i
-              className="input-description fas fa-info"
-              data-pr-tooltip={inputParams.description}
+              className="input-info fas fa-info"
+              data-pr-tooltip={inputParams.info}
               data-pr-position="top"
             ></i>
           </>
@@ -641,6 +641,10 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
           {body}
         </div>
 
+        {params.description
+          ? <div className="input-description">{params.description}</div>
+          : null
+        }
       </div>
     </>;
   }

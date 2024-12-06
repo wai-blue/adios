@@ -3,16 +3,16 @@ import { Input, InputProps, InputState } from '../Input'
 import Varchar from './Varchar'
 import * as uuid from 'uuid';
 
-interface HyperlinkInputState extends InputState {
+interface TelInputState extends InputState {
   showPredefinedValues: boolean,
 }
 
-export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> {
+export default class Tel extends Varchar<InputProps, TelInputState> {
   static defaultProps = {
-    inputClassName: 'hyperlink',
+    inputClassName: 'tel',
     id: uuid.v4(),
     type: 'text',
-    placeholder: 'https://',
+    placeholder: '+1 AAA-BBBBB',
   }
 
   constructor(props: InputProps) {
@@ -31,12 +31,12 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
   renderValueElement() {
     return (this.state.value ? <>
       <a
-        href={this.state.value}
+        href={"tel:" + this.state.value}
         target='_blank'
         onClick={(e) => { e.stopPropagation(); }}
         className="btn btn-transparent btn-small"
       >
-        <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
+        <span className="icon"><i className="fa-solid fa-phone"></i></span>
         <span className="text">{this.state.value}</span>
       </a>
     </> : null);

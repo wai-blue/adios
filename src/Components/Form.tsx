@@ -51,6 +51,7 @@ export interface FormUi {
   addButtonText?: string,
   copyButtonText?: string,
   deleteButtonText?: string,
+  headerClassName?: string,
 }
 
 export interface FormDescription {
@@ -832,7 +833,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
       if (this.props.showInModal) {
         return <>
-          <div className="modal-header">
+          <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
             <div className="modal-header-left">{this.renderHeaderLeft()}</div>
             <div className="modal-header-title">{formTitle}</div>
             <div className="modal-header-right">{this.renderHeaderRight()}</div>

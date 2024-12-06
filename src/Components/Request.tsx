@@ -12,7 +12,6 @@ interface ApiError {
 class Request {
 
   getAccountUrl(): string {
-  console.log(globalThis.app.config);
     return globalThis.app.config.accountUrl + '/';
   }
 

@@ -493,7 +493,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         <input
           className="table-header-search"
           type="search"
-          placeholder="Start typing to search..."
+          placeholder={globalThis.app.translate("Start typing to search...")}
           value={this.state.search}
           onChange={(event: ChangeEvent<HTMLInputElement>) => this.onSearchChange(event.target.value)}
         />

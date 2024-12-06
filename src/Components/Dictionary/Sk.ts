@@ -3,6 +3,7 @@ export const dictionarySk = {
   'Save': 'Uložiť',
   'Copy': 'Kopírovať',
   'Delete': 'Zmazať',
+  'Confirm delete': 'Potvrďte zmazanie',
   'Edit': 'Upraviť',
   'Adding record': 'Pridať záznam',
   'Editing record': 'Úprava záznamu',
@@ -10,4 +11,5 @@ export const dictionarySk = {
   'Yes, delete': 'Áno, zmazať',
   'No, do not delete': 'Nie, zavrieť okno',
   'Choose image': 'Vybrať obrázok',
+  'Start typing to search...': 'Začnite vyhľadávať...',
 }

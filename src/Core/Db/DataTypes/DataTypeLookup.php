@@ -106,7 +106,9 @@ class DataTypeLookup extends \ADIOS\Core\Db\DataType
 
   public function normalize(\ADIOS\Core\Model $model, string $colName, $value, $colDefinition)
   {
-    if (is_numeric($value)) {
+    if ($value === 0) {
+      return null;
+    } if (is_numeric($value)) {
       return ((int) $value) <= 0 ? 0 : (int) $value;
     } else if ($value['_isNew_'] ?? false) {
     // var_dump($model->columns()[$colName]['model']);

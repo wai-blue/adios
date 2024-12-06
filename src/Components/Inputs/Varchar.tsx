@@ -6,7 +6,7 @@ interface VarcharInputState extends InputState {
   showPredefinedValues: boolean,
 }
 
-export default class Varchar extends Input<InputProps, VarcharInputState> {
+export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> {
   static defaultProps = {
     inputClassName: 'varchar',
     id: uuid.v4(),

@@ -177,13 +177,12 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   getStateFromProps(props: TableProps): TableState {
-    return {
+    let state: any = {
       endpoint: props.endpoint ? props.endpoint : (globalThis.app.config.defaultTableEndpoint ?? {
         describeTable: 'api/table/describe',
         getRecords: 'api/record/get-list',
         deleteRecord: 'api/record/delete',
       }),
-      description: props.description,
       recordId: props.recordId,
       formEndpoint: props.formEndpoint ? props.formEndpoint : (globalThis.app.config.defaultFormEndpoint ?? null),
       formProps: {
@@ -197,12 +196,15 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       isInlineEditing: props.isInlineEditing ? props.isInlineEditing : false,
       isUsedAsInput: props.isUsedAsInput ? props.isUsedAsInput : false,
       selection: [],
-      // idsToDelete: [],
-      data: props.data ? props.data : null,
       async: props.async ?? true,
       readonly: props.readonly ?? false,
       customEndpointParams: this.props.customEndpointParams ?? {},
     };
+
+    if (props.description) state.description = props.description;
+    if (props.data) state.data = props.data;
+
+    return state;
   }
 
   componentDidMount() {
@@ -228,7 +230,12 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       prevProps.data != this.props.data
       || prevProps.description != this.props.description
     ) {
-      this.setState(this.getStateFromProps(this.props))
+      this.setState(this.getStateFromProps(this.props), () => {
+        if (this.state.async) {
+          this.loadTableDescription();
+          this.loadData();
+        }
+      })
     }
   }
 

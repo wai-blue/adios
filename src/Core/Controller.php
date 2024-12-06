@@ -56,7 +56,7 @@ class Controller {
   public string $name = "";
   public string $shortName = "";
   public string $permission = "";
-  public string $view = "";
+  public null|string $view = null;
 
   public Object $renderer;
 
@@ -156,7 +156,7 @@ class Controller {
     return $this->app->translate($string, $vars, $this);
   }
 
-  public function setView(string $view, array|null $viewParams = null)
+  public function setView(null|string $view, array|null $viewParams = null)
   {
     $this->view = $view;
     if (is_array($viewParams)) $this->viewParams = $viewParams;
@@ -167,7 +167,7 @@ class Controller {
     $this->renderer = $renderer;
   }
 
-  public function getView(): string
+  public function getView(): null|string
   {
     return $this->view;
   }

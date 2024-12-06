@@ -20,7 +20,7 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
     $this->provider = new \League\OAuth2\Client\Provider\GenericProvider([
       'clientId'                => $this->app->config['auth']['clientId'],    // The client ID assigned to you by the provider
       'clientSecret'            => $this->app->config['auth']['clientSecret'],    // The client password assigned to you by the provider
-      'redirectUri'             => $this->app->config['url'] . '/',
+      'redirectUri'             => $this->app->config['accountUrl'] . '/',
       'urlAuthorize'            => $this->app->config['auth']['urlAuthorize'],
       'urlAccessToken'          => $this->app->config['auth']['urlAccessToken'],
       'urlResourceOwnerDetails' => $this->app->config['auth']['urlResourceOwnerDetails'],
@@ -32,60 +32,6 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
 
   public function signOut() {
     $accessToken = $this->getAccessToken();
-// var_dump($accessToken->getToken());echo"<br/>";
-//     $options = [
-//       'form_params' => [
-//         'client_id' => $this->app->config['auth']['clientId'],
-//         'client_secret' => $this->app->config['auth']['clientSecret'],
-//         'token_type_hint' => 'access_token',
-//         'token' => $accessToken->getToken(),
-//       ],
-//       'headers' => [
-//         'Content-type' => 'application/x-www-form-urlencoded',
-//         // 'access_token' => $accessToken->getToken(),
-//       ],
-//     ];
-// var_dump($options);
-//     $request = $this->provider->getAuthenticatedRequest(
-//       'POST',
-//       $this->app->config['auth']['urlRevoke'],
-//       '',
-//       $options
-//     );
-
-//     $response = $this->provider->getResponse($request);
-//     var_dump($response);echo"<br/>";
-//     var_dump($response->getBody()->getContents());
-//     exit;
-
-
-
-    // $request = $this->provider->getAuthenticatedRequest(
-    //   'POST',
-    //   $this->app->config['auth']['urlLogout'],
-    //   $accessToken,
-    //   $options
-    // );
-    // var_dump($request);echo"<br/>";
-
-
-    // $client = new \GuzzleHttp\Client([\GuzzleHttp\RequestOptions::VERIFY => false]);
-    // $response = $client->post(
-    //   $this->app->config['auth']['urlRevoke'],
-    //   [
-    //     'headers' => [
-    //       'Content-Type' => 'application/x-www-form-urlencoded',
-    //     ],
-    //     'form_params' => [
-    //       'client_id' => $this->app->config['auth']['clientId'],
-    //       'client_secret' => $this->app->config['auth']['clientSecret'],
-    //       'token_type_hint' => 'access_token',
-    //       'token' => $accessToken->getToken(),
-    //     ],
-    //   ]
-    // );
-
-    // var_dump(($accessToken->getValues()));exit;
     try {
       $idToken = $accessToken->getValues()['id_token'] ?? '';
 
@@ -94,12 +40,9 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
       exit;
     } catch (\Throwable $e) {
       $this->deleteSession();
-      header("Location: {$this->app->config['url']}");
+      header("Location: {$this->app->config['accountUrl']}");
       exit;
     }
-    // } else {
-    //   parent::signOut();
-    // }
   }
 
   public function getAccessToken() {

@@ -116,6 +116,8 @@ class Loader
     if (empty($this->config['dir'])) $this->config['dir'] = "";
     if (empty($this->config['url'])) $this->config['url'] = "";
     if (empty($this->config['rewriteBase'])) $this->config['rewriteBase'] = "";
+    if (empty($this->config['appDir'])) $this->config['appDir'] = $this->config['dir'];
+    if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
     if (empty($this->config['accountDir'])) $this->config['accountDir'] = $this->config['dir'];
     if (empty($this->config['accountUrl'])) $this->config['accountUrl'] = $this->config['url'];
 
@@ -1016,7 +1018,7 @@ class Loader
       } else {
 
         $this->controllerObject->prepareView();
-        $view = empty($this->controllerObject->getView()) ? $this->view : $this->controllerObject->getView();
+        $view = $this->controllerObject->getView() === '' ? $this->view : $this->controllerObject->getView();
 
         $contentParams = [
           'uid' => $this->uid,
@@ -1024,20 +1026,18 @@ class Loader
           'config' => $this->config,
           'routeUrl' => $this->routeUrl,
           'routeParams' => $this->params,
-          // 'route' => $this->route,
+          'route' => $this->route,
           'session' => $this->session->get(),
           'viewParams' => $this->controllerObject->getViewParams(),
           'windowParams' => $this->controllerObject->getViewParams()['windowParams'] ?? null,
         ];
 
-        if ($this->controllerObject->renderer === $this->twig && !\str_ends_with($view, '.twig')) {
-          $view .= '.twig';
+        if ($view !== null) {
+          $contentHtml = $this->controllerObject->renderer->render(
+            $view,
+            $contentParams
+          );
         }
-
-        $contentHtml = $this->controllerObject->renderer->render(
-          $view,
-          $contentParams
-        );
 
         \ADIOS\Core\Helper::addSpeedLogTag("render6");
 

@@ -23,7 +23,7 @@ class TwigLoader implements \Twig\Loader\LoaderInterface {
 
     if (strpos($templateName, "{$appNamespace}/") === 0) {
       $templateName = substr($templateName, strlen($appNamespace . '/'));
-      $templateRootDir = $this->app->config['twigRootDir'] ?? $this->app->config['dir'] . '/src';
+      $templateRootDir = $this->app->config['twigRootDir'] ?? $this->app->config['appDir'] . '/src';
       $templateFile = $templateRootDir . '/' . $templateName . '.twig'
       ;
     } else {

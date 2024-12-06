@@ -24,7 +24,7 @@ export default class CardButton extends Component<CardButtonProps> {
           this.props.href ? (
             this.props.href.startsWith('/')
                 //@ts-ignore
-              ? globalThis.app.config.url + this.props.href
+              ? globalThis.app.config.accountUrl + this.props.href
               : window.location.href + '/' + this.props.href
           ) : '#'
         }

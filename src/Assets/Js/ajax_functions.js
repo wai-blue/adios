@@ -184,12 +184,8 @@ function _ajax_check_result(res, use_alert = true){
 function _ajax_read(controller, params, onsuccess, onreadystatechange) {
   document.body.classList.add("ajax-loading");
   $.ajax({
-    // 'type': 'GET',
-    // 'url': globalThis.app.config.url + '/' + _ajax_controller_url(controller, params),
-    // 'data': data,
-
     'type': 'POST',
-    'url': globalThis.app.config.url + '/' + controller,
+    'url': globalThis.app.config.accountUrl + '/' + controller,
     'data': _ajax_post_data(params),
 
     'success': function(res) {
@@ -255,11 +251,8 @@ function _alert(msg) {
 function _ajax_read_json(controller, params, onsuccess, onwarning, onfatal) {
   document.body.classList.add("ajax-loading");
   $.ajax({
-    // 'type': 'GET',
-    // 'url': globalThis.app.config.url + '/' + _ajax_controller_url(controller, params),
-
     'type': 'POST',
-    'url': globalThis.app.config.url + '/' + controller,
+    'url': globalThis.app.config.accountUrl + '/' + controller,
     'data': _ajax_post_data(params),
 
     'dataType': 'json',
@@ -295,33 +288,6 @@ var _ajax_sread_use_async = false;
 function _ajax_sread(controller, params, options) {
   console.log('Sync AJAX is not supported anymore.');
   return;
-  // if (typeof options == 'undefined') options = new Object;
-
-  // if (_ajax_sread_use_async) {
-  //   alert('ADIOS _ajax_sread_use_async call error');
-  //   return 'ADIOS _ajax_sread_use_async call error';
-  // }
-
-  // try {
-  //   var ret_val = $.ajax({
-  //     async: false,
-
-  //     // type: 'GET',
-  //     // url: globalThis.app.config.url + '/' + _ajax_controller_url(controller, params),
-
-  //     'type': 'POST',
-  //     'url': globalThis.app.config.url + '/' + controller,
-  //     'data': _ajax_post_data(params),
-
-  //     success: options.success,
-  //     // complete: function() { desktop_console_update(); }
-  //   }).responseText
-  // } catch (ex) {
-  //   window.console.log(ex);
-  //   ret_val = '';
-  // };
-
-  // return ret_val;
 };
 
 
@@ -474,7 +440,7 @@ function _ajax_multiupload(options){
             formData.append('upload', files[item]);
 
             $.ajax({
-              url: globalThis.app.config.url + '/UI/FileBrowser/Upload?__IS_AJAX__=1&output=json&type=' + options.type + '&rename_file=' + options.rename_file + '&subdir=' + options.subdir,
+              url: globalThis.app.config.accountUrl + '/UI/FileBrowser/Upload?__IS_AJAX__=1&output=json&type=' + options.type + '&rename_file=' + options.rename_file + '&subdir=' + options.subdir,
               type: 'post',
               data: formData,
               enctype: 'multipart/form-data',

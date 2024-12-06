@@ -1012,7 +1012,7 @@ class Model
 
     foreach ($records as $key => $record) {
       $records[$key] = $this->recordEncryptIds($records[$key]);
-      $records[$key] = $this->recordAddCustomData($records[$key]);
+      // $records[$key] = $this->recordAddCustomData($records[$key]);
       $records[$key] = $this->onAfterLoadRecord($records[$key]);
       $records[$key]['_RELATIONS'] = array_keys($this->relations);
       if (is_array($includeRelations)) $records[$key]['_RELATIONS'] = array_values(array_intersect($records[$key]['_RELATIONS'], $includeRelations));
@@ -1075,6 +1075,15 @@ class Model
     int $maxRelationLevel = 0
   ): array {
     $record = reset($this->loadRecords($queryModifierCallback, $includeRelations, $maxRelationLevel));
+    if (!is_array($record)) $record = [];
+    return $record;
+  }
+
+  public function recordGetWithRelations(
+    callable|null $queryModifierCallback = null,
+    int $maxRelationLevel = 4
+  ): array {
+    $record = reset($this->loadRecords($queryModifierCallback, null, $maxRelationLevel));
     if (!is_array($record)) $record = [];
     return $record;
   }

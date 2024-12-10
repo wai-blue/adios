@@ -50,6 +50,8 @@ export class ADIOS {
       this.addToDictionary(orig, context);
     }
 
+    if (translated == '') translated = orig;
+
     console.log('translate', orig, context, translated);
 
     return translated;

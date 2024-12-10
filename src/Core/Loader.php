@@ -654,6 +654,8 @@ class Loader
       }
     }
 
+    if (empty($translated)) $translated = $string;
+
     foreach ($vars as $varName => $varValue) {
       $translated = str_replace('{{ ' . $varName . ' }}', $varValue, $translated);
     }

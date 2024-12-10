@@ -360,8 +360,9 @@ class Loader
         ));
         $this->twig->addFunction(new \Twig\TwigFunction(
           'translate',
-          function ($string) {
-            return $this->translate($string, [], $this->translationContext);
+          function ($string, $context = '') {
+            if (empty($context)) $context = $this->translationContext;
+            return $this->translate($string, [], $context);
           }
         ));
         $this->twig->addFunction(new \Twig\TwigFunction(

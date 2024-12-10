@@ -621,7 +621,6 @@ class Loader
 
   public function translate(string $string, array $vars = [], string $context = "app", $toLanguage = ""): string
   {
-    if ($contextObject === null) $contextObject = $this;
     if (empty($toLanguage)) {
       $toLanguage = $this->config['language'] ?? "en";
     }

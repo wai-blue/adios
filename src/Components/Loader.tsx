@@ -44,13 +44,19 @@ export class ADIOS {
 
     if (this.dictionary[context] && this.dictionary[context][orig]) {
       translated = this.dictionary[context][orig];
-    } else if (this.dictionary['_default_'] && this.dictionary['_default_'][orig]) {
-      translated = this.dictionary['_default_'][orig];
+    } else if (this.dictionary['app'] && this.dictionary['app'][orig]) {
+      translated = this.dictionary['app'][orig];
+    } else {
+      this.addToDictionary(orig, context);
     }
 
     console.log('translate', orig, context, translated);
 
     return translated;
+  }
+
+  addToDictionary(orig: string, context: string) {
+    // to be overriden
   }
 
   setTranslationContext(context: string) {

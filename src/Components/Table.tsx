@@ -163,6 +163,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   state: TableState;
   model: string;
+  translationContext: string = 'table';
 
   dt = createRef<DataTable<any[]>>();
 
@@ -857,6 +858,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   render() {
+    globalThis.app.setTranslationContext(this.translationContext);
+
     if (!this.state.data || !this.state.description?.columns) {
       return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
     }

@@ -58,7 +58,8 @@ class Controller {
   public string $permission = "";
   public null|string $view = null;
 
-  public Object $renderer;
+  public object $renderer;
+  public string $translationContext = '';
 
   function __construct(\ADIOS\Core\Loader $app, array $params = [])
   {
@@ -140,7 +141,8 @@ class Controller {
 
   public function prepareView(): void
   {
-    $this->prepareViewParams(); // 2024-12-04 prepareViewParams is deprecated, thus this wrapper
+    $this->app->translationContext = $this->translationContext;
+    $this->viewParams = $this->app->params ?? [];
   }
   
   /**
@@ -153,7 +155,7 @@ class Controller {
    */
   public function translate(string $string, array $vars = []): string
   {
-    return $this->app->translate($string, $vars, $this);
+    return $this->app->translate($string, $vars, $this->translationContext);
   }
 
   public function setView(null|string $view, array|null $viewParams = null)

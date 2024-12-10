@@ -20,6 +20,7 @@ class DataType {
   public ?\ADIOS\Core\Loader $app = null;
 
   protected $defaultValue = null;
+  public string $translationContext = '';
 
   public function __construct($app)
   {
@@ -101,7 +102,7 @@ class DataType {
 
   public function translate(string $string, array $vars = []): string
   {
-    return $this->app->translate($string, $vars, $this);
+    return $this->app->translate($string, $vars, $this->translationContext);
   }
 
   public function fromString(?string $value)

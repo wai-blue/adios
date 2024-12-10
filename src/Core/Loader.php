@@ -88,6 +88,8 @@ class Loader
 
   public string $widgetsDir = "";
 
+  public string $translationContext = '';
+
   public array $params = [];
   public ?array $uploadedFiles = null;
 
@@ -358,14 +360,8 @@ class Loader
         ));
         $this->twig->addFunction(new \Twig\TwigFunction(
           'translate',
-          function ($string, $objectClassName = "") {
-            if (!class_exists($objectClassName)) {
-              $object = $this->controllerObject;
-            } else {
-              $object = new $objectClassName($this);
-            }
-
-            return $this->translate($string, [], $object);
+          function ($string) {
+            return $this->translate($string, [], $this->translationContext);
           }
         ));
         $this->twig->addFunction(new \Twig\TwigFunction(
@@ -623,7 +619,7 @@ class Loader
     return $dictionary;
   }
 
-  public function translate(string $string, array $vars = [], $contextObject = null, $toLanguage = ""): string
+  public function translate(string $string, array $vars = [], string $context = "app", $toLanguage = ""): string
   {
     if ($contextObject === null) $contextObject = $this;
     if (empty($toLanguage)) {
@@ -638,7 +634,6 @@ class Loader
       }
 
       $dictionary = $this->dictionary[$toLanguage] ?? [];
-      $context = str_replace('\\', ':', get_class($contextObject));
 
       if (empty($dictionary[$context][$string])) {
         $translated = $string;

@@ -69,6 +69,8 @@ class Model
    */
   public bool $isJunctionTable = FALSE;
 
+  public string $translationContext = '';
+
   var $pdo;
 
   /**
@@ -229,7 +231,7 @@ class Model
    */
   public function translate(string $string, array $vars = []): string
   {
-    return $this->app->translate($string, $vars, $this);
+    return $this->app->translate($string, $vars, $this->translationContext);
   }
 
   public function hasSqlTable()

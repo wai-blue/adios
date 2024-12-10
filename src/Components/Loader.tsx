@@ -24,7 +24,7 @@ export class ADIOS {
 
   dictionary: any = {};
   lastShownDialogRef: any;
-  defaultTranslationContext: string = '_default_';
+  defaultTranslationContext: string = 'app';
 
   /**
   * Define attributes which will not removed

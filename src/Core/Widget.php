@@ -23,6 +23,7 @@ class Widget {
   public string $shortName = "";
 
   public array $models = [];
+  public string $translationContext = '';
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     $appNamespace = ($app->config['appNamespace'] ?? 'App');
@@ -75,7 +76,7 @@ class Widget {
 
   public function translate(string $string, array $vars = []): string
   {
-    return $this->app->translate($string, $vars, $this);
+    return $this->app->translate($string, $vars, $this->translationContext);
   }
 
   public function install() {

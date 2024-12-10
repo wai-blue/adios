@@ -16,7 +16,8 @@ class User extends \ADIOS\Core\Model {
   public string $urlBase = "users";
   public ?string $lookupSqlValue = "{%TABLE%}.login";
   public string $eloquentClass = \ADIOS\Models\Eloquent\User::class;
-  
+
+  public string $translationContext = 'adios.models.user';
 
   public ?array $junctions = [
     'roles' => [

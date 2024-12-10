@@ -130,8 +130,9 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   newState: any;
 
-  model: String;
+  model: string;
   components: Array<React.JSX.Element> = [];
+  translationContext: string = 'form';
 
   jsxContentRendered: boolean = false;
   jsxContent: JSX.Element;
@@ -826,6 +827,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   }
 
   render() {
+    globalThis.app.setTranslationContext(this.translationContext);
+
     let warningsOrErrors = this.renderWarningsOrErrors();
 
     if (warningsOrErrors) return warningsOrErrors;

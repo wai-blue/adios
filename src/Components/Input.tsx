@@ -42,6 +42,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   };
 
   state: S;
+  translationContext: string = 'input';
 
   constructor(props: P) {
     super(props);
@@ -189,6 +190,8 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   }
 
   render() {
+    globalThis.app.setTranslationContext(this.translationContext);
+
     return (
       <div className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
         {this.state.isInlineEditing

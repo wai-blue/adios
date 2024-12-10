@@ -1017,6 +1017,7 @@ class Loader
         $view = $this->controllerObject->getView() === '' ? $this->view : $this->controllerObject->getView();
 
         $contentParams = [
+          'app' => $this,
           'uid' => $this->uid,
           'user' => $this->auth->user,
           'config' => $this->config,

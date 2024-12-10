@@ -22,9 +22,9 @@ export class ADIOS {
     },
   };
 
-  language: string = '';
   dictionary: any = {};
   lastShownDialogRef: any;
+  defaultTranslationContext: string = '_default_';
 
   /**
   * Define attributes which will not removed
@@ -37,12 +37,24 @@ export class ADIOS {
     this.config = config;
   }
 
-  translate(orig: string): string {
+  translate(orig: string, context?: string): string {
     let translated: string = orig;
-    if (this.dictionary[this.language] && this.dictionary[this.language][orig]) {
-      translated = this.dictionary[this.language][orig];
+
+    if (!context) context = this.defaultTranslationContext;
+
+    if (this.dictionary[context] && this.dictionary[context][orig]) {
+      translated = this.dictionary[context][orig];
+    } else if (this.dictionary['_default_'] && this.dictionary['_default_'][orig]) {
+      translated = this.dictionary['_default_'][orig];
     }
+
+    console.log('translate', orig, context, translated);
+
     return translated;
+  }
+
+  setTranslationContext(context: string) {
+    this.defaultTranslationContext = context;
   }
 
   makeErrorResultReadable(error: any): JSX.Element {

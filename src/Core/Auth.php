@@ -11,11 +11,18 @@ class Auth {
   {
     $this->app = $app;
     $this->params = $params;
+
+    if ($this->isUserInSession()) $this->loadUserFromSession();
   }
 
   public function getUserFromSession(): ?array
   {
     return $this->app->session->get('userProfile');
+  }
+
+  public function updateUserInSession(array $user): void
+  {
+    $this->app->session->set('userProfile', $user);
   }
 
   public function isUserInSession(): bool
@@ -40,7 +47,7 @@ class Auth {
   public function signIn(array $user)
   {
     $this->user = $user;
-    $this->app->session->set('userProfile', $user);
+    $this->updateUserInSession($user);
   }
 
   public function signOut()

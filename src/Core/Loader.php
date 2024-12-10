@@ -1698,20 +1698,20 @@ class Loader
       $js .= @file_get_contents($file).";\n";
     }
 
-    $js .= "
-      var adios_language_translations = {};
-    ";
+    // $js .= "
+    //   var adios_language_translations = {};
+    // ";
 
-    foreach ($this->config['availableLanguages'] as $language) {
-      $js .= "
-        adios_language_translations['{$language}'] = {
-          'Confirmation': '".ads($this->translate("Confirmation", [], $this, $language))."',
-          'OK, I understand': '".ads($this->translate("OK, I understand", [], $this, $language))."',
-          'Cancel': '".ads($this->translate("Cancel", [], $this, $language))."',
-          'Warning': '".ads($this->translate("Warning", [], $this, $language))."',
-        };
-      ";
-    }
+    // foreach ($this->config['availableLanguages'] as $language) {
+    //   $js .= "
+    //     adios_language_translations['{$language}'] = {
+    //       'Confirmation': '".ads($this->translate("Confirmation", [], $this, $language))."',
+    //       'OK, I understand': '".ads($this->translate("OK, I understand", [], $this, $language))."',
+    //       'Cancel': '".ads($this->translate("Cancel", [], $this, $language))."',
+    //       'Warning': '".ads($this->translate("Warning", [], $this, $language))."',
+    //     };
+    //   ";
+    // }
 
     return $js;
   }

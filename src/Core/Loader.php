@@ -359,6 +359,12 @@ class Loader
           }
         ));
         $this->twig->addFunction(new \Twig\TwigFunction(
+          'setTranslationContext',
+          function ($context) {
+            $this->translationContext = $context;
+          }
+        ));
+        $this->twig->addFunction(new \Twig\TwigFunction(
           'translate',
           function ($string, $context = '') {
             if (empty($context)) $context = $this->translationContext;

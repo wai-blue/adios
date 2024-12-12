@@ -641,7 +641,7 @@ class Loader
 
       $dictionary = $this->dictionary[$toLanguage] ?? [];
 
-      if (empty($dictionary[$context][$string])) {
+      if (empty($dictionary[$context][$string]) && $toLanguage != 'en') {
         $translated = $string;
         $dictionaryFile = $this->getDictionaryFilename($toLanguage);
         $this->dictionary[$toLanguage][$context][$string] = '';

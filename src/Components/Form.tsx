@@ -223,6 +223,10 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     this.loadFormDescription();
   }
 
+  translate(orig: string): string {
+    return globalThis.app.translate(orig, 'form');
+  }
+
   getEndpointUrl(action: string) {
     return this.state.endpoint[action] ?? '';
   }
@@ -666,7 +670,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
             <>
               <span className="icon"><i className="fas fa-save"></i></span>
               <span className="text">
-                {this.state.description?.ui?.saveButtonText ?? globalThis.app.translate("Save")}
+                {this.state.description?.ui?.saveButtonText ?? this.translate("Save")}
                 {this.state.recordChanged ? ' *' : ''}
               </span>
             </>
@@ -674,7 +678,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
           : (
             <>
               <span className="icon"><i className="fas fa-plus"></i></span>
-              <span className="text">{this.state.description?.ui?.addButtonText ?? globalThis.app.translate("Add")}</span>
+              <span className="text">{this.state.description?.ui?.addButtonText ?? this.translate("Add")}</span>
             </>
           )
         }
@@ -691,7 +695,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         className={"btn btn-transparent"}
       >
         <span className="icon"><i className="fas fa-save"></i></span>
-        <span className="text"> {this.state.description?.ui?.copyButtonText ?? globalThis.app.translate("Copy")}</span>
+        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy")}</span>
       </button> : null}
     </>;
   }
@@ -714,7 +718,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       >
         <span className="icon"><i className="fas fa-trash-alt"></i></span>
         <span className="text">
-          {this.state.deletingRecord ? globalThis.app.translate("Confirm delete") : this.state.description?.ui?.deleteButtonText ?? globalThis.app.translate("Delete")}
+          {this.state.deletingRecord ? this.translate("Confirm delete") : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete")}
         </span>
       </button> : null}
     </>;
@@ -727,7 +731,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         className="btn btn-transparent"
       >
         <span className="icon"><i className="fas fa-pencil-alt"></i></span>
-        <span className="text">{globalThis.app.translate('Edit')}</span>
+        <span className="text">{this.translate('Edit')}</span>
       </button> : null}
     </>;
   }
@@ -788,8 +792,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   renderTitle(): JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
-          ? globalThis.app.translate('Record') + ' #' + (this.state.record?.id ?? '-')
-          : globalThis.app.translate('New record')
+          ? this.translate('Record') + ' #' + (this.state.record?.id ?? '-')
+          : this.translate('New record')
       )
     ;
     let subTitle = this.state.description?.ui?.subTitle ?? this.props.model;

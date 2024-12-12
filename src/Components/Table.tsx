@@ -240,6 +240,10 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }
   }
 
+  translate(orig: string): string {
+    return globalThis.app.translate(orig, 'table');
+  }
+
   onAfterLoadTableDescription(params: any): any {
     return params;
   }
@@ -494,7 +498,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         <input
           className="table-header-search"
           type="search"
-          placeholder={globalThis.app.translate("Start typing to search...")}
+          placeholder={this.translate("Start typing to search...")}
           value={this.state.search}
           onChange={(event: ChangeEvent<HTMLInputElement>) => this.onSearchChange(event.target.value)}
         />
@@ -595,11 +599,11 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         >
           <div className='modal-header'>
             <div>
-              <div>{globalThis.app.translate('Delete record')}</div>
+              <div>{this.translate('Delete record')}</div>
             </div>
           </div>
           <div className='modal-body'>
-            {globalThis.app.translate('You are about to delete the record. Press OK to confirm.')}
+            {this.translate('You are about to delete the record. Press OK to confirm.')}
           </div>
           <div className='modal-footer'>
             <div className='flex justify-between'>
@@ -610,7 +614,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
                 }}
               >
                 <span className='icon'><i className='fas fa-check'></i></span>
-                <span className='text'>{globalThis.app.translate('Yes, delete')}</span>
+                <span className='text'>{this.translate('Yes, delete')}</span>
               </button>
               <button
                 className='btn btn-cancel'
@@ -623,7 +627,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
                 }}
               >
                 <span className='icon'><i className='fas fa-times'></i></span>
-                <span className='text'>{globalThis.app.translate('No, do not delete')}</span>
+                <span className='text'>{this.translate('No, do not delete')}</span>
               </button>
             </div>
           </div>
@@ -837,7 +841,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             </button>
             : <button
               className="btn btn-small btn-danger"
-              title={globalThis.app.translate('Delete')}
+              title={this.translate('Delete')}
               onClick={(e) => {
                 e.preventDefault();
 

@@ -104,7 +104,7 @@ console.log(images, image);
                     {...dragProps}
                   >
                     <span className="icon"><i className="fas fa-image"></i></span>
-                    <span className="text">{globalThis.app.translate("Choose image")}</span>
+                    <span className="text">{this.translate("Choose image")}</span>
                   </button>
                 {/* )
               } */}

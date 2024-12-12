@@ -115,6 +115,10 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     }
   }
 
+  translate(orig: string): string {
+    return globalThis.app.translate(orig, 'input');
+  }
+
   getClassName() {
     return (
       "adios component input"

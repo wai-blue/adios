@@ -107,7 +107,7 @@ console.log('ofc', files, file);
                 {...dragProps}
               >
                 <span className="icon"><i className="fas fa-cloud-arrow-up"></i></span>
-                <span className="text">{globalThis.app.translate("Upload file")}</span>
+                <span className="text">{this.translate("Upload file")}</span>
               </button>
             </div>
           )}

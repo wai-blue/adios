@@ -180,7 +180,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   }
 
   renderInputElement() {
-    return <input type="text" value={this.state.value}></input>;
+    return <input type="text" value={this.state.value} readOnly={this.state.readonly}></input>;
   }
 
   renderValueElement() {

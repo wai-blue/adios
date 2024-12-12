@@ -52,8 +52,6 @@ export class ADIOS {
 
     if (translated == '') translated = orig;
 
-    console.log('translate', orig, context, translated);
-
     return translated;
   }
 

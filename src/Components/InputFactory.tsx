@@ -10,6 +10,7 @@ import InputTextarea from "./Inputs/Textarea";
 import InputInt from "./Inputs/Int";
 import InputBoolean from "./Inputs/Boolean";
 import InputColor from "./Inputs/Color";
+import InputFile from "./Inputs/File";
 import InputImage from "./Inputs/Image";
 import InputTags from "./Inputs/Tags";
 import InputDateTime from "./Inputs/DateTime";
@@ -32,6 +33,7 @@ export function InputFactory(inputProps: any): JSX.Element {
         case 'lookup': inputToRender = <InputLookup {...inputProps} />; break;
         case 'color': inputToRender = <InputColor {...inputProps} />; break;
         case 'tags': inputToRender = <InputTags {...inputProps} model={this.props.model} recordId={this.state.id} />; break;
+        case 'file': inputToRender = <InputFile {...inputProps} />; break;
         case 'image': inputToRender = <InputImage {...inputProps} />; break;
         case 'datetime': case 'date': case 'time': inputToRender = <InputDateTime {...inputProps} type={inputProps.params.type} />; break;
         case 'editor':

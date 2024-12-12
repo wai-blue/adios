@@ -26,12 +26,12 @@ export default class Image extends Input<InputProps, ImageInputState> {
 
   onImageChange(images: Array<ImageType>, addUpdateIndex: any) {
     let image: any = images[0];
-
+console.log(images, image);
     this.onChange({
       fileName: image ? image.file.name : null,
-      fileData: image ? image.fileData : null
-      //fileSize: image.file.size,
-      //fileType: image.file.type,
+      fileData: image ? image.fileData : null,
+      // fileSize: image.file.size,
+      // fileType: image.file.type
     });
 
     this.setState({
@@ -98,7 +98,7 @@ export default class Image extends Input<InputProps, ImageInputState> {
                 ? ''
                 : ( */}
                   <button
-                    className="btn btn-extra-small btn-transparent"
+                    className="btn btn-small btn-transparent"
                     style={isDragging ? { color: 'red' } : undefined}
                     onClick={onImageUpload}
                     {...dragProps}

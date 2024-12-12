@@ -702,15 +702,23 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
               className="rounded"
             />;
           break;
-          // case 'image':
-          //   if (!cellContent) cellValueElement = <i className="fas fa-image" style={{color: '#e3e6f0'}}></i>
-          //   else {
-          //     cellValueElement = <img
-          //       style={{ width: '30px', height: '30px' }}
-          //       src={this.state.folderUrl + "/" + cellContent}
-          //       className="rounded"
-          //     />;
-          //   }
+          case 'image':
+            if (!cellContent) cellValueElement = <i className="fas fa-image" style={{color: '#e3e6f0'}}></i>
+            else {
+              cellValueElement = <img
+                style={{ width: '30px', height: '30px' }}
+                src={globalThis.app.config.uploadUrl + "/" + cellContent}
+                className="rounded"
+              />;
+            }
+          break;
+          case 'file':
+            if (!cellContent) cellValueElement = <i className="fas fa-image" style={{color: '#e3e6f0'}}></i>
+            else {
+              cellValueElement = <a href={globalThis.app.config.uploadUrl + "/" + cellContent} target='_blank' onClick={(e) => { e.stopPropagation(); }}>
+                {cellContent}
+              </a>;
+            }
           break;
           case 'lookup':
             cellValueElement = data['_LOOKUP[' + columnName + ']'] ?? '';

@@ -72,7 +72,8 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
     if (!is_array($value) || empty($value['fileData']) || empty($value['fileName'])) return $value;
 
     $fileName = $value['fileName'];
-    $fileData = @base64_decode(str_replace('data:image/jpeg;base64,', '', $value['fileData']));
+    $fileData = preg_replace('/data:.*?,/', '', $value['fileData']);
+    $fileData = @base64_decode($fileData);
     $folderPath = $colDefinition['folderPath'] ?? "";
 
     $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -87,7 +88,7 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
 
     if (empty($colDefinition['renamePattern'])) {
       $tmpParts = pathinfo($fileName);
-      $fileName = \ADIOS\Core\Helper::str2url($tmpParts['filename']) . '-' . date('YmdHis') . '.' . $tmpParts['extension'];
+      $fileName = \ADIOS\Core\Helper::str2url($tmpParts['filename']) . '.' . $tmpParts['extension'];
     } else {
       $tmpParts = pathinfo($fileName);
 
@@ -114,9 +115,21 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
       mkdir("{$model->app->config['uploadDir']}/{$folderPath}", 0775, TRUE);
     }
 
-    $destinationFile = "{$model->app->config['uploadDir']}/{$folderPath}/{$fileName}";
+    $fileNameNoVersion = $fileName;
 
-    if (is_file($destinationFile)) throw new \Exception("{$colDefinition['title']}: The file already exists. $destinationFile");
+    $destinationFileNoVersion = "{$model->app->config['uploadDir']}/{$folderPath}/{$fileName}";
+    $destinationFile = $destinationFileNoVersion;
+
+    $verCnt = 1;
+    while (is_file($destinationFile)) {
+      $tmpParts = pathinfo($destinationFileNoVersion);
+      $destinationFile = $tmpParts['dirname'] . '/' . $tmpParts['filename'] . ' (' . $verCnt .').' . $tmpParts['extension'];
+
+      $tmpParts = pathinfo($fileNameNoVersion);
+      $fileName = $tmpParts['filename'] . ' (' . $verCnt .').' . $tmpParts['extension'];
+
+      $verCnt++;
+    }
 
     \file_put_contents($destinationFile, $fileData);
 

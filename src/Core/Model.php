@@ -118,6 +118,11 @@ class Model
 
     $this->app = $app;
 
+
+
+    $reflection = new \ReflectionClass($this);
+    $this->translationContext = strtolower(str_replace('\\', '.', $reflection->getName()));;
+
     try {
       $this->pdo = $this->eloquent->getConnection()->getPdo();
     } catch (\Throwable $e) {

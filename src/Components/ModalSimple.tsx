@@ -12,6 +12,7 @@ export default class ModalSimple extends Modal {
     if (this.state.isOpen) {
       return <>
         <div
+          key={this.props.uid}
           id={"adios-modal-" + this.props.uid}
           className={"modal " + this.props.type}
         >

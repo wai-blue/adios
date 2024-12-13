@@ -74,15 +74,13 @@ class Loader
   public ?\ADIOS\Core\Web\Loader $web = null;
   public ?\Illuminate\Database\Capsule\Manager $eloquent = null;
   public ?\ADIOS\Core\Auth $auth = null;
+  public ?\ADIOS\Core\Translator $translator = null;
 
   public ?\Twig\Environment $twig = null;
 
   public ?\ADIOS\Core\PDO $pdo = null;
 
   public array $assetsUrlMap = [];
-
-  public string $dictionaryFilename = "Core-Loader";
-  public array $dictionary = [];
 
   public string $desktopContentController = "";
 
@@ -227,11 +225,15 @@ class Loader
 
       \ADIOS\Core\Helper::addSpeedLogTag("#2.2");
 
+
+      // translator
+      $this->translator = $this->getTranslator();
+
       // inicializacia routera
-      $this->router = \ADIOS\Core\Factory::create('Core/Router', [$this]);
+      $this->router = $this->getRouter();
 
       // inicializacia locale objektu
-      $this->locale = \ADIOS\Core\Factory::create('Core/Locale', [$this]);
+      $this->locale = $this->getLocale();
 
       // inicializacia objektu notifikacii
       $this->userNotifications = \ADIOS\Core\Factory::create('Core/UserNotifications', [$this]);
@@ -600,73 +602,9 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // TRANSLATIONS
 
-  public function getDictionaryFilename(string $language = ''): string
-  {
-    $dictionaryFile = '';
-
-    if (empty($language)) $language = $this->config['language'] ?? 'en';
-    if (empty($language)) $language = 'en';
-
-    if (strlen($language) == 2) {
-      $dictionaryFile = "{$this->config['srcDir']}/Lang/{$language}.json";
-    }
-
-    return $dictionaryFile;
-  }
-
-  public function loadDictionary(string $language = ""): array
-  {
-    $dictionary = [];
-    $dictionaryFile = $this->getDictionaryFilename($language);
-
-    if (!empty($dictionaryFile) && file_exists($dictionaryFile)) {
-      $dictionary = @json_decode(file_get_contents($dictionaryFile), true);
-    }
-
-    return $dictionary;
-  }
-
   public function translate(string $string, array $vars = [], string $context = "app", $toLanguage = ""): string
   {
-    if (empty($toLanguage)) {
-      $toLanguage = $this->config['language'] ?? "en";
-    }
-
-    if ($toLanguage == "en") {
-      $translated = $string;
-    } else {
-      if (empty($this->dictionary[$toLanguage])) {
-        $this->dictionary[$toLanguage] = $this->loadDictionary($toLanguage);
-      }
-
-      $dictionary = $this->dictionary[$toLanguage] ?? [];
-
-      if (empty($dictionary[$context][$string]) && $toLanguage != 'en') {
-        $translated = $string;
-        $dictionaryFile = $this->getDictionaryFilename($toLanguage);
-        $this->dictionary[$toLanguage][$context][$string] = '';
-
-        if (is_file($dictionaryFile)) {
-          file_put_contents(
-            $dictionaryFile,
-            json_encode(
-              $this->dictionary[$toLanguage],
-              JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-            )
-          );
-        }
-      } else {
-        $translated = $dictionary[$context][$string];
-      }
-    }
-
-    if (empty($translated)) $translated = $string;
-
-    foreach ($vars as $varName => $varValue) {
-      $translated = str_replace('{{ ' . $varName . ' }}', $varValue, $translated);
-    }
-
-    return $translated;
+    return $this->translator->translate($string, $vars, $context, $toLanguage);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -1128,7 +1066,8 @@ class Loader
     }
   }
 
-  public function getDesktopController(): \ADIOS\Core\Controller {
+  public function getDesktopController(): \ADIOS\Core\Controller
+  {
     try {
       return \ADIOS\Core\Factory::create('Controllers/Desktop', [$this]);
     } catch (\Throwable $e) {
@@ -1136,13 +1075,29 @@ class Loader
     }
   }
 
-  public function getAuthProvider(): \ADIOS\Core\Auth {
+  public function getAuthProvider(): \ADIOS\Core\Auth
+  {
     try {
       return new ($this->config['auth']['provider'])($this, $this->config['auth']['options'] ?? []);
     } catch (\Throwable $e) {
       echo("Unable to initialize auth provider. Check your config.");
       exit($e->getMessage());
     }
+  }
+
+  public function getRouter(): \ADIOS\Core\Router
+  {
+    return \ADIOS\Core\Factory::create('Core/Router', [$this]);
+  }
+
+  public function getLocale(): \ADIOS\Core\Locale
+  {
+    return \ADIOS\Core\Factory::create('Core/Locale', [$this]);
+  }
+
+  public function getTranslator(): \ADIOS\Core\Translator
+  {
+    return new Translator($this);
   }
 
   public function getControllerClassName(string $controller) : string {

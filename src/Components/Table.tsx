@@ -297,7 +297,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       stripedRows: true,
       //globalFilter={globalFilter}
       //header={header}
-      emptyMessage: globalThis.app.dictionary['PrimeTable/emptyMessage'] ?? 'No data.',
+      emptyMessage: this.translate('No data.'),
       dragSelection: true,
       selectAll: true,
       metaKeySelection: true,

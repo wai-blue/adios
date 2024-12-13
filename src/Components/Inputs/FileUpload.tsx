@@ -1,6 +1,6 @@
 import React, { RefObject, createRef } from 'react';
 import { FileUpload as FileUploadPrime, FileUploadErrorEvent, FileUploadUploadEvent, FileUploadRemoveEvent } from 'primereact/fileupload';
-import Notification from "./../Notification";
+import Notification from "../Notification";
 import * as uuid from 'uuid';
 import { Input, InputProps, InputState } from '../Input'
 import Swal from "sweetalert2";

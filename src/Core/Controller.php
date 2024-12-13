@@ -63,6 +63,8 @@ class Controller {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = [])
   {
+    $reflection = new \ReflectionClass($this);
+
     $this->name = str_replace("\\", "/", str_replace("ADIOS\\", "", get_class($this)));
     $this->app = $app;
     $this->renderer = $this->app->twig;
@@ -72,6 +74,7 @@ class Controller {
 
     $this->permission = $this->shortName;
 
+    $this->translationContext = strtolower(str_replace('\\', '.', $reflection->getName()));;
   }
 
   public function prepareParams(): array

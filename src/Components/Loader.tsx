@@ -22,7 +22,7 @@ export class ADIOS {
     },
   };
 
-  dictionary: any = {};
+  dictionary: any = null;
   lastShownDialogRef: any;
   defaultTranslationContext: string = 'app';
 
@@ -40,6 +40,8 @@ export class ADIOS {
   translate(orig: string, context?: string): string {
     let translated: string = orig;
 
+    if (this.dictionary === null) return orig;
+
     if (!context) context = this.defaultTranslationContext;
 
     if (this.dictionary[context] && this.dictionary[context][orig]) {
@@ -47,6 +49,7 @@ export class ADIOS {
     } else if (this.dictionary['app'] && this.dictionary['app'][orig]) {
       translated = this.dictionary['app'][orig];
     } else {
+      console.log('atd', this.dictionary, orig, context);
       this.addToDictionary(orig, context);
     }
 

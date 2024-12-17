@@ -138,9 +138,9 @@ class Loader
 
     // ak requestuje nejaky Asset (css, js, image, font), tak ho vyplujem a skoncim
     if ($this->config['rewriteBase'] == "/") {
-      $this->requestedUri = ltrim($this->config['requestUri'], "/");
+      $this->requestedUri = ltrim(parse_url($this->config['requestUri'], PHP_URL_PATH), "/");
     } else {
-      $this->requestedUri = str_replace($this->config['rewriteBase'], "", $this->config['requestUri']);
+      $this->requestedUri = str_replace($this->config['rewriteBase'], "",parse_url($this->config['requestUri'], PHP_URL_PATH));
     }
 
     $this->assetsUrlMap["adios/assets/css/"] = __DIR__."/../Assets/Css/";

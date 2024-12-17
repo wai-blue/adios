@@ -835,7 +835,7 @@ class Model
     foreach ($this->columns() as $column => $colDefinition) {
       if (
         $colDefinition['required']
-        && ($data[$column] == NULL || $data[$column] == '')
+        && ($data[$column] === null || $data[$column] === '')
       ) {
         $invalidInputs[] = $this->app->translate(
           "`{{ colTitle }}` is required.",

@@ -24,6 +24,7 @@ import { dateToEUFormat, datetimeToEUFormat } from "./Inputs/DateTime";
 
 import { adiosError, deepObjectMerge } from "./Helper";
 import request from "./Request";
+import { components } from 'react-select';
 
 export interface TableEndpoint {
   describeTable: string,
@@ -297,7 +298,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       stripedRows: true,
       //globalFilter={globalFilter}
       //header={header}
-      emptyMessage: this.translate('No data.'),
+      emptyMessage: <><div className="p-2">{this.translate('No data.')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton()}</div> : null}</>,
       dragSelection: true,
       selectAll: true,
       metaKeySelection: true,
@@ -468,6 +469,14 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     return rowData.id === this.state.recordId ? 'highlighted' : '';
   }
 
+  showAddButton(): boolean {
+    if (!this.state.readonly && this.state.description?.permissions?.canCreate) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   renderAddButton(): JSX.Element {
     return (
       <button
@@ -482,26 +491,44 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderHeaderButtons(): Array<JSX.Element> {
     let buttons: Array<JSX.Element> = [];
-    if (!this.state.readonly && this.state.description?.permissions?.canCreate) buttons.push(this.renderAddButton());
+    if (this.showAddButton()) buttons.push(this.renderAddButton());
     return buttons;
+  }
+
+  renderHeaderLeft(): Array<JSX.Element> {
+    return this.renderHeaderButtons();
+  }
+
+  renderHeaderTitle(): JSX.Element {
+    return this.state.description?.ui?.title ? <>{this.state.description?.ui?.title}</> : <></>;
+  }
+
+  renderHeaderRight(): Array<JSX.Element> {
+    let elements: Array<JSX.Element> = [];
+    elements.push(
+      <input
+        className="table-header-search"
+        type="search"
+        placeholder={this.translate("Start typing to search...")}
+        value={this.state.search}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => this.onSearchChange(event.target.value)}
+      />
+    );
+    return elements;
   }
 
   renderHeader(): JSX.Element {
     return <div className="table-header">
-      {this.state.description?.ui?.title ? <div className="table-header-title">{this.state.description?.ui?.title}</div> : null}
+      <div className="table-header-title">
+        {this.renderHeaderTitle()}
+      </div>
 
       <div className="table-header-left">
-        {this.renderHeaderButtons()}
+        {this.renderHeaderLeft()}
       </div>
 
       <div className="table-header-right">
-        <input
-          className="table-header-search"
-          type="search"
-          placeholder={this.translate("Start typing to search...")}
-          value={this.state.search}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => this.onSearchChange(event.target.value)}
-        />
+        {this.renderHeaderRight()}
       </div>
     </div>
   }

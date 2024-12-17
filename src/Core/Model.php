@@ -1156,7 +1156,7 @@ class Model
       if (is_array($colDefinition['enumValues'])) {
         $tmpSelect = "CASE";
         foreach ($colDefinition['enumValues'] as $eKey => $eVal) {
-          $tmpSelect .= " WHEN `{$colName}` = '{$eKey}' THEN '{$eVal}'";
+          $tmpSelect .= " WHEN `{$this->table}`.`{$colName}` = '{$eKey}' THEN '{$eVal}'";
         }
         $tmpSelect .= " ELSE '' END AS `_ENUM[{$colName}]`";
 

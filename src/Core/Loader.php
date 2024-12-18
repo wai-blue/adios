@@ -455,7 +455,7 @@ class Loader
       $this->eloquent->addConnection($dbConnectionConfig, 'default');
     }
 
-    $dbProviderClass = $this->getConfig('db/provider', '');
+    $dbProviderClass = $this->getConfig('db/provider', \ADIOS\Core\Db\Providers\MySQLi::class);
     $this->db = new $dbProviderClass($this);
     $this->pdo = new \ADIOS\Core\PDO($this);
     $this->pdo->connect();
@@ -1077,6 +1077,8 @@ class Loader
 
   public function getAuthProvider(): \ADIOS\Core\Auth
   {
+    if (!isset($this->config['auth'])) return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
+
     try {
       return new ($this->config['auth']['provider'])($this, $this->config['auth']['options'] ?? []);
     } catch (\Throwable $e) {

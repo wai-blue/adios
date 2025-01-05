@@ -743,6 +743,7 @@ class Model
         'showHeader' => true,
         'showFooter' => true,
         'showFilter' => true,
+        'showHeaderTitle' => true,
       ],
       'columns' => $columns,
       'permissions' => [
@@ -1040,7 +1041,7 @@ class Model
       }
     }
 
-    $record['_idHash_'] =  \ADIOS\Core\Helper::encrypt($record['id'], '', true);
+    $record['_idHash_'] =  \ADIOS\Core\Helper::encrypt($record['id'] ?? '', '', true);
 
     // foreach ($this->rela
     return $record;

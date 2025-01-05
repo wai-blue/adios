@@ -55,6 +55,7 @@ export interface TableUi {
   showHeader?: boolean,
   showFooter?: boolean,
   showFilter?: boolean,
+  showHeaderTitle?: boolean,
   //showPaging?: boolean,
   //showControls?: boolean,
   //showAddButton?: boolean,
@@ -298,7 +299,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       stripedRows: true,
       //globalFilter={globalFilter}
       //header={header}
-      emptyMessage: <><div className="p-2">{this.translate('No data.')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton()}</div> : null}</>,
+      emptyMessage: <><div className="p-2">{this.translate('No data.')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}</>,
       dragSelection: true,
       selectAll: true,
       metaKeySelection: true,
@@ -323,32 +324,27 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
     if (this.props.descriptionSource == 'props') return;
 
-    // if (this.props.description) {
-    //   this.setState({description: this.props.description});
-    // } else {
-      request.get(
-        this.getEndpointUrl('describeTable'),
-        {
-          ...this.getEndpointParams(),
-        },
-        (description: any) => {
-          try {
+    request.get(
+      this.getEndpointUrl('describeTable'),
+      {
+        ...this.getEndpointParams(),
+      },
+      (description: any) => {
+        try {
 
-            if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
+          if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
 
-            // let description: any = data; //deepObjectMerge(data, this.props.description ?? {});
-            if (description.columns.length == 0) adiosError(`No columns to show in table for '${this.model}'.`);
-            if (successCallback) successCallback(description);
+          if (description.columns.length == 0) adiosError(`No columns to show in table for '${this.model}'.`);
+          if (successCallback) successCallback(description);
 
-            description = this.onAfterLoadTableDescription(description);
+          description = this.onAfterLoadTableDescription(description);
 
-            this.setState({description: description});
-          } catch (err) {
-            Notification.error(err.message);
-          }
+          this.setState({description: description});
+        } catch (err) {
+          Notification.error(err.message);
         }
-      );
-    // }
+      }
+    );
   }
 
   loadData() {
@@ -477,10 +473,10 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }
   }
 
-  renderAddButton(): JSX.Element {
+  renderAddButton(forEmptyMessage?: boolean): JSX.Element {
     return (
       <button
-        className="btn btn-add"
+        className={"btn " + (forEmptyMessage ? "btn-white btn-small" : "btn-add")}
         onClick={() => this.onAddClick()}
       >
         <span className="icon"><i className="fas fa-plus"/></span>
@@ -519,9 +515,12 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderHeader(): JSX.Element {
     return <div className="table-header">
-      <div className="table-header-title">
-        {this.renderHeaderTitle()}
-      </div>
+      {this.state.description?.ui?.showHeaderTitle ?
+        <div className="table-header-title">
+          {this.renderHeaderTitle()}
+        </div>
+        : null
+      }
 
       <div className="table-header-left">
         {this.renderHeaderLeft()}

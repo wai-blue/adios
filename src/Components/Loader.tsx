@@ -5,9 +5,6 @@ import * as uuid from 'uuid';
 import {isValidJson, kebabToPascal, camelToKebab, deepObjectMerge} from './Helper';
 import Dialog from "./Dialog";
 
-import 'primereact/resources/primereact.css';
-import 'primereact/resources/themes/lara-light-indigo/theme.css';
-
 export class ADIOS {
   config: object = {};
 

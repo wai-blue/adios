@@ -515,6 +515,12 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderHeader(): JSX.Element {
     return <div className="table-header">
+      <div className="table-header-left">
+        {this.renderHeaderLeft().map((item: any) => {
+          return <div>{item}</div>;
+        })}
+      </div>
+
       {this.state.description?.ui?.showHeaderTitle ?
         <div className="table-header-title">
           {this.renderHeaderTitle()}
@@ -522,12 +528,10 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         : null
       }
 
-      <div className="table-header-left">
-        {this.renderHeaderLeft()}
-      </div>
-
       <div className="table-header-right">
-        {this.renderHeaderRight()}
+        {this.renderHeaderRight().map((item: any) => {
+          return <div>{item}</div>;
+        })}
       </div>
     </div>
   }

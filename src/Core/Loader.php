@@ -467,7 +467,7 @@ class Loader
   {
     $this->twigLoader = new \Twig\Loader\FilesystemLoader();
     $this->twigLoader->addPath($this->config['srcDir']);
-    $this->twigLoader->addPath($this->config['srcDir'], 'app');
+    $this->twigLoader->addPath($this->config['srcDir'], $this->twigNamespaceCore);
 
     $this->twig = new \Twig\Environment($this->twigLoader, array(
       'cache' => false,

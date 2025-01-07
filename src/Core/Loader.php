@@ -78,6 +78,8 @@ class Loader
 
   public ?\Twig\Environment $twig = null;
 
+  public string $twigNamespaceCore = 'app';
+
   public ?\ADIOS\Core\PDO $pdo = null;
 
   public array $assetsUrlMap = [];
@@ -996,7 +998,7 @@ class Loader
           $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
           $desktopParams['contentHtml'] = $contentHtml;
 
-          $html = $this->twig->render('@app/Views/Desktop.twig', $desktopParams);
+          $html = $this->twig->render('@' . $this->twigNamespaceCore . '/Views/Desktop.twig', $desktopParams);
 
           \ADIOS\Core\Helper::addSpeedLogTag("render7");
 

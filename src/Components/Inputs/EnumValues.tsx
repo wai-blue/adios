@@ -15,6 +15,19 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
     uiStyle: 'select',
   }
 
+  constructor(props: EnumValuesInputProps) {
+    super(props);
+
+    if (props.enumValues && !props.enumValues[this.state.value]) {
+      this.state.value = Object.keys(props.enumValues)[0];
+      if (props.parentForm && props.columnName) {
+        let record = { ...props.parentForm.state.record };
+        record[props.columnName] = this.state.value;
+        props.parentForm.setState({record: record});
+      }
+    }
+  }
+
   _renderOption(key: string|number): JSX.Element {
     if (this.props.enumValues == undefined) return <></>;
     return <option key={key} value={key}>{this.props.enumValues[key] ?? ''}</option>
@@ -36,13 +49,23 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
     </>;
   }
 
+  serialize(): string {
+    if (!this.props.enumValues) return '';
+    if (!this.props.enumValues[this.state.value]) return Object.keys(this.props.enumValues)[0];
+    return '';
+  }
+
   renderInputElement() {
     if (!this.props.enumValues) return <></>;
 
+    let value = this.state.value ?? null;
+    if (!this.props.enumValues[value]) value = Object.keys(this.props.enumValues)[0];
+
     if (this.props.uiStyle == 'select') {
-      return (
+      return <>
+        {this.state.value}
         <select
-          value={this.state.value ?? 0}
+          value={value}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.onChange(e.target.value)}
           className={
             (this.state.invalid ? 'is-invalid' : '')
@@ -53,7 +76,7 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
         >
           {Object.keys(this.props.enumValues).map((key: string|number) => this._renderOption(key))}
         </select>
-      );
+      </>;
     } else if (this.props.uiStyle == 'buttons') {
       return <div className="btn-group">{Object.keys(this.props.enumValues).map((key: string|number) => {
         const enumValue = this.props.enumValues ? (this.props.enumValues[key] ?? '') : '';

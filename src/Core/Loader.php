@@ -62,6 +62,8 @@ class Loader
   public array $userProfile = [];
   public array $userPasswordReset = [];
 
+  public bool $testMode = false; // Set to TRUE only in DEVELOPMENT. Disables authentication.
+
   public ?\ADIOS\Core\Session $session = null;
   public ?\ADIOS\Core\Db $db = null;
   public ?\ADIOS\Core\Console $console = null;
@@ -295,110 +297,16 @@ class Loader
           $this->getModel($modelName);
         }
 
-        // inicializacia twigu
+        // inicializacia a konfiguracia twigu
         $this->initTwig();
-        $this->twig->addGlobal('config', $this->config);
-        $this->twig->addExtension(new \Twig\Extension\StringLoaderExtension());
-        $this->twig->addExtension(new \Twig\Extension\DebugExtension());
-
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'adiosModel',
-          function (string $model) {
-            return $this->getModel($model);
-          }
-        ));
-
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          '_dump',
-          function ($var) {
-            ob_start();
-            _var_dump($var);
-            return ob_get_clean();
-          }
-        ));
-
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'adiosHtmlAttributes',
-          function (?array $attributes) {
-            if (!is_array($attributes)) {
-              return '';
-            } else {
-              $attrsStr = join(
-                ' ',
-                array_map(
-                  function($key) use ($attributes) {
-                    if (is_bool($attributes[$key])){
-                      return $attributes[$key] ? $key : '';
-                    } else if (is_array($attributes[$key])) {
-                      return \ADIOS\Core\Helper::camelToKebab($key)."='".json_encode($attributes[$key])."'";
-                    } else {
-                      return \ADIOS\Core\Helper::camelToKebab($key)."='{$attributes[$key]}'";
-                    }
-                  },
-                  array_keys($attributes)
-                )
-              );
-
-              return $attrsStr;
-            }
-          }
-        ));
-
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'str2url',
-          function ($string) {
-            return \ADIOS\Core\Helper::str2url($string ?? '');
-          }
-        ));
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'hasPermission',
-          function (string $permission, array $idUserRoles = []) {
-            return $this->permissions->granted($permission, $idUserRoles);
-          }
-        ));
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'hasRole',
-          function (int|string $role) {
-            return $this->permissions->hasRole($role);
-          }
-        ));
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'setTranslationContext',
-          function ($context) {
-            $this->translationContext = $context;
-          }
-        ));
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'translate',
-          function ($string, $context = '') {
-            if (empty($context)) $context = $this->translationContext;
-            return $this->translate($string, [], $context);
-          }
-        ));
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'adiosView',
-          function ($uid, $view, $params) {
-            if (!is_array($params)) {
-              $params = [];
-            }
-            return $this->view->create(
-              $view . (empty($uid) ? '' : '#' . $uid),
-              $params
-            )->render();
-          }
-        ));
-        $this->twig->addFunction(new \Twig\TwigFunction(
-          'adiosRender',
-          function ($controller, $params = []) {
-            return $this->render($controller, $params);
-          }
-        ));
-
+        $this->configureTwig();
       }
 
       $this->dispatchEventToPlugins("onADIOSAfterInit", ["app" => $this]);
     } catch (\Exception $e) {
-      exit("ADIOS INIT failed: [".get_class($e)."] ".$e->getMessage());
+      echo "ADIOS INIT failed: [".get_class($e)."] ".$e->getMessage() . "\n";
+      echo $e->getTraceAsString() . "\n";
+      exit;
     }
 
     \ADIOS\Core\Helper::addSpeedLogTag("#6");
@@ -472,6 +380,107 @@ class Loader
     $this->twig = new \Twig\Environment($this->twigLoader, array(
       'cache' => false,
       'debug' => true,
+    ));
+  }
+
+  public function configureTwig()
+  {
+
+    $this->twig->addGlobal('config', $this->config);
+    $this->twig->addExtension(new \Twig\Extension\StringLoaderExtension());
+    $this->twig->addExtension(new \Twig\Extension\DebugExtension());
+
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'adiosModel',
+      function (string $model) {
+        return $this->getModel($model);
+      }
+    ));
+
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      '_dump',
+      function ($var) {
+        ob_start();
+        _var_dump($var);
+        return ob_get_clean();
+      }
+    ));
+
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'adiosHtmlAttributes',
+      function (?array $attributes) {
+        if (!is_array($attributes)) {
+          return '';
+        } else {
+          $attrsStr = join(
+            ' ',
+            array_map(
+              function($key) use ($attributes) {
+                if (is_bool($attributes[$key])){
+                  return $attributes[$key] ? $key : '';
+                } else if (is_array($attributes[$key])) {
+                  return \ADIOS\Core\Helper::camelToKebab($key)."='".json_encode($attributes[$key])."'";
+                } else {
+                  return \ADIOS\Core\Helper::camelToKebab($key)."='{$attributes[$key]}'";
+                }
+              },
+              array_keys($attributes)
+            )
+          );
+
+          return $attrsStr;
+        }
+      }
+    ));
+
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'str2url',
+      function ($string) {
+        return \ADIOS\Core\Helper::str2url($string ?? '');
+      }
+    ));
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'hasPermission',
+      function (string $permission, array $idUserRoles = []) {
+        return $this->permissions->granted($permission, $idUserRoles);
+      }
+    ));
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'hasRole',
+      function (int|string $role) {
+        return $this->permissions->hasRole($role);
+      }
+    ));
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'setTranslationContext',
+      function ($context) {
+        $this->translationContext = $context;
+      }
+    ));
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'translate',
+      function ($string, $context = '') {
+        if (empty($context)) $context = $this->translationContext;
+        return $this->translate($string, [], $context);
+      }
+    ));
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'adiosView',
+      function ($uid, $view, $params) {
+        if (!is_array($params)) {
+          $params = [];
+        }
+        return $this->view->create(
+          $view . (empty($uid) ? '' : '#' . $uid),
+          $params
+        )->render();
+      }
+    ));
+    $this->twig->addFunction(new \Twig\TwigFunction(
+      'adiosRender',
+      function ($controller, $params = []) {
+        return $this->render($controller, $params);
+      }
     ));
   }
 
@@ -837,7 +846,7 @@ class Loader
    * @throws \ADIOS\Core\Exception When running in SAPI and requested controller is blocked for the SAPI.
    * @return string Rendered content.
    */
-  public function render(string $routeUrl = '', array $params = []) {
+  public function render(string $route = '', array $params = []) {
 
     try {
 
@@ -919,7 +928,7 @@ class Loader
 
       \ADIOS\Core\Helper::addSpeedLogTag("render3");
 
-      if ($this->controllerObject->requiresUserAuthentication) {
+      if (!$this->testMode && $this->controllerObject->requiresUserAuthentication) {
         $this->auth->auth();
         if (!$this->auth->isUserInSession()) {
           $this->controllerObject = \ADIOS\Core\Factory::create('Controllers/SignIn', [$this]);
@@ -936,7 +945,7 @@ class Loader
       if (empty($this->uid)) {
         $uid = $this->getUid($this->params['id'] ?? '');
       } else {
-        $uid = $this->uid.'__'.$this->getUid($this->params['id']);
+        $uid = $this->uid.'__'.$this->getUid($this->params['id'] ?? '');
       }
 
       $this->setUid($uid);
@@ -968,7 +977,7 @@ class Loader
           'uid' => $this->uid,
           'user' => $this->auth->user,
           'config' => $this->config,
-          'routeUrl' => $this->routeUrl,
+          'routeUrl' => $this->route,
           'routeParams' => $this->params,
           'route' => $this->route,
           'session' => $this->session->get(),
@@ -1046,25 +1055,31 @@ class Loader
       echo $e->getMessage();
       header('HTTP/1.1 400 Bad Request', true, 400);
     } catch (\Exception $e) {
-      $error = error_get_last();
-
-      if ($error['type'] == E_ERROR) {
-        $return = $this->renderFatal(
-          '<div style="margin-bottom:1em;">'
-            . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']
-          . '</div>'
-          . '<pre style="font-size:0.75em;font-family:Courier New">'
-            . $e->getTraceAsString()
-          . '</pre>',
-          true
-        );
+      if ($this->testMode) {
+        throw new (get_class($e))($e->getMessage());
       } else {
-        $return = $this->renderFatal($this->renderExceptionHtml($e));
+        $error = error_get_last();
+
+        if ($error['type'] == E_ERROR) {
+          $return = $this->renderFatal(
+            '<div style="margin-bottom:1em;">'
+              . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']
+            . '</div>'
+            . '<pre style="font-size:0.75em;font-family:Courier New">'
+              . $e->getTraceAsString()
+            . '</pre>',
+            true
+          );
+        } else {
+          $return = $this->renderFatal($this->renderExceptionHtml($e));
+        }
+
+        return $return;
+
+        if (php_sapi_name() !== 'cli') {
+          header('HTTP/1.1 400 Bad Request', true, 400);
+        }
       }
-
-      return $return;
-
-      header('HTTP/1.1 400 Bad Request', true, 400);
     }
   }
 

@@ -4,6 +4,8 @@ Light-weight rapid application development framework for PHP 8.
 
 Easy to use and completely free.
 
+ADIOS is used in Hubleto opensource CRM/ERP (https://github.com/wai-blue/hubleto).
+
 ## Why ADIOS?
 
 ADIOS is a framework with a **small footprint**. With only a little coding, you can create application with complete CRUD functionality, containing complex inputs (like dates, WYSIWYG editors or autocomplete) and able to manage complex data structures.

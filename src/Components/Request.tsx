@@ -12,6 +12,12 @@ interface ApiError {
 class Request {
 
   getAccountUrl(): string {
+    if (!globalThis.app.config.accountUrl) {
+      console.warn('ADIOS.Request: accountUrl is not set. Your AJAX requests might not work. To suppress this warning, set accountUrl to empty value.')
+      console.warn('To set the value add a script tag in HTML head section and set window.configEnv.accountUrl..')
+      console.warn('To suppress this warning, set may set accountUrl to an empty value.')
+    };
+
     return globalThis.app.config.accountUrl + '/';
   }
 

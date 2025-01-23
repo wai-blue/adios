@@ -73,6 +73,15 @@ class MySQLi extends \ADIOS\Core\Db
         $this->app->console->info("Created database `{$dbName}`");
 
         $this->connection->select_db($dbName);
+
+        if (!empty($dbName)) {
+          $tmp = $this->showTables();
+          foreach ($tmp as $value) {
+            $this->existingSqlTables[] = reset($value);
+          }
+        }
+
+
       } else if ($this->connection->errno > 0) {
         throw new \ADIOS\Core\Exceptions\DBException($this->connection->errno);
       }
@@ -80,6 +89,8 @@ class MySQLi extends \ADIOS\Core\Db
       if (!empty($dbCodepage)) {
         $this->connection->set_charset($dbCodepage);
       }
+
+      $this->isConnected = true;
     }
   }
 

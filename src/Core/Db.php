@@ -27,7 +27,7 @@ class DB
   protected string $db_name = "";
   protected string $db_codepage = "";
 
-  public ?\ADIOS\Core\Loader $app = null;
+  public \ADIOS\Core\Loader $app;
 
   public array $tables = [];
 
@@ -40,6 +40,8 @@ class DB
 
   public string $ob = "";
 
+  public bool $isConnected = false;
+
   /**
    * Constructor.
    *
@@ -51,16 +53,7 @@ class DB
     $this->app = $app;
     $this->tables = [];
 
-    $this->connect();
-
     $dbName = $this->app->getConfig('db_name', '');
-
-    if (!empty($dbName)) {
-      $tmp = $this->showTables();
-      foreach ($tmp as $value) {
-        $this->existingSqlTables[] = reset($value);
-      }
-    }
 
     $h = opendir(dirname(__FILE__) . '/Db/DataTypes');
     while (false !== ($file = readdir($h))) {

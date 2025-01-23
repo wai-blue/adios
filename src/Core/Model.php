@@ -85,7 +85,7 @@ class Model
   public array $relations = [];
 
   public ?array $junctions = [];
-  public ?\Illuminate\Database\Eloquent\Model $eloquent = null;
+  public \Illuminate\Database\Eloquent\Model $eloquent;
 
 
   /**
@@ -916,7 +916,7 @@ class Model
     return $id;
   }
 
-  public function recordSave(array $data)
+  public function recordSave(array $data): mixed
   {
     $id = (int) $data['id'];
     $isCreate = ($id <= 0);

@@ -64,25 +64,25 @@ class Loader
 
   public bool $testMode = false; // Set to TRUE only in DEVELOPMENT. Disables authentication.
 
-  public ?\ADIOS\Core\Session $session = null;
-  public ?\ADIOS\Core\Db $db = null;
-  public ?\ADIOS\Core\Console $console = null;
-  public ?\ADIOS\Core\Locale $locale = null;
-  public ?\ADIOS\Core\Router $router = null;
-  public ?\ADIOS\Core\Email $email = null;
-  public ?\ADIOS\Core\UserNotifications $userNotifications = null;
-  public ?\ADIOS\Core\Permissions $permissions = null;
-  public ?\ADIOS\Core\Test $test = null;
-  public ?\ADIOS\Core\Web\Loader $web = null;
-  public ?\Illuminate\Database\Capsule\Manager $eloquent = null;
-  public ?\ADIOS\Core\Auth $auth = null;
-  public ?\ADIOS\Core\Translator $translator = null;
+  public \ADIOS\Core\Session $session;
+  public \ADIOS\Core\Db $db;
+  public \ADIOS\Core\Console $console;
+  public \ADIOS\Core\Locale $locale;
+  public \ADIOS\Core\Router $router;
+  public \ADIOS\Core\Email $email;
+  public \ADIOS\Core\UserNotifications $userNotifications;
+  public \ADIOS\Core\Permissions $permissions;
+  public \ADIOS\Core\Test $test;
+  public \ADIOS\Core\Web\Loader $web;
+  public \Illuminate\Database\Capsule\Manager $eloquent;
+  public \ADIOS\Core\Auth $auth;
+  public \ADIOS\Core\Translator $translator;
 
-  public ?\Twig\Environment $twig = null;
+  public \Twig\Environment $twig;
 
   public string $twigNamespaceCore = 'app';
 
-  public ?\ADIOS\Core\PDO $pdo = null;
+  public \ADIOS\Core\PDO $pdo;
 
   public array $assetsUrlMap = [];
 
@@ -195,6 +195,20 @@ class Loader
       require_once dirname(__FILE__)."/Lib/basic_functions.php";
 
       \ADIOS\Core\Helper::addSpeedLogTag("#2");
+
+      $this->eloquent = new \Illuminate\Database\Capsule\Manager;
+
+      $dbConnectionConfig = $this->getDefaultConnectionConfig();
+
+      if ($dbConnectionConfig !== null) {
+        $this->eloquent->setAsGlobal();
+        $this->eloquent->bootEloquent();
+        $this->eloquent->addConnection($dbConnectionConfig, 'default');
+      }
+
+      $dbProviderClass = $this->getConfig('db/provider', \ADIOS\Core\Db\Providers\MySQLi::class);
+      $this->db = new $dbProviderClass($this);
+      $this->pdo = new \ADIOS\Core\PDO($this);
 
       if ($mode == self::ADIOS_MODE_FULL) {
 
@@ -355,19 +369,7 @@ class Loader
 
   public function initDatabaseConnections()
   {
-    $this->eloquent = new \Illuminate\Database\Capsule\Manager;
-
-    $dbConnectionConfig = $this->getDefaultConnectionConfig();
-
-    if ($dbConnectionConfig !== null) {
-      $this->eloquent->setAsGlobal();
-      $this->eloquent->bootEloquent();
-      $this->eloquent->addConnection($dbConnectionConfig, 'default');
-    }
-
-    $dbProviderClass = $this->getConfig('db/provider', \ADIOS\Core\Db\Providers\MySQLi::class);
-    $this->db = new $dbProviderClass($this);
-    $this->pdo = new \ADIOS\Core\PDO($this);
+    $this->db->connect();
     $this->pdo->connect();
   }
 
@@ -520,14 +522,23 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // MODELS
 
-  public function registerModel($modelName): void
+  public function registerModel(string $modelName): void
   {
     if (!in_array($modelName, $this->registeredModels)) {
       $this->registeredModels[] = $modelName;
     }
   }
 
+  // Deprecated
   public function getModelNames(): array
+  {
+    return $this->registeredModels;
+  }
+
+  /**
+  * @return array<string>
+  */
+  public function getRegisteredModels(): array
   {
     return $this->registeredModels;
   }
@@ -1692,6 +1703,33 @@ class Loader
     // }
 
     return $js;
+  }
+
+  public function configAsString(string $path, string $defaultValue = ''): string
+  {
+    if (isset($this->config[$path])) return (string) $this->config[$path];
+    else return $defaultValue;
+  }
+
+  public function configAsArray(string $path, array $defaultValue = []): array
+  {
+    if (isset($this->config[$path])) return (string) $this->config[$path];
+    else return $defaultValue;
+  }
+
+  public function urlParamAsString(string $paramName, string $defaultValue = ''): string
+  {
+    if (isset($this->params[$paramName])) return (string) $this->params[$paramName];
+    else return $defaultValue;
+  }
+
+  /**
+  * @return array<string, string>
+  */
+  public function urlParamAsArray(string $paramName, array $defaultValue = []): array
+  {
+    if (isset($this->params[$paramName])) return (string) $this->params[$paramName];
+    else return $defaultValue;
   }
 
 }

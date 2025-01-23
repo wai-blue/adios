@@ -27,19 +27,20 @@ class Permissions {
 
   }
 
-  function loadPermissions(): array {
+  /**
+  * @return array<int, array<int, string>>
+  */
+  function loadPermissions(): array
+  {
     $permissions = [];
-    if (is_array($this->app->config['permissions'] ?? [])) {
-      foreach ($this->app->config['permissions'] ?? [] as $idUserRole => $permissionsByRole) {
-        $permissions[$idUserRole] = [];
-        foreach ($permissionsByRole as $permissionPath => $isEnabled) {
-          if ((bool) $isEnabled) {
-            $permissions[$idUserRole][] = str_replace(":", "/", $permissionPath);
-          }
+    foreach ($this->app->configasArray('permissions') as $idUserRole => $permissionsByRole) {
+      $permissions[$idUserRole] = [];
+      foreach ($permissionsByRole as $permissionPath => $isEnabled) {
+        if ((bool) $isEnabled) {
+          $permissions[$idUserRole][] = str_replace(":", "/", $permissionPath);
         }
-        $permissions[$idUserRole] = array_unique($permissions[$idUserRole]);
       }
-
+      $permissions[$idUserRole] = array_unique($permissions[$idUserRole]);
     }
 
     return $permissions;

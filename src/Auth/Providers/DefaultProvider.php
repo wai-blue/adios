@@ -16,7 +16,8 @@ class DefaultProvider extends \ADIOS\Core\Auth {
   public $activeAttribute = 'is_active';
   public $verifyMethod = 'password_verify';
 
-  public function auth() {
+  public function auth(): void
+  {
 
     $userModel = \ADIOS\Core\Factory::create('Models/User', [$this->app]);
 

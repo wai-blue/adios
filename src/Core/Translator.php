@@ -54,7 +54,7 @@ class Translator {
     }
   }
 
-  public function translate(string $string, array $vars = [], string $context = "app", $toLanguage = ""): string
+  public function translate(string $string, array $vars = [], string $context = "app", string $toLanguage = ""): string
   {
     if (empty($toLanguage)) {
       $toLanguage = $this->app->config['language'] ?? "en";

@@ -56,7 +56,7 @@ class Save extends \ADIOS\Core\ApiController {
       }
 
       foreach ($model->relations as $relName => $relDefinition) {
-        if (is_array($data[$relName])) {
+        if (isset($data[$relName]) && is_array($data[$relName])) {
           list($relType, $relModel) = $relDefinition;
           switch ($relType) {
             case \ADIOS\Core\Model::HAS_MANY:

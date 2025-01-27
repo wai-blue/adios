@@ -95,7 +95,8 @@ class Loader
   public array $params = [];
   public ?array $uploadedFiles = null;
 
-  public function __construct(array|null $config = null, int $mode = self::ADIOS_MODE_FULL) {
+  public function __construct(array|null $config = null, int $mode = self::ADIOS_MODE_FULL)
+  {
 
     \ADIOS\Core\Helper::setGlobalApp($this);
 
@@ -325,28 +326,31 @@ class Loader
     return $this;
   }
 
-  public function isAjax() {
+  public function isAjax(): bool
+  {
     return isset($_REQUEST['__IS_AJAX__']) && $_REQUEST['__IS_AJAX__'] == "1";
   }
 
-  public function isWindow() {
+  public function isWindow(): bool
+  {
     return isset($_REQUEST['__IS_WINDOW__']) && $_REQUEST['__IS_WINDOW__'] == "1";
   }
 
-  public function param($pName, $pValue = null)
-  {
-    if (func_num_args() == 1) {
-      return $this->params[$pName];
-    } else {
-      $this->params[$pName] = $pValue;
-    }
-  }
+  // public function param($pName, $pValue = null)
+  // {
+  //   if (func_num_args() == 1) {
+  //     return $this->params[$pName];
+  //   } else {
+  //     $this->params[$pName] = $pValue;
+  //   }
+  // }
 
   // public function getCoreClass($class): string {
   //   return $this->config['coreClasses'][$class] ?? ('\\ADIOS\\' . $class);
   // }
 
-  public function getDefaultConnectionConfig(): ?array {
+  public function getDefaultConnectionConfig(): ?array
+  {
     if (isset($this->config['db']['defaultConnection']) && is_array($this->config['db']['defaultConnection'])) {
       return $this->config['db']['defaultConnection'];
     } else {
@@ -485,7 +489,8 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // WIDGETS
 
-  public function addWidget($widgetName) {
+  public function addWidget($widgetName)
+  {
     if (!isset($this->widgets[$widgetName])) {
       try {
         $widgetClassName = "\\" . $this->config['appNamespace'] . "\\Widgets\\".str_replace("/", "\\", $widgetName);
@@ -552,7 +557,8 @@ class Loader
    * @throws \ADIOS\Core\Exception If $modelName is not available.
    * @return object Instantiated object of the model.
    */
-  public function getModel(string $modelName): \ADIOS\Core\Model {
+  public function getModel(string $modelName): \ADIOS\Core\Model
+  {
     if (!isset($this->modelObjects[$modelName])) {
       try {
         $modelClassName = $this->getModelClassName($modelName);
@@ -571,51 +577,54 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // PLUGINS
 
-  public function registerPluginFolder($folder) {
-    if (is_dir($folder) && !in_array($folder, $this->pluginFolders)) {
-      $this->pluginFolders[] = $folder;
-    }
-  }
+  // public function registerPluginFolder($folder)
+  // {
+  //   if (is_dir($folder) && !in_array($folder, $this->pluginFolders)) {
+  //     $this->pluginFolders[] = $folder;
+  //   }
+  // }
 
-  public function getPluginClassName($pluginName) {
-    return "\\ADIOS\\Plugins\\".str_replace("/", "\\", $pluginName);
-  }
+  // public function getPluginClassName($pluginName)
+  // {
+  //   return "\\ADIOS\\Plugins\\".str_replace("/", "\\", $pluginName);
+  // }
 
-  public function getPlugin($pluginName) {
-    return $this->pluginObjects[$pluginName] ?? null;
-  }
+  // public function getPlugin($pluginName)
+  // {
+  //   return $this->pluginObjects[$pluginName] ?? null;
+  // }
 
-  public function getPlugins() {
-    return $this->pluginObjects;
-  }
+  // public function getPlugins() {
+  //   return $this->pluginObjects;
+  // }
 
-  public function loadAllPlugins($pluginFolder, $subFolder = "") {
-    $folder = $pluginFolder.(empty($subFolder) ? "" : "/{$subFolder}");
+  // public function loadAllPlugins($pluginFolder, $subFolder = "") {
+  //   $folder = $pluginFolder.(empty($subFolder) ? "" : "/{$subFolder}");
 
-    foreach (scandir($folder) as $file) {
-      if (strpos($file, ".") !== false) continue;
+  //   foreach (scandir($folder) as $file) {
+  //     if (strpos($file, ".") !== false) continue;
 
-      $fullPath = (empty($subFolder) ? "" : "{$subFolder}/").$file;
+  //     $fullPath = (empty($subFolder) ? "" : "{$subFolder}/").$file;
 
-      if (
-        is_dir("{$folder}/{$file}")
-        && !is_file("{$folder}/{$file}/Main.php")
-      ) {
-        $this->loadAllPlugins($pluginFolder, $fullPath);
-      } else if (is_file("{$folder}/{$file}/Main.php")) {
-        try {
-          $tmpPluginClassName = $this->getPluginClassName($fullPath);
+  //     if (
+  //       is_dir("{$folder}/{$file}")
+  //       && !is_file("{$folder}/{$file}/Main.php")
+  //     ) {
+  //       $this->loadAllPlugins($pluginFolder, $fullPath);
+  //     } else if (is_file("{$folder}/{$file}/Main.php")) {
+  //       try {
+  //         $tmpPluginClassName = $this->getPluginClassName($fullPath);
 
-          if (class_exists($tmpPluginClassName)) {
-            $this->plugins[] = $fullPath;
-            $this->pluginObjects[$fullPath] = new $tmpPluginClassName($this);
-          }
-        } catch (\Exception $e) {
-          exit("Failed to load plugin {$fullPath}: ".$e->getMessage());
-        }
-      }
-    }
-  }
+  //         if (class_exists($tmpPluginClassName)) {
+  //           $this->plugins[] = $fullPath;
+  //           $this->pluginObjects[$fullPath] = new $tmpPluginClassName($this);
+  //         }
+  //       } catch (\Exception $e) {
+  //         exit("Failed to load plugin {$fullPath}: ".$e->getMessage());
+  //       }
+  //     }
+  //   }
+  // }
 
   //////////////////////////////////////////////////////////////////////////////
   // TRANSLATIONS
@@ -1703,9 +1712,32 @@ class Loader
     return $js;
   }
 
+  public function isConfig(string $path): bool
+  {
+    return isset($this->config[$path]);
+  }
+
   public function configAsString(string $path, string $defaultValue = ''): string
   {
     if (isset($this->config[$path])) return (string) $this->config[$path];
+    else return $defaultValue;
+  }
+
+  public function configAsInteger(string $path, int $defaultValue = 0): int
+  {
+    if (isset($this->config[$path])) return (int) $this->config[$path];
+    else return $defaultValue;
+  }
+
+  public function configAsFloat(string $path, float $defaultValue = 0): float
+  {
+    if (isset($this->config[$path])) return (float) $this->config[$path];
+    else return $defaultValue;
+  }
+
+  public function configAsBool(string $path, bool $defaultValue = false): bool
+  {
+    if (isset($this->config[$path])) return (bool) $this->config[$path];
     else return $defaultValue;
   }
 
@@ -1715,9 +1747,35 @@ class Loader
     else return $defaultValue;
   }
 
+
+
+
+  public function isUrlParam(string $paramName): bool
+  {
+    return isset($this->params[$paramName]);
+  }
+
   public function urlParamAsString(string $paramName, string $defaultValue = ''): string
   {
     if (isset($this->params[$paramName])) return (string) $this->params[$paramName];
+    else return $defaultValue;
+  }
+
+  public function urlParamAsInteger(string $paramName, int $defaultValue = 0): int
+  {
+    if (isset($this->params[$paramName])) return (int) $this->params[$paramName];
+    else return $defaultValue;
+  }
+
+  public function urlParamAsFloat(string $paramName, float $defaultValue = 0): float
+  {
+    if (isset($this->params[$paramName])) return (float) $this->params[$paramName];
+    else return $defaultValue;
+  }
+
+  public function urlParamAsBool(string $paramName, bool $defaultValue = false): bool
+  {
+    if (isset($this->params[$paramName])) return (bool) $this->params[$paramName];
     else return $defaultValue;
   }
 

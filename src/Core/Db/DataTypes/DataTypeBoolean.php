@@ -65,7 +65,7 @@ class DataTypeBoolean extends \ADIOS\Core\Db\DataType {
 
   public function normalize(\ADIOS\Core\Model $model, string $colName, $value, $colDefinition)
   {
-    if (empty($value) || !((bool) $value) || $value === $colDefinition['noValue'] ?? 0) {
+    if (empty($value) || !((bool) $value) || (isset($colDefinition['noValue']) && $value === $colDefinition['noValue'])) {
       return $colDefinition['noValue'] ?? 0;
     } else {
       return $colDefinition['yesValue'] ?? 1;

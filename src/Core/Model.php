@@ -1090,7 +1090,8 @@ class Model
     array|null $includeRelations = null,
     int $maxRelationLevel = 0
   ): array {
-    $record = reset($this->loadRecords($queryModifierCallback, $includeRelations, $maxRelationLevel));
+    $allRecords = $this->loadRecords($queryModifierCallback, $includeRelations, $maxRelationLevel);
+    $record = reset($allRecords);
     if (!is_array($record)) $record = [];
     return $record;
   }
@@ -1099,7 +1100,8 @@ class Model
     callable|null $queryModifierCallback = null,
     int $maxRelationLevel = 4
   ): array {
-    $record = reset($this->loadRecords($queryModifierCallback, null, $maxRelationLevel));
+    $allRecords = $this->loadRecords($queryModifierCallback, null, $maxRelationLevel);
+    $record = reset($allRecords);
     if (!is_array($record)) $record = [];
     return $record;
   }

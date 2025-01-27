@@ -89,7 +89,8 @@ class User extends \ADIOS\Core\Model {
     return $description;
   }
 
-  public function indexes(array $indexes = []) {
+  public function indexes(array $indexes = []): array
+  {
     return parent::indexes([
       "login" => [
         "type" => "unique",

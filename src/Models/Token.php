@@ -45,7 +45,8 @@ class Token extends \ADIOS\Core\Model {
     ]);
   }
 
-  public function indexes($columns = []) {
+  public function indexes(array $indexes = []): array
+  {
     return parent::indexes([
       "uid" => [
         "type" => "index",

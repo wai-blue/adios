@@ -549,7 +549,7 @@ class Model
     return array_keys($this->columns());
   }
 
-  public function indexes(array $indexes = [])
+  public function indexes(array $indexes = []): array
   {
     return $this->app->dispatchEventToPlugins("onModelAfterIndexes", [
       "model" => $this,
@@ -1149,12 +1149,7 @@ class Model
 
 
   // prepare load query for ONE record
-  public function prepareLoadRecordQuery(array|null $includeRelations = null, int $maxRelationLevel = 0, $query = null, int $level = 0):
-    \Illuminate\Database\Eloquent\Builder
-    |\Illuminate\Database\Eloquent\Relations\HasOne
-    |\Illuminate\Database\Eloquent\Relations\BelongsTo
-    |\Illuminate\Database\Eloquent\Relations\HasMany
-  {
+  public function prepareLoadRecordQuery(array|null $includeRelations = null, int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed {
     $tmpColumns = $this->columns();
 
     if ($maxRelationLevel > 4) $maxRelationLevel = 4;

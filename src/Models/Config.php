@@ -29,7 +29,8 @@ class Config extends \ADIOS\Core\Model {
     ]);
   }
 
-  public function indexes(array $indexes = []) {
+  public function indexes(array $indexes = []): array
+  {
     return parent::indexes([
       "path" => [
         "type" => "unique",

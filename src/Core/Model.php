@@ -31,6 +31,23 @@ class Model
   const HAS_MANY = 'hasMany';
   const BELONGS_TO = 'belongsTo';
 
+  const DEFAULT_TABLE_DESCRIPTION = [
+    'ui' => [
+      'showHeader' => true,
+      'showFooter' => true,
+      'showFilter' => true,
+      'showHeaderTitle' => true,
+      'addButtonText' => 'string',
+    ],
+    'columns' => [],
+    'permissions' => [
+      'canDelete' => true,
+      'canRead' => true,
+      'canUpdate' => true,
+      'canCreate' => true,
+    ],
+  ];
+
   /**
    * Full name of the model. Useful for getModel() function
    */
@@ -734,7 +751,12 @@ class Model
     );
   }
 
-  public function tableDescribe(array $description = []): array {
+  /**
+  * @param \ADIOS\Core\Model::DEFAULT_TABLE_DESCRIPTION $description
+  * @return \ADIOS\Core\Model::DEFAULT_TABLE_DESCRIPTION $description
+  */
+  public function tableDescribe(array $description): array
+  {
     $columns = $this->columns();
     unset($columns['id']);
 

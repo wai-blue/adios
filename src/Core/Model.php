@@ -755,7 +755,7 @@ class Model
   * @param \ADIOS\Core\Model::DEFAULT_TABLE_DESCRIPTION $description
   * @return \ADIOS\Core\Model::DEFAULT_TABLE_DESCRIPTION $description
   */
-  public function tableDescribe(array $description): array
+  public function tableDescribe(array $description = []): array
   {
     $columns = $this->columns();
     unset($columns['id']);
@@ -769,10 +769,10 @@ class Model
       ],
       'columns' => $columns,
       'permissions' => [
-        'canRead' => $this->app->permissions->granted($description['model'] . ':Read'),
-        'canCreate' => $this->app->permissions->granted($description['model'] . ':Create'),
-        'canUpdate' => $this->app->permissions->granted($description['model'] . ':Update'),
-        'canDelete' => $this->app->permissions->granted($description['model'] . ':Delete'),
+        'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
+        'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
+        'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
+        'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
       ],
     ];
 
@@ -787,10 +787,10 @@ class Model
       'columns' => $columns,
       'defaultValues' => $this->recordDefaultValues(),
       'permissions' => [
-        'canRead' => $this->app->permissions->granted($description['model'] . ':Read'),
-        'canCreate' => $this->app->permissions->granted($description['model'] . ':Create'),
-        'canUpdate' => $this->app->permissions->granted($description['model'] . ':Update'),
-        'canDelete' => $this->app->permissions->granted($description['model'] . ':Delete'),
+        'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
+        'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
+        'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
+        'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
       ],
       'includeRelations' => [],
     ];

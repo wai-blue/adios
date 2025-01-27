@@ -95,13 +95,9 @@ class Loader
   public array $params = [];
   public ?array $uploadedFiles = null;
 
-  public function __construct($config = null, $mode = null) {
+  public function __construct(array|null $config = null, int $mode = self::ADIOS_MODE_FULL) {
 
     \ADIOS\Core\Helper::setGlobalApp($this);
-
-    if ($mode === null) {
-      $mode = self::ADIOS_MODE_FULL;
-    }
 
     if (is_array($config)) {
       $this->config = $config;
@@ -983,6 +979,8 @@ class Loader
         $this->controllerObject->prepareView();
         $view = $this->controllerObject->getView() === '' ? $this->view : $this->controllerObject->getView();
 
+        $contentHtml = '';
+
         $contentParams = [
           'app' => $this,
           'uid' => $this->uid,
@@ -1713,7 +1711,7 @@ class Loader
 
   public function configAsArray(string $path, array $defaultValue = []): array
   {
-    if (isset($this->config[$path])) return (string) $this->config[$path];
+    if (isset($this->config[$path])) return (array) $this->config[$path];
     else return $defaultValue;
   }
 

@@ -9,8 +9,9 @@ class Save extends \ADIOS\Core\ApiController {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    $this->permission = $this->app->params['model'] . ':Create';
-    $this->model = $this->app->getModel($this->app->params['model']);
+    $model = (string) ($this->app->params['model'] ?? '');
+    $this->permission = $model . ':Create';
+    $this->model = $this->app->getModel($model);
   }
 
   public function recordSave(
@@ -39,7 +40,7 @@ class Save extends \ADIOS\Core\ApiController {
         }
       }
 
-      if ($dataToSave['_toBeDeleted_']) {
+      if ((bool) ($dataToSave['_toBeDeleted_'] ?? false)) {
         $model->recordDelete((int) $dataToSave['id']);
         $savedRecord = [];
       } else {

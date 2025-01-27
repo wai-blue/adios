@@ -31,23 +31,6 @@ class Model
   const HAS_MANY = 'hasMany';
   const BELONGS_TO = 'belongsTo';
 
-  const DEFAULT_TABLE_DESCRIPTION = [
-    'ui' => [
-      'showHeader' => true,
-      'showFooter' => true,
-      'showFilter' => true,
-      'showHeaderTitle' => true,
-      'addButtonText' => 'string',
-    ],
-    'columns' => [],
-    'permissions' => [
-      'canDelete' => true,
-      'canRead' => true,
-      'canUpdate' => true,
-      'canCreate' => true,
-    ],
-  ];
-
   /**
    * Full name of the model. Useful for getModel() function
    */
@@ -752,8 +735,8 @@ class Model
   }
 
   /**
-  * @param \ADIOS\Core\Model::DEFAULT_TABLE_DESCRIPTION $description
-  * @return \ADIOS\Core\Model::DEFAULT_TABLE_DESCRIPTION $description
+  * @param array $description
+  * @return array $description
   */
   public function tableDescribe(array $description = []): array
   {
@@ -857,14 +840,17 @@ class Model
 
     foreach ($this->columns() as $column => $colDefinition) {
       if (
-        $colDefinition['required']
+        (bool) ($colDefinition['required'] ?? false)
         && ($data[$column] === null || $data[$column] === '')
       ) {
         $invalidInputs[] = $this->app->translate(
           "`{{ colTitle }}` is required.",
           ['colTitle' => $colDefinition['title']]
         );
-      } else if (!$this->columnValidate($column, $data[$column])) {
+      } else if (
+        isset($data[$column])
+        && !$this->columnValidate($column, $data[$column])
+      ) {
         $invalidInputs[] = $this->app->translate(
           "`{{ colTitle }}` contains invalid value.",
           ['colTitle' => $colDefinition['title']]
@@ -879,7 +865,7 @@ class Model
     return $this->app->dispatchEventToPlugins("onModelAfterRecordValidate", [
       "model" => $this,
       "data" => $data
-    ])['params'];
+    ])['data'];
   }
 
   public function recordNormalize(array $data): array {
@@ -1072,14 +1058,14 @@ class Model
   public function recordDecryptIds(array $record) {
     foreach ($this->columns() as $colName => $colDefinition) {
       if ($colName == 'id' || $colDefinition['type'] == 'lookup') {
-        if ($record[$colName] !== null && is_string($record[$colName])) {
+        if (isset($record[$colName]) && $record[$colName] !== null && is_string($record[$colName])) {
           $record[$colName] = \ADIOS\Core\Helper::decrypt($record[$colName]);
         }
       }
     }
 
     foreach ($this->relations as $relName => $relDefinition) {
-      if (!is_array($record[$relName])) continue;
+      if (!isset($record[$relName]) || !is_array($record[$relName])) continue;
 
       list($relType, $relModelClass) = $relDefinition;
       $relModel = new $relModelClass($this->app);
@@ -1163,7 +1149,12 @@ class Model
 
 
   // prepare load query for ONE record
-  public function prepareLoadRecordQuery(array|null $includeRelations = null, int $maxRelationLevel = 0, $query = null, int $level = 0) {
+  public function prepareLoadRecordQuery(array|null $includeRelations = null, int $maxRelationLevel = 0, $query = null, int $level = 0):
+    \Illuminate\Database\Eloquent\Builder
+    |\Illuminate\Database\Eloquent\Relations\HasOne
+    |\Illuminate\Database\Eloquent\Relations\BelongsTo
+    |\Illuminate\Database\Eloquent\Relations\HasMany
+  {
     $tmpColumns = $this->columns();
 
     if ($maxRelationLevel > 4) $maxRelationLevel = 4;
@@ -1173,10 +1164,10 @@ class Model
     $joins = [];
 
     foreach ($this->columns() as $colName => $colDefinition) {
-      if ($colDefinition['hidden']) continue;
+      if ((bool) ($colDefinition['hidden'] ?? false)) continue;
       $selectRaw[] = $this->table . '.' . $colName;
 
-      if (is_array($colDefinition['enumValues'])) {
+      if (isset($colDefinition['enumValues']) && is_array($colDefinition['enumValues'])) {
         $tmpSelect = "CASE";
         foreach ($colDefinition['enumValues'] as $eKey => $eVal) {
           $tmpSelect .= " WHEN `{$this->table}`.`{$colName}` = '{$eKey}' THEN '{$eVal}'";

@@ -286,7 +286,7 @@ class Helper {
     global $__APP__;
     if ($force || ($__APP__->config['encryptRecordIds'] ?? false)) {
       if (empty($seed)) $seed = _ADIOS_ID;
-      return base64_encode(openssl_encrypt($value, 'AES-256-CBC', $seed, 0, $seed));
+      return base64_encode(@openssl_encrypt($value, 'AES-256-CBC', $seed, 0, $seed));
     } else {
       return $value;
     }
@@ -296,7 +296,7 @@ class Helper {
     global $__APP__;
     if ($force || ($__APP__->config['encryptRecordIds'] ?? false)) {
       if (empty($seed)) $seed = _ADIOS_ID;
-      return openssl_decrypt(base64_decode($value), 'AES-256-CBC', $seed, 0, $seed);
+      return @openssl_decrypt(base64_decode($value), 'AES-256-CBC', $seed, 0, $seed);
     } else {
       return $value;
     }

@@ -534,30 +534,35 @@ class Model
       }
     }
 
-    $newColumns = $this->app->dispatchEventToPlugins("onModelAfterColumns", [
-      "model" => $this,
-      "columns" => $newColumns,
-    ])["columns"];
-
     $this->eloquent->fillable = array_keys($newColumns);
 
     return $newColumns;
   }
 
-  public function columnNames()
+  /**
+   * indexNames
+   * @return array<string>
+   */
+  public function columnNames(): array
   {
     return array_keys($this->columns());
   }
 
+  /**
+   * indexes
+   * @param array<string, mixed> $indexes
+   * @return array<string, mixed>
+   */
   public function indexes(array $indexes = []): array
   {
-    return $this->app->dispatchEventToPlugins("onModelAfterIndexes", [
-      "model" => $this,
-      "indexes" => $indexes,
-    ])["indexes"];
+    return $indexes;
   }
 
-  public function indexNames()
+  /**
+   * indexNames
+   * @return array<string>
+   */
+  public function indexNames(): array
   {
     return array_keys($this->indexNames());
   }
@@ -834,22 +839,28 @@ class Model
   //   return $description;
   // }
 
-  public function recordValidate($data)
+
+  /**
+   * recordValidate
+   * @param array<string, mixed> $record
+   * @return array<string, mixed>
+   */
+  public function recordValidate(array $record): array
   {
     $invalidInputs = [];
 
     foreach ($this->columns() as $column => $colDefinition) {
       if (
         (bool) ($colDefinition['required'] ?? false)
-        && ($data[$column] === null || $data[$column] === '')
+        && (!isset($record[$column]) || $record[$column] === null || $record[$column] === '')
       ) {
         $invalidInputs[] = $this->app->translate(
           "`{{ colTitle }}` is required.",
           ['colTitle' => $colDefinition['title']]
         );
       } else if (
-        isset($data[$column])
-        && !$this->columnValidate($column, $data[$column])
+        isset($record[$column])
+        && !$this->columnValidate($column, $record[$column])
       ) {
         $invalidInputs[] = $this->app->translate(
           "`{{ colTitle }}` contains invalid value.",
@@ -862,34 +873,31 @@ class Model
       throw new RecordSaveException(json_encode($invalidInputs), 87335);
     }
 
-    return $this->app->dispatchEventToPlugins("onModelAfterRecordValidate", [
-      "model" => $this,
-      "data" => $data
-    ])['data'];
+    return $record;
   }
 
-  public function recordNormalize(array $data): array {
+  public function recordNormalize(array $record): array {
     $columns = $this->columns();
 
     // Vyhodene, pretoze to v recordSave() sposobovalo mazanie udajov
     // foreach ($columns as $colName => $colDef) {
-    //   if (!isset($data[$colName])) $data[$colName] = NULL;
+    //   if (!isset($record[$colName])) $record[$colName] = NULL;
     // }
 
-    foreach ($data as $colName => $colValue) {
+    foreach ($record as $colName => $colValue) {
       if (!isset($columns[$colName])) {
-        unset($data[$colName]);
+        unset($record[$colName]);
       } else {
-        $data[$colName] = $this->columnNormalize($colName, $data[$colName]);
-        if ($data[$colName] === null) unset($data[$colName]);
+        $record[$colName] = $this->columnNormalize($colName, $record[$colName]);
+        if ($record[$colName] === null) unset($record[$colName]);
       }
     }
 
     foreach ($columns as $colName => $colDef) {
-      if (!isset($data[$colName])) $data[$colName] = $this->columnGetNullValue($colName);
+      if (!isset($record[$colName])) $record[$colName] = $this->columnGetNullValue($colName);
     }
 
-    return $data;
+    return $record;
   }
 
   /**
@@ -915,19 +923,22 @@ class Model
     return preg_match($pattern, $base64String);
   }
 
-  public function recordCreate(array $data): int {
-    return $this->eloquent->create($data)->id;
+  public function recordCreate(array $record): int {
+    return $this->eloquent->create($record)->id;
   }
 
-  public function recordUpdate(int $id, array $data): int {
-    $this->eloquent->find($id)->update($data);
+  public function recordUpdate(int $id, array $record): int {
+    $this->eloquent->find($id)->update($record);
     return $id;
   }
 
-  public function recordSave(array $data): mixed
+  /** @return array<string, mixed> */
+  public function recordSave(array $record): array
   {
-    $id = (int) $data['id'];
+    $id = (int) $record['id'];
     $isCreate = ($id <= 0);
+
+    $originalRecord = $record;
 
     if ($isCreate) {
       $this->app->permissions->check($this->fullName . ':Create');
@@ -935,34 +946,34 @@ class Model
       $this->app->permissions->check($this->fullName . ':Update');
     }
 
-    $dataForThisModel = $data;
+    $recordForThisModel = $record;
 
-    $this->recordValidate($dataForThisModel);
+    $this->recordValidate($recordForThisModel);
 
     if ($isCreate) {
-      $dataForThisModel = $this->onBeforeCreate($dataForThisModel);
+      $recordForThisModel = $this->onBeforeCreate($recordForThisModel);
     } else {
-      $dataForThisModel = $this->onBeforeUpdate($dataForThisModel);
+      $recordForThisModel = $this->onBeforeUpdate($recordForThisModel);
     }
 
-    $dataForThisModel = $this->recordNormalize($dataForThisModel);
+    $recordForThisModel = $this->recordNormalize($recordForThisModel);
 
     if ($isCreate) {
-      unset($dataForThisModel['id']);
-      $returnValue = $this->recordCreate($dataForThisModel);
-      $data['id'] = (int) $returnValue;
-      $id = (int) $returnValue;
+      unset($recordForThisModel['id']);
+      $savedRecordId = $this->recordCreate($recordForThisModel);
+      $record['id'] = (int) $savedRecordId;
+      $id = (int) $savedRecordId;
     } else {
-      $returnValue = $this->recordUpdate($id, $dataForThisModel);
+      $savedRecord = $this->recordUpdate($id, $recordForThisModel);
     }
 
     // save cross-table-alignments
     foreach ($this->junctions as $jName => $jParams) {
-      if (!isset($data[$jName])) continue;
+      if (!isset($record[$jName])) continue;
 
-      $junctions = $data[$jName] ?? NULL;
+      $junctions = $record[$jName] ?? NULL;
       if (!is_array($junctions)) {
-        $junctions = @json_decode($data[$jName], TRUE);
+        $junctions = @json_decode($record[$jName], TRUE);
       }
 
       if (is_array($junctions)) {
@@ -988,12 +999,12 @@ class Model
     }
 
     if ($isCreate) {
-      $returnValue = $this->onAfterCreate($data, $returnValue);
+      $savedRecord = $this->onAfterCreate($originalRecord, $recordForThisModel);
     } else {
-      $returnValue = $this->onAfterUpdate($data, $returnValue);
+      $savedRecord = $this->onAfterUpdate($originalRecord, $recordForThisModel);
     }
 
-    return $returnValue;
+    return $savedRecord;
   }
 
   public function recordDelete(int|string $id): bool
@@ -1001,6 +1012,7 @@ class Model
     return $this->eloquent->where('id', $id)->delete();
   }
 
+  /** @return array<string, mixed> */
   public function recordDefaultValues(): array
   {
     return [];
@@ -1150,7 +1162,14 @@ class Model
   }
 
 
-  // prepare load query for ONE record
+  /**
+   * prepareLoadRecordQuery
+   * @param array|null $includeRelations Leave empty for default behaviour. What relations to be included in loaded record. If null, default relations will be selected.
+   * @param int $maxRelationLevel Leave empty for default behaviour. Level of recursion in loading relations of relations.
+   * @param mixed $query Leave empty for default behaviour.
+   * @param int $level Leave empty for default behaviour.
+   * @return mixed Eloquent query used to load record.
+   */
   public function prepareLoadRecordQuery(array|null $includeRelations = null, int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed {
     $tmpColumns = $this->columns();
 
@@ -1209,57 +1228,11 @@ class Model
 
       $relModel = new $relDefinition[1]($this->app);
 
-      // switch ($maxRelationLevel) {
-      //   case 0: /* */ break;
-      //   case 1: $query->with($relName); break;
-      //   case 2:
-      //     foreach ($relModel->relations as $subRelName => $subRelDefinition) {
-      //       $query->with($relName . "." . $subRelName);
-      //     }
-      //   break;
-      //   case 3:
-      //     foreach ($relModel->relations as $subRelName => $subRelDefinition) {
-      //       $query->with($relName . "." . $subRelName);
-
-      //       $subRelModel = new $subRelDefinition[1]($this->app);
-      //       foreach ($subRelModel->relations as $subSubRelName => $subSubRelDefinition) {
-      //         $query->with($relName . "." . $subRelName . "." . $subSubRelName);
-      //       }
-      //     }
-      //   break;
-      //   case 4:
-      //   default:
-      //     foreach ($relModel->relations as $subRelName => $subRelDefinition) {
-      //       $query->with($relName . "." . $subRelName);
-
-      //       $subRelModel = new $subRelDefinition[1]($this->app);
-      //       foreach ($subRelModel->relations as $subSubRelName => $subSubRelDefinition) {
-      //         $query->with($relName . "." . $subRelName . "." . $subSubRelName);
-
-      //         $subSubRelModel = new $subSubRelDefinition[1]($this->app);
-      //         foreach ($subSubRelModel->relations as $subSubSubRelName => $subSubSubRelDefinition) {
-      //           $query->with($relName . "." . $subRelName . "." . $subSubRelName . "." . $subSubSubRelName);
-      //         }
-      //       }
-      //     }
-      //   break;
-      // }
-
       if ($maxRelationLevel > 0) {
         $query->with([$relName => function($q) use($relModel, $maxRelationLevel) {
           return $relModel->prepareLoadRecordQuery(null, $maxRelationLevel - 1, $q);
         }]);
       }
-
-      // $query->with([$relName => function($query) use($relModel) {
-      //   return
-      //     $query
-      //       ->selectRaw('
-      //         *,
-      //         (' . str_replace('{%TABLE%}', $relModel->table, $relModel->lookupSqlValue()) . ') as _lookupText_'
-      //       )
-      //     ;
-      // }]);
 
     }
     foreach ($joins as $join) {
@@ -1280,11 +1253,6 @@ class Model
   ): \Illuminate\Database\Eloquent\Builder
   {
     $params = $this->app->params;
-
-    // $search = null;
-    // if (isset($params['search'])) {
-    //   $search = strtolower(Str::ascii($params['search']));
-    // }
 
     $columns = $this->columns();
     $relations = $this->relations;
@@ -1308,11 +1276,6 @@ class Model
     if (!empty($search)) {
       foreach ($columns as $columnName => $column) {
         if (isset($column['enumValues'])) {
-          // foreach ($column['enumValues'] as $enumValueKey => $enumValue) {
-          //   if (str_contains(strtolower(Str::ascii($enumValue)), $search)) {
-          //     $query->orHaving($columnName, $enumValueKey);
-          //   }
-          // }
           $query->orHaving('_ENUM[' . $columnName . ']', 'like', "%{$search}%");
         }
 
@@ -1334,25 +1297,9 @@ class Model
     return $query;
   }
 
-
-  // public function getDependentRecords(int $parentId): array {
-  //   $dependentRecords = [];
-  //   foreach ($this->adios->registeredModels as $modelClass) {
-  //     $tmpModel = $this->adios->getModel($modelClass);
-  //     foreach ($tmpModel->columns() as $colName => $colDef) {
-  //       if ($colDef['type'] == 'lookup' && $colDef['model'] == $this->fullName) {
-  //         $count = $tmpModel->where($colName, $parentId)->count();
-  //         if ($count > 0) {
-  //           $dependentRecords[$tmpModel->fullName . '.' . $colName] = $count;
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   return $dependentRecords;
-  // }
-
-  public function getNewRecordDataFromString(string $text): array {
+  /** @deprecated */
+  public function getNewRecordDataFromString(string $text): array
+  {
     return [];
   }
 
@@ -1361,10 +1308,8 @@ class Model
 
   /**
    * onBeforeCreate
-   *
-   * @param mixed $data
-   *
-   * @return array
+   * @param array<string, mixed> $record
+   * @return array<string, mixed>
    */
   public function onBeforeCreate(array $record): array
   {
@@ -1372,11 +1317,9 @@ class Model
   }
 
   /**
-   * onModelBeforeUpdate
-   *
-   * @param mixed $data
-   *
-   * @return array
+   * onBeforeUpdate
+   * @param array<string, mixed> $record
+   * @return array<string, mixed>
    */
   public function onBeforeUpdate(array $record): array
   {
@@ -1385,55 +1328,42 @@ class Model
 
   /**
    * onAfterCreate
-   *
-   * @param mixed $data
-   * @param mixed $returnValue
-   *
-   * @return [type]
+   * @param array<string, mixed> $originalRecord
+   * @param array<string, mixed> $savedRecord
+   * @return array<string, mixed>
    */
-  public function onAfterCreate(array $record, $returnValue)
+  public function onAfterCreate(array $originalRecord, array $savedRecord): array
   {
-    return $this->app->dispatchEventToPlugins("onModelAfterCreate", [
-      "model" => $this,
-      "data" => $record,
-      "returnValue" => $returnValue,
-    ])["returnValue"];
+    return $savedRecord;
   }
 
   /**
-   * onModelAfterUpdate
-   *
-   * mixed $data
-   * @param mixed $returnValue
-   *
-   * @return [type]
+   * onAfterUpdate
+   * @param array<string, mixed> $originalRecord
+   * @param array<string, mixed> $savedRecord
+   * @return array<string, mixed>
    */
-  public function onAfterUpdate(array $record, $returnValue)
+  public function onAfterUpdate(array $originalRecord, array $savedRecord): array
   {
-    return $this->app->dispatchEventToPlugins("onModelAfterUpdate", [
-      "model" => $this,
-      "data" => $record,
-      "returnValue" => $returnValue,
-    ])["returnValue"];
+    return $savedRecord;
   }
 
 
   public function onBeforeDelete(int $id): int
   {
-    return $this->app->dispatchEventToPlugins('onModelBeforeDelete', [
-      'model' => $this,
-      'id' => $id,
-    ])['id'];
+    return $id;
   }
 
   public function onAfterDelete(int $id): int
   {
-    return $this->app->dispatchEventToPlugins('onModelAfterDelete', [
-      'model' => $this,
-      'id' => $id,
-    ])['id'];
+    return $id;
   }
 
+  /**
+   * onAfterLoadRecord
+   * @param array<string, mixed> $record
+   * @return array<string, mixed>
+   */
   public function onAfterLoadRecord(array $record): array
   {
     return $record;

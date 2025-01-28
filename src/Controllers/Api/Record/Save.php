@@ -44,7 +44,8 @@ class Save extends \ADIOS\Core\ApiController {
         $model->recordDelete((int) $dataToSave['id']);
         $savedRecord = [];
       } else {
-        $idMasterRecord = $model->recordSave($dataToSave);
+        $masterRecordSaved = $model->recordSave($dataToSave);
+        $idMasterRecord = (int) $masterRecordSaved['id'];
 
         if ($idMasterRecord > 0) {
           $savedRecord = $model->recordGet(
@@ -61,19 +62,13 @@ class Save extends \ADIOS\Core\ApiController {
           switch ($relType) {
             case \ADIOS\Core\Model::HAS_MANY:
               foreach ($data[$relName] as $subKey => $subRecord) {
-                $savedRecord[$relName][$subKey] = $this->recordSave(
-                  $relModel,
-                  $subRecord,
-                  $idMasterRecord
-                );
+                $subRecord = $this->recordSave($relModel, $subRecord, $idMasterRecord);
+                $savedRecord[$relName][$subKey] = (int) $subRecord['id'];
               }
             break;
             case \ADIOS\Core\Model::HAS_ONE:
-              $savedRecord[$relName] = $this->recordSave(
-                $relModel,
-                $data[$relName],
-                $idMasterRecord
-              );
+              $subRecord = $this->recordSave($relModel, $data[$relName], $idMasterRecord);
+              $savedRecord[$relName] = (int) $subRecord['id'];
             break;
           }
         }

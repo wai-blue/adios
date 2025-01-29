@@ -139,13 +139,13 @@ class Controller {
    */
   public function prepareViewParams()
   {
-    $this->viewParams = $this->app->params ?? [];
+    $this->viewParams = $this->app->getUrlParams();
   }
 
   public function prepareView(): void
   {
     $this->app->translationContext = $this->translationContext;
-    $this->viewParams = $this->app->params ?? [];
+    $this->viewParams = $this->app->getUrlParams();
   }
   
   /**

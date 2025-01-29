@@ -1739,6 +1739,11 @@ class Loader
 
 
 
+  public function getUrlParams(): array
+  {
+    return $this->params;
+  }
+
   public function isUrlParam(string $paramName): bool
   {
     return isset($this->params[$paramName]);

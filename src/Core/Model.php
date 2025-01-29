@@ -954,22 +954,22 @@ class Model
 
     $recordForThisModel = $this->recordNormalize($recordForThisModel);
 
+    $savedRecord = $record;
+
     if ($isCreate) {
       unset($recordForThisModel['id']);
-      $savedRecordId = $this->recordCreate($recordForThisModel);
-      $record['id'] = (int) $savedRecordId;
-      $id = (int) $savedRecordId;
+      $savedRecord['id'] =  $this->recordCreate($recordForThisModel);
     } else {
-      $savedRecord = $this->recordUpdate($id, $recordForThisModel);
+      $savedRecord['id'] = $this->recordUpdate($id, $recordForThisModel);
     }
 
     // save cross-table-alignments
     foreach ($this->junctions as $jName => $jParams) {
-      if (!isset($record[$jName])) continue;
+      if (!isset($savedRecord[$jName])) continue;
 
-      $junctions = $record[$jName] ?? NULL;
+      $junctions = $savedRecord[$jName] ?? NULL;
       if (!is_array($junctions)) {
-        $junctions = @json_decode($record[$jName], TRUE);
+        $junctions = @json_decode($savedRecord[$jName], TRUE);
       }
 
       if (is_array($junctions)) {
@@ -978,7 +978,7 @@ class Model
         $this->app->pdo->execute("
           delete from `{$junctionModel->getFullTableSqlName()}`
           where `{$jParams['masterKeyColumn']}` = ?
-        ", [$id]);
+        ", [$savedRecord['id']]);
 
         foreach ($junctions as $junction) {
           $idOption = (int) $junction;
@@ -988,16 +988,16 @@ class Model
                 `{$jParams['masterKeyColumn']}`,
                 `{$jParams['optionKeyColumn']}`
               ) values (?, ?)
-            ", [$id, $idOption]);
+            ", [$savedRecord['id'], $idOption]);
           }
         }
       }
     }
 
     if ($isCreate) {
-      $savedRecord = $this->onAfterCreate($originalRecord, $recordForThisModel);
+      $savedRecord = $this->onAfterCreate($originalRecord, $savedRecord);
     } else {
-      $savedRecord = $this->onAfterUpdate($originalRecord, $recordForThisModel);
+      $savedRecord = $this->onAfterUpdate($originalRecord, $savedRecord);
     }
 
     return $savedRecord;
@@ -1250,7 +1250,6 @@ class Model
     array $orderBy = []
   ): \Illuminate\Database\Eloquent\Builder
   {
-    $params = $this->app->params;
 
     $columns = $this->columns();
     $relations = $this->relations;
@@ -1286,10 +1285,9 @@ class Model
     }
 
     // orderBy
-    if (isset($params['orderBy']['field']) && isset($params['orderBy']['direction'])) {
-      $query->orderBy(
-        $params['orderBy']['field'],
-        $params['orderBy']['direction']);
+    $orderBy = $this->app->urlParamAsArray('orderBy');
+    if (isset($orderBy['field']) && isset($orderBy['direction'])) {
+      $query->orderBy( $orderBy['field'], $orderBy['direction']);
     }
 
     return $query;

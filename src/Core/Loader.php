@@ -94,14 +94,12 @@ class Loader
   private array $params = [];
   public ?array $uploadedFiles = null;
 
-  public function __construct(array|null $config = null, int $mode = self::ADIOS_MODE_FULL)
+  public function __construct(array $config = [], int $mode = self::ADIOS_MODE_FULL)
   {
 
     \ADIOS\Core\Helper::setGlobalApp($this);
 
-    if (is_array($config)) {
-      $this->config = $config;
-    }
+    $this->config = $config;
 
     \ADIOS\Core\Helper::addSpeedLogTag("#1");
 

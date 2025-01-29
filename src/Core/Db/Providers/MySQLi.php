@@ -909,7 +909,7 @@ class MySQLi extends \ADIOS\Core\Db
    *
    * @return object DB result object.
    */
-  public function query(string $query, object $initiatingModel = NULL)
+  public function query(string $query, mixed $initiatingModel = NULL)
   {
 
     if ($this->connection === NULL) {

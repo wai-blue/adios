@@ -33,7 +33,7 @@ class Console {
  
   public function __construct($app) {
     $this->app = $app;
-    $this->logDir = $this->app->config['logDir'] ?? "";
+    $this->logDir = $this->app->configAsString('logDir');
 
     $this->initLogger('core');
   }
@@ -96,7 +96,7 @@ class Console {
   }
 
   public function logTimestamp($message, $logger = "core") {
-    if (!$this->app->config['devel_mode']) return;
+    if (!$this->app->configAsBool('devel_mode')) return;
 
     $now = $this->timestampMicrosec();
     if ($this->lastTimestamp == 0) $this->lastTimestamp = $now;

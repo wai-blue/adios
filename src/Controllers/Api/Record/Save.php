@@ -9,7 +9,7 @@ class Save extends \ADIOS\Core\ApiController {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    $model = (string) ($this->app->params['model'] ?? '');
+    $model = $this->app->urlParamAsString('model');
     $this->permission = $model . ':Create';
     $this->model = $this->app->getModel($model);
   }
@@ -50,8 +50,8 @@ class Save extends \ADIOS\Core\ApiController {
         if ($idMasterRecord > 0) {
           $savedRecord = $model->recordGet(
             function($q) use ($model, $idMasterRecord) { $q->where($model->table . '.id', $idMasterRecord); },
-            $this->app->params['includeRelations'] ?? null,
-            (int) ($this->app->params['maxRelationLevel'] ?? 1)
+            $this->app->urlParamAsArray('includeRelations'),
+            $this->app->urlParamAsInteger('maxRelationLevel', 1)
           );
         }
       }
@@ -116,8 +116,8 @@ class Save extends \ADIOS\Core\ApiController {
 
   public function response(): array
   {
-    $originalRecord = $this->app->params['record'] ?? [];
-    $model = $this->app->params['model'] ?? '';
+    $originalRecord = $this->app->urlParamAsArray('record');
+    $model = $this->app->urlParamAsString('model');
 
     $decryptedRecord = $this->model->recordDecryptIds($originalRecord);
 

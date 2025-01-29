@@ -18,12 +18,12 @@ class TwigLoader implements \Twig\Loader\LoaderInterface {
     * @throws \Twig\Error\LoaderError When $name is not found
     */
   public function getSourceContext($name): \Twig\Source {
-    $appNamespace = $this->app->config['appNamespace'] ?? 'App';
+    $appNamespace = $this->app->configAsString('appNamespace', 'App');
     $templateName = str_replace("\\", "/", $name);
 
     if (strpos($templateName, "{$appNamespace}/") === 0) {
       $templateName = substr($templateName, strlen($appNamespace . '/'));
-      $templateRootDir = $this->app->config['twigRootDir'] ?? $this->app->config['appDir'] . '/src';
+      $templateRootDir = $this->app->configAsString('twigRootDir') ?? $this->app->configAsString('appDir') . '/src';
       $templateFile = $templateRootDir . '/' . $templateName . '.twig'
       ;
     } else {

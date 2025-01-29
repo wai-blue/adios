@@ -9,18 +9,21 @@ class Lookup extends \ADIOS\Core\ApiController {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    $this->permission = $this->app->params['model'] . ':Read';
-    $this->model = $this->app->getModel($this->app->params['model']);
+
+    $model = $this->app->urlParamAsString('model');
+    $this->permission = $model . ':Read';
+    $this->model = $this->app->getModel($model);
   }
 
   public function prepareLoadRecordQuery(): \Illuminate\Database\Eloquent\Builder {
 
     $query = $this->model->prepareLoadRecordQuery();
 
-    if ($this->app->params['search']) {
+    $search = $this->app->urlParamAsString('search');
+    if (!empty($search)) {
       $query->where(function($q) {
         foreach ($this->model->columns() as $columnName => $column) {
-          $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $this->app->params['search'] . '%');
+          $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $search . '%');
         }
       });
     }

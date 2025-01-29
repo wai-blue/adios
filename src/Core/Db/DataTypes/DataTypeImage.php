@@ -44,15 +44,15 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
 
     $value = htmlspecialchars($value);
 
-    if ('' != $value && file_exists($this->app->config['uploadDir']."/{$value}")) {
-      $img_url = "{$this->app->config['images_url']}/{$value}";
+    if ('' != $value && file_exists($this->app->configAsString('uploadDir')."/{$value}")) {
+      $img_url = "{$this->app->configAsString('images_url')}/{$value}";
       $img_style = "style='height:30px;border:none'";
 
-      $img_url = "{$this->app->config['accountUrl']}/Image?f=".urlencode($value).'&cfg=wa_list&rand='.rand(1, 999999);
+      $img_url = "{$this->app->configAsString('accountUrl')}/Image?f=".urlencode($value).'&cfg=wa_list&rand='.rand(1, 999999);
       $img_style = "style='border:none'";
 
       $pathinfo = pathinfo($value);
-      $html = "<a href='{$this->app->config['accountUrl']}/Image?f=".urlencode($value)."' target='_blank' onclick='event.cancelBubble=true;'><img src='{$img_url}' {$img_style} class='list_image'></a>";
+      $html = "<a href='{$this->app->configAsString('accountUrl')}/Image?f=".urlencode($value)."' target='_blank' onclick='event.cancelBubble=true;'><img src='{$img_url}' {$img_style} class='list_image'></a>";
       if ($params['display_basename']) {
         $html .= "<br/>{$pathinfo['basename']}";
       }
@@ -64,7 +64,7 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
   }
 
   public function toCsv($value, $params = []) {
-    return "{$this->app->config['images_url']}/{$value}";
+    return "{$this->app->configAsString('images_url')}/{$value}";
   }
 
   public function normalize(\ADIOS\Core\Model $model, string $colName, $value, $colDefinition)
@@ -78,8 +78,8 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
 
     $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-    if (empty($model->app->config['uploadDir'])) throw new \Exception("{$colDefinition['title']}: Upload folder is not configured.");
-    if (!is_dir($model->app->config['uploadDir'])) throw new \Exception("{$colDefinition['title']}: Upload folder does not exist.");
+    if (empty($model->app->configAsString('uploadDir'))) throw new \Exception("{$colDefinition['title']}: Upload folder is not configured.");
+    if (!is_dir($model->app->configAsString('uploadDir'))) throw new \Exception("{$colDefinition['title']}: Upload folder does not exist.");
     if (in_array($fileExtension, ['php', 'sh', 'exe', 'bat', 'htm', 'html', 'htaccess'])) {
       throw new \Exception("{$colDefinition['title']}: This file type cannot be uploaded.");
     }
@@ -111,13 +111,15 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
 
     if (empty($folderPath)) $folderPath = ".";
 
-    if (!is_dir("{$model->app->config['uploadDir']}/{$folderPath}")) {
-      mkdir("{$model->app->config['uploadDir']}/{$folderPath}", 0775, TRUE);
+    $uploadDir = $model->app->configAsString('uploadDir');
+
+    if (!is_dir("{$uploadDir}/{$folderPath}")) {
+      mkdir("{$uploadDir}/{$folderPath}", 0775, TRUE);
     }
 
     $fileNameNoVersion = $fileName;
 
-    $destinationFileNoVersion = "{$model->app->config['uploadDir']}/{$folderPath}/{$fileName}";
+    $destinationFileNoVersion = "{$uploadDir}/{$folderPath}/{$fileName}";
     $destinationFile = $destinationFileNoVersion;
 
     $verCnt = 1;

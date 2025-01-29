@@ -36,7 +36,6 @@ class Loader
 
   public string $gtp = "";
   public string $requestedUri = "";
-  // public string $requestedController = "";
   public string $controller = "";
   public string $permission = "";
   public string $uid = "";
@@ -46,14 +45,14 @@ class Loader
 
   public bool $logged = false;
 
-  public array $config = [];
+  private array $config = [];
   public array $widgets = [];
 
   public array $widgetsInstalled = [];
 
-  public array $pluginFolders = [];
-  public array $pluginObjects = [];
-  public array $plugins = [];
+  // public array $pluginFolders = [];
+  // public array $pluginObjects = [];
+  // public array $plugins = [];
 
   public array $modelObjects = [];
   public array $registeredModels = [];
@@ -92,7 +91,7 @@ class Loader
 
   public string $translationContext = '';
 
-  public array $params = [];
+  private array $params = [];
   public ?array $uploadedFiles = null;
 
   public function __construct(array|null $config = null, int $mode = self::ADIOS_MODE_FULL)
@@ -157,20 +156,20 @@ class Loader
 
       return $app->widgetsDir."/{$widget}/Assets/{$asset}";
     };
-    $this->assetsUrlMap["adios/assets/plugins/"] = function ($app, $url) {
-      $url = str_replace("adios/assets/plugins/", "", $url);
-      preg_match('/(.+?)\/~\/(.+)/', $url, $m);
+    // $this->assetsUrlMap["adios/assets/plugins/"] = function ($app, $url) {
+    //   $url = str_replace("adios/assets/plugins/", "", $url);
+    //   preg_match('/(.+?)\/~\/(.+)/', $url, $m);
 
-      $plugin = $m[1];
-      $asset = $m[2];
+    //   $plugin = $m[1];
+    //   $asset = $m[2];
 
-      foreach ($app->pluginFolders as $pluginFolder) {
-        $file = "{$pluginFolder}/{$plugin}/Assets/{$asset}";
-        if (is_file($file)) {
-          return $file;
-        }
-      }
-    };
+    //   foreach ($app->pluginFolders as $pluginFolder) {
+    //     $file = "{$pluginFolder}/{$plugin}/Assets/{$asset}";
+    //     if (is_file($file)) {
+    //       return $file;
+    //     }
+    //   }
+    // };
 
     //////////////////////////////////////////////////
     // inicializacia
@@ -215,15 +214,15 @@ class Loader
 
       \ADIOS\Core\Helper::addSpeedLogTag("#2.1");
 
-      // inicializacia pluginov - aj pre FULL aj pre LITE mod
+      // // inicializacia pluginov - aj pre FULL aj pre LITE mod
 
-      $this->onBeforePluginsLoaded();
+      // $this->onBeforePluginsLoaded();
 
-      foreach ($this->pluginFolders as $pluginFolder) {
-        $this->loadAllPlugins($pluginFolder);
-      }
+      // foreach ($this->pluginFolders as $pluginFolder) {
+      //   $this->loadAllPlugins($pluginFolder);
+      // }
 
-      $this->onAfterPluginsLoaded();
+      // $this->onAfterPluginsLoaded();
 
       $this->renderAssets();
 
@@ -313,7 +312,7 @@ class Loader
         $this->configureTwig();
       }
 
-      $this->dispatchEventToPlugins("onADIOSAfterInit", ["app" => $this]);
+      // $this->dispatchEventToPlugins("onADIOSAfterInit", ["app" => $this]);
     } catch (\Exception $e) {
       echo "ADIOS INIT failed: [".get_class($e)."] ".$e->getMessage() . "\n";
       echo $e->getTraceAsString() . "\n";
@@ -335,19 +334,6 @@ class Loader
   {
     return isset($_REQUEST['__IS_WINDOW__']) && $_REQUEST['__IS_WINDOW__'] == "1";
   }
-
-  // public function param($pName, $pValue = null)
-  // {
-  //   if (func_num_args() == 1) {
-  //     return $this->params[$pName];
-  //   } else {
-  //     $this->params[$pName] = $pValue;
-  //   }
-  // }
-
-  // public function getCoreClass($class): string {
-  //   return $this->config['coreClasses'][$class] ?? ('\\ADIOS\\' . $class);
-  // }
 
   public function getDefaultConnectionConfig(): ?array
   {
@@ -809,9 +795,9 @@ class Loader
         // V takom pripade budem instalaciu opakovat v dalsom kole
       }
 
-      $this->dispatchEventToPlugins("onWidgetAfterInstall", [
-        "widget" => $widget,
-      ]);
+      // $this->dispatchEventToPlugins("onWidgetAfterInstall", [
+      //   "widget" => $widget,
+      // ]);
     }
 
     $this->db->commit();
@@ -900,11 +886,11 @@ class Loader
 
       $this->onAfterRouting();
 
-      if (isset($this->params['sign-out'])) {
+      if ($this->isUrlParam('sign-out')) {
         $this->auth->signOut();
       }
 
-      if (isset($this->params['signed-out'])) {
+      if ($this->isUrlParam('signed-out')) {
         $this->router->redirectTo('');
         exit;
       }
@@ -959,16 +945,16 @@ class Loader
 
       // vygenerovanie UID tohto behu
       if (empty($this->uid)) {
-        $uid = $this->getUid($this->params['id'] ?? '');
+        $uid = $this->getUid($this->urlParamAsString('id'));
       } else {
-        $uid = $this->uid.'__'.$this->getUid($this->params['id'] ?? '');
+        $uid = $this->uid.'__'.$this->getUid($this->urlParamAsString('id'));
       }
 
       $this->setUid($uid);
 
       $return = '';
 
-      $this->dispatchEventToPlugins("onADIOSBeforeRender", ["app" => $this]);
+      // $this->dispatchEventToPlugins("onADIOSBeforeRender", ["app" => $this]);
 
       unset($this->params['__IS_AJAX__']);
 
@@ -993,7 +979,7 @@ class Loader
         $contentParams = [
           'app' => $this,
           'uid' => $this->uid,
-          'user' => $this->auth->user,
+          'user' => $this->auth->getUser(),
           'config' => $this->config,
           'routeUrl' => $this->route,
           'routeParams' => $this->params,
@@ -1013,7 +999,7 @@ class Loader
         \ADIOS\Core\Helper::addSpeedLogTag("render6");
 
         // In some cases the result of the view will be used as-is ...
-        if (($this->params['__IS_AJAX__'] ?? false)|| $this->controllerObject->hideDefaultDesktop) {
+        if ($this->urlParamAsBool('__IS_AJAX__') || $this->controllerObject->hideDefaultDesktop) {
           $html = $contentHtml;
 
         // ... But in most cases it will be "encapsulated" in the desktop.
@@ -1336,22 +1322,22 @@ class Loader
    * @throws \ADIOS\Core\Exception When plugin's hook returns invalid value.
    * @return array<string, mixed> Event data modified by plugins which implement the hook.
    */
-  public function dispatchEventToPlugins(string $eventName, array $eventData = []): array
-  {
-    foreach ($this->pluginObjects as $plugin) {
-      if (method_exists($plugin, $eventName)) {
-        $eventData = $plugin->$eventName($eventData);
-        if (!is_array($eventData) && $eventData !== false) {
-          throw new \ADIOS\Core\Exceptions\GeneralException("Plugin {$plugin->name}, event {$eventName}: No value returned. Either forward \$event or return FALSE.");
-        }
+  // public function dispatchEventToPlugins(string $eventName, array $eventData = []): array
+  // {
+  //   foreach ($this->pluginObjects as $plugin) {
+  //     if (method_exists($plugin, $eventName)) {
+  //       $eventData = $plugin->$eventName($eventData);
+  //       if (!is_array($eventData) && $eventData !== false) {
+  //         throw new \ADIOS\Core\Exceptions\GeneralException("Plugin {$plugin->name}, event {$eventName}: No value returned. Either forward \$event or return FALSE.");
+  //       }
 
-        if ($eventData === false) {
-          break;
-        }
-      }
-    }
-    return $eventData;
-  }
+  //       if ($eventData === false) {
+  //         break;
+  //       }
+  //     }
+  //   }
+  //   return $eventData;
+  // }
 
   public function hasPermissionForController($controller, $params) {
     return true;
@@ -1360,19 +1346,34 @@ class Loader
   ////////////////////////////////////////////////
   // metody pre pracu s konfiguraciou
 
-  public function getConfig($path, $default = null) {
-    $retval = $this->config;
+  public function isConfig(string $path): bool
+  {
+    $config = $this->config;
     foreach (explode('/', $path) as $key => $value) {
-      if (isset($retval[$value])) {
-        $retval = $retval[$value];
+      if (isset($config[$value])) {
+        $config = $config[$value];
       } else {
-        $retval = null;
+        $config = null;
       }
     }
-    return ($retval === null ? $default : $retval);
+    return ($config === null ? false : true);
   }
 
-  public function setConfig($path, $value) {
+  public function getConfig(string $path, $default = null): mixed
+  {
+    $config = $this->config;
+    foreach (explode('/', $path) as $key => $value) {
+      if (isset($config[$value])) {
+        $config = $config[$value];
+      } else {
+        $config = null;
+      }
+    }
+    return ($config === null ? $default : $config);
+  }
+
+  public function setConfig(string $path, mixed $value): void
+  {
     $path_array = explode('/', $path);
 
     $cfg = &$this->config;
@@ -1712,39 +1713,29 @@ class Loader
     return $js;
   }
 
-  public function isConfig(string $path): bool
-  {
-    return isset($this->config[$path]);
-  }
-
   public function configAsString(string $path, string $defaultValue = ''): string
   {
-    if (isset($this->config[$path])) return (string) $this->config[$path];
-    else return $defaultValue;
+    return (string) $this->getConfig($path, $defaultValue);
   }
 
   public function configAsInteger(string $path, int $defaultValue = 0): int
   {
-    if (isset($this->config[$path])) return (int) $this->config[$path];
-    else return $defaultValue;
+    return (int) $this->getConfig($path, $defaultValue);
   }
 
   public function configAsFloat(string $path, float $defaultValue = 0): float
   {
-    if (isset($this->config[$path])) return (float) $this->config[$path];
-    else return $defaultValue;
+    return (float) $this->getConfig($path, $defaultValue);
   }
 
   public function configAsBool(string $path, bool $defaultValue = false): bool
   {
-    if (isset($this->config[$path])) return (bool) $this->config[$path];
-    else return $defaultValue;
+    return (bool) $this->getConfig($path, $defaultValue);
   }
 
   public function configAsArray(string $path, array $defaultValue = []): array
   {
-    if (isset($this->config[$path])) return (array) $this->config[$path];
-    else return $defaultValue;
+    return (array) $this->getConfig($path, $defaultValue);
   }
 
 

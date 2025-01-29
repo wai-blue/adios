@@ -96,11 +96,7 @@ class Model
    */
   public function __construct(\ADIOS\Core\Loader $app)
   {
-    $this->gtp = $app->config['gtp'] ?? '';
-
-    // if (empty($this->table)) {
-    //   $this->table = (empty($this->gtp) ? '' : $this->gtp . '_') . $this->sqlName;
-    // }
+    $this->gtp = $app->configAsString('gtp');
 
     if (empty($this->table)) {
       $this->table = (empty($this->gtp) ? '' : $this->gtp . '_') . $this->sqlName; // toto je kvoli Eloquentu
@@ -197,7 +193,7 @@ class Model
    */
   public function getConfig(string $configName): string
   {
-    return $this->app->config['models'][str_replace("/", "-", $this->fullName)][$configName] ?? "";
+    return $this->app->configAsString('models/' . str_replace("/", "-", $this->fullName) . '/' . $configName);
   }
 
   /**
@@ -207,7 +203,7 @@ class Model
    */
   public function setConfig(string $configName, $value): void
   {
-    $this->app->config['models'][str_replace("/", "-", $this->fullName)][$configName] = $value;
+    $this->app->setConfig('models/' . str_replace("/", "-", $this->fullName) . '/' . $configName, $value);
   }
 
   /**
@@ -1030,7 +1026,7 @@ class Model
     return $relations;
   }
 
-  public function loadRecords(callable|null $queryModifierCallback = null, array|null $includeRelations = null, int $maxRelationLevel = 0): array {
+  public function loadRecords(callable|null $queryModifierCallback = null, array $includeRelations = [], int $maxRelationLevel = 0): array {
     $query = $this->prepareLoadRecordQuery($includeRelations, $maxRelationLevel);
     if ($queryModifierCallback !== null) $queryModifierCallback($query);
 
@@ -1043,7 +1039,7 @@ class Model
       // $records[$key] = $this->recordAddCustomData($records[$key]);
       $records[$key] = $this->onAfterLoadRecord($records[$key]);
       $records[$key]['_RELATIONS'] = array_keys($this->relations);
-      if (is_array($includeRelations)) $records[$key]['_RELATIONS'] = array_values(array_intersect($records[$key]['_RELATIONS'], $includeRelations));
+      if (count($includeRelations) > 0) $records[$key]['_RELATIONS'] = array_values(array_intersect($records[$key]['_RELATIONS'], $includeRelations));
     }
 
     $records = $this->onAfterLoadRecords($records);
@@ -1099,7 +1095,7 @@ class Model
 
   public function recordGet(
     callable|null $queryModifierCallback = null,
-    array|null $includeRelations = null,
+    array $includeRelations = [],
     int $maxRelationLevel = 0
   ): array {
     $allRecords = $this->loadRecords($queryModifierCallback, $includeRelations, $maxRelationLevel);
@@ -1119,7 +1115,7 @@ class Model
   }
 
   public function recordGetList(
-    array|null $includeRelations = null,
+    array $includeRelations = [],
     int $maxRelationLevel = 0,
     string $search = '',
     array $filterBy = [],
@@ -1164,13 +1160,13 @@ class Model
 
   /**
    * prepareLoadRecordQuery
-   * @param array|null $includeRelations Leave empty for default behaviour. What relations to be included in loaded record. If null, default relations will be selected.
+   * @param array $includeRelations Leave empty for default behaviour. What relations to be included in loaded record. If null, default relations will be selected.
    * @param int $maxRelationLevel Leave empty for default behaviour. Level of recursion in loading relations of relations.
    * @param mixed $query Leave empty for default behaviour.
    * @param int $level Leave empty for default behaviour.
    * @return mixed Eloquent query used to load record.
    */
-  public function prepareLoadRecordQuery(array|null $includeRelations = null, int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed {
+  public function prepareLoadRecordQuery(array $includeRelations = [], int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed {
     $tmpColumns = $this->columns();
 
     if ($maxRelationLevel > 4) $maxRelationLevel = 4;
@@ -1224,7 +1220,7 @@ class Model
     if ($query === null) $query = $this->eloquent;
     $query = $query->selectRaw(join(',', $selectRaw)); //->with($withs);
     foreach ($this->relations as $relName => $relDefinition) {
-      if (is_array($includeRelations) && !in_array($relName, $includeRelations)) continue;
+      if (count($includeRelations) > 0 && !in_array($relName, $includeRelations)) continue;
 
       $relModel = new $relDefinition[1]($this->app);
 
@@ -1244,7 +1240,7 @@ class Model
 
   // prepare load query for MULTIPLE records
   public function prepareLoadRecordsQuery(
-    array|null $includeRelations = null,
+    array $includeRelations = [],
     int $maxRelationLevel = 0,
     string $search = '',
     array $filterBy = [],

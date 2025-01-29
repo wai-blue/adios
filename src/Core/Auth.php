@@ -5,7 +5,7 @@ namespace ADIOS\Core;
 class Auth {
   public \ADIOS\Core\Loader $app;
   public array $params;
-  public ?array $user = null;
+  private ?array $user = null;
 
   function __construct(\ADIOS\Core\Loader $app, array $params = [])
   {
@@ -60,5 +60,28 @@ class Auth {
   public function auth()
   {
     // to be overriden
+  }
+
+  public function getUser(): array
+  {
+    return $this->user;
+  }
+
+  public function getUserRoles(): array
+  {
+    if (isset($this->user['ROLES']) && is_array($this->user['ROLES'])) return $this->user['ROLES'];
+    else if (isset($this->user['roles']) && is_array($this->user['roles'])) return $this->user['roles'];
+    else return [];
+  }
+
+  public function getUserId(): int
+  {
+    return (int) ($this->user['id'] ?? 0);
+  }
+
+  public function getUserLanguage(): string
+  {
+    $language = (string) ($this->user['language'] ?? $this->app->configAsString('language'));
+    return (strlen($language) == 2 ? $language : 'en');
   }
 }

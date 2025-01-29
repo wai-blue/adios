@@ -12,21 +12,23 @@ class GetList extends \ADIOS\Core\ApiController {
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
-    $this->permission = $this->app->params['model'] . ':Read';
-    $this->model = $this->app->getModel($this->app->params['model']);
+
+    $model = $this->app->urlParamAsString('model');
+    $this->permission = $model . ':Read';
+    $this->model = $this->app->getModel($model);
   }
 
   public function response(): array
   {
     return $this->model->recordGetList(
-      $this->app->params['includeRelations'] ?? null,
-      (int) ($this->app->params['maxRelationLevel'] ?? 2),
-      (string) ($this->app->params['search'] ?? ''),
-      (array) ($this->app->params['filterBy'] ?? []),
-      (array) ($this->app->params['where'] ?? []),
-      (array) ($this->app->params['orderBy'] ?? []),
-      (int) $this->app->params['itemsPerPage'] ?? 15,
-      $this->app->params['page'],
+      $this->app->urlParamAsArray('includeRelations'),
+      $this->app->urlParamAsInteger('maxRelationLevel', 2),
+      $this->app->urlParamAsString('search'),
+      $this->app->urlParamAsArray('filterBy'),
+      $this->app->urlParamAsArray('where'),
+      $this->app->urlParamAsArray('orderBy'),
+      $this->app->urlParamAsInteger('itemsPerPage', 15),
+      $this->app->urlParamAsInteger('page'),
     );
   }
 }

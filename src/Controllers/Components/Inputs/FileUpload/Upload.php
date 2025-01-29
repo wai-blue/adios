@@ -41,11 +41,13 @@ class Upload extends \ADIOS\Core\Controller {
   }
 
   private function uploadFile(string $fileName, string $sourceFile): array {
-    if ($this->app->params['renamePattern'] != null) {
+    $renamePattern = $this->app->urlParamAsString('renamePattern');
+
+    if (!empty($renamePattern)) {
       $uploadedFileExtension = strtolower($fileName, PATHINFO_EXTENSION);
       $tmpParts = pathinfo($fileName);
 
-      $fileName = $this->app->params['renamePattern'];
+      $fileName = $renamePattern;
       $fileName = str_replace("{%Y%}", date("Y"), $fileName);
       $fileName = str_replace("{%M%}", date("m"), $fileName);
       $fileName = str_replace("{%D%}", date("d"), $fileName);
@@ -61,7 +63,7 @@ class Upload extends \ADIOS\Core\Controller {
       $fileName = str_replace("{%EXT%}", $tmpParts['extension'], $fileName);
     }
 
-    $folderPath = $this->app->params['folderPath'] ?? "";
+    $folderPath = $this->app->urlParamAsString('folderPath');
 
     if (strpos($folderPath, "..") !== FALSE) {
       $folderPath = "";
@@ -69,11 +71,13 @@ class Upload extends \ADIOS\Core\Controller {
 
     if (empty($folderPath)) $folderPath = ".";
 
-    if (!is_dir("{$this->app->config['uploadDir']}/{$folderPath}")) {
-      mkdir("{$this->app->config['uploadDir']}/{$folderPath}", 0775, TRUE);
+    $uploadDir = $this->app->configAsString('uploadDir');
+
+    if (!is_dir("{$uploadDir}/{$folderPath}")) {
+      mkdir("{$uploadDir}/{$folderPath}", 0775, TRUE);
     }
 
-    $destinationFile = "{$this->app->config['uploadDir']}/{$folderPath}/{$fileName}";
+    $destinationFile = "{$uploadDir}/{$folderPath}/{$fileName}";
 
     if (in_array($uploadedFileExtension, ['php', 'sh', 'exe', 'bat', 'htm', 'html', 'htaccess'])) {
       throw new \Exception('This file type cannot be uploaded');
@@ -99,10 +103,6 @@ class Upload extends \ADIOS\Core\Controller {
 
     return [
       'fullPath' => "{$folderPath}/{$fileName}",
-      //'folderPath' => $folderPath,
-      //'fileName' => $fileName,
-      //'fileSize' => filesize($destinationFile),
-      //'url' => "{$this->app->config['uploadUrl']}/{$folderPath}/{$fileName}",
     ];
   }
 }

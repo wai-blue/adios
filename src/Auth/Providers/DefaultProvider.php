@@ -24,9 +24,9 @@ class DefaultProvider extends \ADIOS\Core\Auth {
     if ($this->isUserInSession()) {
       $this->loadUserFromSession();
     } else {
-      $login = $this->app->params['login'] ?? '';
-      $password = $this->app->params['password'] ?? '';
-      $rememberLogin = $this->app->params['rememberLogin'] ?? false;
+      $login = $this->app->urlParamAsString('login');
+      $password = $this->app->urlParamAsString('password');
+      $rememberLogin = $this->app->urlParamAsBool('rememberLogin');
 
       $login = trim($login);
 

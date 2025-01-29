@@ -18,8 +18,8 @@ class Set extends \ADIOS\Core\ApiController {
 
   public function response(): array
   {
-    $path = $this->app->params['path'] ?? '';
-    $value = $this->app->params['value'] ?? '';
+    $path = $this->app->urlParamAsString('path');
+    $value = $this->app->urlParamAsString('value');
 
     $idCfg = null;
 

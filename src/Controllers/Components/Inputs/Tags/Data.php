@@ -24,9 +24,9 @@ class Data extends \ADIOS\Core\Controller {
 
   public function renderJson(): ?array { 
     try {
-      $id = (int) $this->app->params['id'];
-      $model = (string) $this->app->params['model'];
-      $junction = (string) $this->app->params['junction'];
+      $id = $this->app->urlParamAsInteger('id');
+      $model = $this->app->urlParamAsString('model');
+      $junction = $this->app->urlParamAsString('junction');
 
       // Validate required params
       if ($model == '') throw new \Exception("Unknown model");

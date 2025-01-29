@@ -15,14 +15,14 @@ namespace ADIOS\Controllers\Components\FileBrowser;
  */
 class RenameFolder extends \ADIOS\Core\Controller {
   public function render() {
-    $folder = $this->app->params['folder'];
-    $newFolderName = $this->app->params['newFolderName'];
+    $folder = $this->app->urlParamAsString('folder');
+    $newFolderName = $this->app->urlParamAsString('newFolderName');
 
     foreach (explode("/", $folder) as $tmp) {
       if ($tmp == "..") return "Invalid folder path. {$folder}";
     }
 
-    $dir = realpath($this->app->config['uploadDir']);
+    $dir = realpath($this->app->configAsString('uploadDir'));
 
     if (!empty($dir) && rename("{$dir}/{$folder}", "{$dir}/".dirname($folder)."/{$newFolderName}")) {
       return "1"; // "1 = {$dir}/{$folder}, {$dir}/".dirname($folder)."/{$newFolderName}";

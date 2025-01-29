@@ -18,12 +18,12 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
     parent::__construct($app, $params);
 
     $this->provider = new \League\OAuth2\Client\Provider\GenericProvider([
-      'clientId'                => $this->app->config['auth']['clientId'],    // The client ID assigned to you by the provider
-      'clientSecret'            => $this->app->config['auth']['clientSecret'],    // The client password assigned to you by the provider
-      'redirectUri'             => $this->app->config['accountUrl'] . '/',
-      'urlAuthorize'            => $this->app->config['auth']['urlAuthorize'],
-      'urlAccessToken'          => $this->app->config['auth']['urlAccessToken'],
-      'urlResourceOwnerDetails' => $this->app->config['auth']['urlResourceOwnerDetails'],
+      'clientId'                => $this->app->configAsString('auth/clientId'),    // The client ID assigned to you by the provider
+      'clientSecret'            => $this->app->configAsString('auth/clientSecret'),    // The client password assigned to you by the provider
+      'redirectUri'             => $this->app->configAsString('accountUrl') . '/',
+      'urlAuthorize'            => $this->app->configAsString('auth/urlAuthorize'),
+      'urlAccessToken'          => $this->app->configAsString('auth/urlAccessToken'),
+      'urlResourceOwnerDetails' => $this->app->configAsString('auth/urlResourceOwnerDetails'),
     ], [
       'httpClient' => new \GuzzleHttp\Client([\GuzzleHttp\RequestOptions::VERIFY => false]),
     ]);
@@ -32,15 +32,19 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
 
   public function signOut() {
     $accessToken = $this->getAccessToken();
+    $accountUrl = $this->app->configAsString('accountUrl');
     try {
       $idToken = $accessToken->getValues()['id_token'] ?? '';
 
       $this->deleteSession();
-      header("Location: {$this->app->config['auth']['urlLogout']}?id_token_hint=".\urlencode($idToken)."&post_logout_redirect_uri=".\urlencode("{$this->app->config['accountUrl']}?signed-out"));
+      header(
+        "Location: " . $this->app->configAsString('auth/urlLogout') . 
+        "?id_token_hint=".\urlencode($idToken)."&post_logout_redirect_uri=".\urlencode($accountUrl . "?signed-out")
+      );
       exit;
     } catch (\Throwable $e) {
       $this->deleteSession();
-      header("Location: {$this->app->config['accountUrl']}");
+      header("Location: {$accountUrl}");
       exit;
     }
   }
@@ -74,8 +78,8 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
       }
     } else {
 
-      $authCode = $this->app->params['code'] ?? '';
-      $authState = $this->app->params['state'] ?? '';
+      $authCode = $this->app->urlParamAsString('code');
+      $authState = $this->app->urlParamAsString('state');
 
       // If we don't have an authorization code then get one
       if (empty($authCode)) {

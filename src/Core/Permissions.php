@@ -81,10 +81,7 @@ class Permissions {
       $idRole = (int) $role;
     }
 
-    return 
-      in_array($idRole, $this->app->auth->user['roles'] ?? [])
-      || in_array($idRole, $this->app->auth->user['ROLES'] ?? [])
-    ;
+    return in_array($idRole, $this->app->auth->getUserRoles());
   }
 
   public function grantedForRole(string $permission, int|string $userRole) : bool
@@ -102,8 +99,7 @@ class Permissions {
   public function granted(string $permission, array $userRoles = []) : bool
   {
     if (empty($permission)) return TRUE;
-    if (count($userRoles) == 0) $userRoles = $this->app->auth->user['roles'] ?? [];
-    if (count($userRoles) == 0) $userRoles = $this->app->auth->user['ROLES'] ?? [];
+    if (count($userRoles) == 0) $userRoles = $this->app->auth->getUserRoles();
 
     $granted = false;
 

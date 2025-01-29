@@ -26,7 +26,7 @@ class Widget {
   public string $translationContext = '';
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
-    $appNamespace = ($app->config['appNamespace'] ?? 'App');
+    $appNamespace = $app->configAsString('appNamespace', 'App');
     $this->name = str_replace("{$appNamespace}\\Widgets\\", "", get_class($this));
     $this->fullName = str_replace("{$appNamespace}\\Widgets\\", "", get_class($this));
     $this->shortName = end(explode("/", $this->name));
@@ -36,16 +36,16 @@ class Widget {
     // inicializacia widgetu
     $this->init();
 
-    $this->app->dispatchEventToPlugins("onWidgetAfterInit", [
-      "widget" => $this,
-    ]);
+    // $this->app->dispatchEventToPlugins("onWidgetAfterInit", [
+    //   "widget" => $this,
+    // ]);
 
     // nacitanie modelov
     $this->loadModels();
 
-    $this->app->dispatchEventToPlugins("onWidgetModelsLoaded", [
-      "widget" => $this,
-    ]);
+    // $this->app->dispatchEventToPlugins("onWidgetModelsLoaded", [
+    //   "widget" => $this,
+    // ]);
 
   }
 
@@ -64,10 +64,7 @@ class Widget {
 
   public function routing(array $routing = [])
   {
-    return $this->app->dispatchEventToPlugins("onWidgetAfterRouting", [
-      "model" => $this,
-      "routing" => $routing,
-    ])["routing"];
+    return $routing;
   }
 
   public function onBeforeDesktopParams(\ADIOS\Controllers\Desktop $desktop) {
@@ -91,14 +88,14 @@ class Widget {
       foreach (scandir($dir) as $file) {
         if (is_file("{$dir}/{$file}")) {
           $tmpModelName = str_replace(".php", "", $file);
-          $this->app->registerModel(($this->app->config['appNamespace'] ?? 'App') . "/Widgets/{$this->name}/Models/{$tmpModelName}");
+          $this->app->registerModel($this->app->configAsString('appNamespace', 'App') . "/Widgets/{$this->name}/Models/{$tmpModelName}");
         }
       }
     }
 
-    $this->app->dispatchEventToPlugins("onWidgetAfterModelsLoaded", [
-      "widget" => $this,
-    ]);
+    // $this->app->dispatchEventToPlugins("onWidgetAfterModelsLoaded", [
+    //   "widget" => $this,
+    // ]);
   }
 
 }

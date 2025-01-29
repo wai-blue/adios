@@ -17,11 +17,11 @@ class Translator {
   {
     $dictionaryFile = '';
 
-    if (empty($language)) $language = $this->app->config['language'] ?? 'en';
+    if (empty($language)) $language = $this->app->configAsString('language', 'en');
     if (empty($language)) $language = 'en';
 
     if (strlen($language) == 2) {
-      $dictionaryFile = "{$this->app->config['srcDir']}/Lang/{$language}.json";
+      $dictionaryFile = $this->app->configAsString('srcDir') . "/Lang/{$language}.json";
     }
 
     return $dictionaryFile;
@@ -57,7 +57,7 @@ class Translator {
   public function translate(string $string, array $vars = [], string $context = "app", string $toLanguage = ""): string
   {
     if (empty($toLanguage)) {
-      $toLanguage = $this->app->config['language'] ?? "en";
+      $toLanguage = $this->app->configAsString('language', 'en');
     }
 
     if ($toLanguage == "en") {

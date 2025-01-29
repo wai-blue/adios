@@ -89,6 +89,26 @@ class Router {
     return $this->routeVars[$index] ?? '';
   }
 
+  public function routeVarAsString($varIndex): string
+  {
+    return (string) ($this->routeVars[$varIndex] ?? '');
+  }
+
+  public function routeVarAsInteger($varIndex): int
+  {
+    return (int) ($this->routeVars[$varIndex] ?? 0);
+  }
+
+  public function routeVarAsFloat($varIndex): float
+  {
+    return (float) ($this->routeVars[$varIndex] ?? 0);
+  }
+
+  public function routeVarAsBool($varIndex): bool
+  {
+    return (bool) ($this->routeVars[$varIndex] ?? false);
+  }
+
   public function extractRouteVariables(string $method, string $route = '')
   {
     if (empty($route)) $route = $this->app->route;
@@ -167,7 +187,7 @@ class Router {
   }
 
   public function redirectTo(string $url, int $code = 302) {
-    header("Location: {$this->app->config['accountUrl']}/".trim($url, "/"), true, $code);
+    header("Location: " . $this->app->configAsString('accountUrl') . "/" . trim($url, "/"), true, $code);
     exit;
   }
 

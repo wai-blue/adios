@@ -49,7 +49,7 @@ class DataTypeJson extends \ADIOS\Core\Db\DataType
       && strpos($colDef['schemaFileJson'], '..') === FALSE
     ) {
       $schemaFileJson =
-        $this->app->config['dir']
+        $this->app->configAsString('dir')
         . '/'
         . $colDef['schemaFileJson']
       ;

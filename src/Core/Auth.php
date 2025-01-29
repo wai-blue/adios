@@ -64,7 +64,7 @@ class Auth {
 
   public function getUser(): array
   {
-    return $this->user;
+    return is_array($this->user) ? $this->user : [];
   }
 
   public function getUserRoles(): array

@@ -97,7 +97,7 @@ class Controller {
    *
    * @throws Exception Should throw an exception on error.
    */
-  public function preInit()
+  public function preInit(): void
   {
     //
   }
@@ -107,7 +107,7 @@ class Controller {
    *
    * @throws Exception Should throw an exception on error.
    */
-  public function init()
+  public function init(): void
   {
     //
   }
@@ -117,7 +117,7 @@ class Controller {
    *
    * @throws Exception Should throw an exception on error.
    */
-  public function postInit()
+  public function postInit(): void
   {
     //
   }

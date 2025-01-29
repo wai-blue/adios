@@ -84,6 +84,11 @@ class Router {
     return $controller;
   }
 
+  public function getRouteVars(): array
+  {
+    return $this->routeVars;
+  }
+
   public function getRouteVar($index): string
   {
     return $this->routeVars[$index] ?? '';

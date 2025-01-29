@@ -145,7 +145,7 @@ class DB
    *
    * @return object DB result object.
    */
-  public function query(string $query, mixed $initiatingModel = NULL)
+  public function query(string $query, ?object $initiatingModel = NULL)
   {
   }
 
@@ -161,7 +161,7 @@ class DB
   public function multiQuery(
     string $query,
     string $separator = ";;\n",
-    mixed $initiatingModel = NULL
+    ?object $initiatingModel = NULL
   )
   {
     $query = str_replace("\r\n", "\n", $query);
@@ -181,7 +181,7 @@ class DB
    */
   public function multiQueryArray(
     array $queries,
-    mixed $initiatingModel = NULL
+    ?object $initiatingModel = NULL
   )
   {
     foreach ($queries as $query) {

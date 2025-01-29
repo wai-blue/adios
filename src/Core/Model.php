@@ -1026,7 +1026,8 @@ class Model
     return $relations;
   }
 
-  public function loadRecords(callable|null $queryModifierCallback = null, array $includeRelations = [], int $maxRelationLevel = 0): array {
+  public function loadRecords(callable|null $queryModifierCallback = null, array $includeRelations = [], int $maxRelationLevel = 0): array
+  {
     $query = $this->prepareLoadRecordQuery($includeRelations, $maxRelationLevel);
     if ($queryModifierCallback !== null) $queryModifierCallback($query);
 
@@ -1166,7 +1167,8 @@ class Model
    * @param int $level Leave empty for default behaviour.
    * @return mixed Eloquent query used to load record.
    */
-  public function prepareLoadRecordQuery(array $includeRelations = [], int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed {
+  public function prepareLoadRecordQuery(array $includeRelations = [], int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed
+  {
     $tmpColumns = $this->columns();
 
     if ($maxRelationLevel > 4) $maxRelationLevel = 4;
@@ -1226,7 +1228,7 @@ class Model
 
       if ($maxRelationLevel > 0) {
         $query->with([$relName => function($q) use($relModel, $maxRelationLevel) {
-          return $relModel->prepareLoadRecordQuery(null, $maxRelationLevel - 1, $q);
+          return $relModel->prepareLoadRecordQuery([], $maxRelationLevel - 1, $q);
         }]);
       }
 

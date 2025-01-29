@@ -1744,6 +1744,11 @@ class Loader
     return isset($this->params[$paramName]);
   }
 
+  public function setUrlParam(string $paramName, mixed $newValue): void
+  {
+    $this->params[$paramName] = $newValue;
+  }
+
   public function urlParamAsString(string $paramName, string $defaultValue = ''): string
   {
     if (isset($this->params[$paramName])) return (string) $this->params[$paramName];
@@ -1773,7 +1778,7 @@ class Loader
   */
   public function urlParamAsArray(string $paramName, array $defaultValue = []): array
   {
-    if (isset($this->params[$paramName])) return (string) $this->params[$paramName];
+    if (isset($this->params[$paramName])) return (array) $this->params[$paramName];
     else return $defaultValue;
   }
 

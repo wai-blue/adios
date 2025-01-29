@@ -16,6 +16,6 @@ class Describe extends \ADIOS\Core\ApiController {
 
   public function response(): array
   {
-    return $this->model->formDescribe($this->app->params);
+    return $this->model->formDescribe();
   }
 }

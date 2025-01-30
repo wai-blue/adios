@@ -1436,7 +1436,7 @@ class Loader
     }
   }
 
-  public function saveConfigByPath(string $path, $value) {
+  public function saveConfigByPath(string $path, string $value) {
     try {
       if (!empty($path)) {
         $this->db->query("

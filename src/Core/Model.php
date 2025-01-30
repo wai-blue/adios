@@ -768,6 +768,7 @@ class Model
     unset($columns['id']);
 
     $description = [
+      'ui' => [],
       'columns' => $columns,
       'defaultValues' => $this->recordDefaultValues(),
       'permissions' => [

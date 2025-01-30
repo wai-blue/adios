@@ -27,11 +27,19 @@ class PDO {
     $dbCodepage = $this->app->configAsString('db_codepage', 'utf8mb4');
 
     if (!empty($dbHost)) {
-      $this->connection = new \PDO(
-        "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset={$dbCodepage}",
-        $dbUser,
-        $dbPassword
-      );
+      if (empty($dbName)) {
+        $this->connection = new \PDO(
+          "mysql:host={$dbHost};port={$dbPort};charset={$dbCodepage}",
+          $dbUser,
+          $dbPassword
+        );
+      } else {
+        $this->connection = new \PDO(
+          "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset={$dbCodepage}",
+          $dbUser,
+          $dbPassword
+        );
+      }
     }
 
   }

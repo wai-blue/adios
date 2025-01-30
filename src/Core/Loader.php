@@ -45,14 +45,14 @@ class Loader
 
   public bool $logged = false;
 
-  private array $config = [];
+  protected array $config = [];
   public array $widgets = [];
 
   public array $widgetsInstalled = [];
 
-  // public array $pluginFolders = [];
-  // public array $pluginObjects = [];
-  // public array $plugins = [];
+  private array $pluginFolders = [];
+  private array $pluginObjects = [];
+  private array $plugins = [];
 
   public array $modelObjects = [];
   public array $registeredModels = [];
@@ -91,7 +91,7 @@ class Loader
 
   public string $translationContext = '';
 
-  private array $params = [];
+  protected array $params = [];
   public ?array $uploadedFiles = null;
 
   public function __construct(array $config = [], int $mode = self::ADIOS_MODE_FULL)
@@ -154,20 +154,20 @@ class Loader
 
       return $app->widgetsDir."/{$widget}/Assets/{$asset}";
     };
-    // $this->assetsUrlMap["adios/assets/plugins/"] = function ($app, $url) {
-    //   $url = str_replace("adios/assets/plugins/", "", $url);
-    //   preg_match('/(.+?)\/~\/(.+)/', $url, $m);
+    $this->assetsUrlMap["adios/plugins/"] = function ($app, $url) {
+      $url = str_replace("adios/plugins/", "", $url);
+      preg_match('/(.+?)\/~\/(.+)/', $url, $m);
 
-    //   $plugin = $m[1];
-    //   $asset = $m[2];
+      $plugin = $m[1];
+      $resource = $m[2];
 
-    //   foreach ($app->pluginFolders as $pluginFolder) {
-    //     $file = "{$pluginFolder}/{$plugin}/Assets/{$asset}";
-    //     if (is_file($file)) {
-    //       return $file;
-    //     }
-    //   }
-    // };
+      foreach ($app->pluginFolders as $pluginFolder) {
+        $file = "{$pluginFolder}/{$plugin}/{$resource}";
+        if (is_file($file)) {
+          return $file;
+        }
+      }
+    };
 
     //////////////////////////////////////////////////
     // inicializacia
@@ -212,15 +212,15 @@ class Loader
 
       \ADIOS\Core\Helper::addSpeedLogTag("#2.1");
 
-      // // inicializacia pluginov - aj pre FULL aj pre LITE mod
+      // inicializacia pluginov - aj pre FULL aj pre LITE mod
 
-      // $this->onBeforePluginsLoaded();
+      $this->onBeforePluginsLoaded();
 
-      // foreach ($this->pluginFolders as $pluginFolder) {
-      //   $this->loadAllPlugins($pluginFolder);
-      // }
+      foreach ($this->pluginFolders as $pluginFolder) {
+        $this->loadAllPlugins($pluginFolder);
+      }
 
-      // $this->onAfterPluginsLoaded();
+      $this->onAfterPluginsLoaded();
 
       $this->renderAssets();
 
@@ -310,7 +310,7 @@ class Loader
         $this->configureTwig();
       }
 
-      // $this->dispatchEventToPlugins("onADIOSAfterInit", ["app" => $this]);
+      $this->dispatchEventToPlugins("onADIOSAfterInit", ["app" => $this]);
     } catch (\Exception $e) {
       echo "ADIOS INIT failed: [".get_class($e)."] ".$e->getMessage() . "\n";
       echo $e->getTraceAsString() . "\n";
@@ -561,54 +561,54 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // PLUGINS
 
-  // public function registerPluginFolder($folder)
-  // {
-  //   if (is_dir($folder) && !in_array($folder, $this->pluginFolders)) {
-  //     $this->pluginFolders[] = $folder;
-  //   }
-  // }
+  public function registerPluginFolder($folder)
+  {
+    if (is_dir($folder) && !in_array($folder, $this->pluginFolders)) {
+      $this->pluginFolders[] = $folder;
+    }
+  }
 
-  // public function getPluginClassName($pluginName)
-  // {
-  //   return "\\ADIOS\\Plugins\\".str_replace("/", "\\", $pluginName);
-  // }
+  public function getPluginClassName($pluginName)
+  {
+    return "\\ADIOS\\Plugins\\".str_replace("/", "\\", $pluginName);
+  }
 
-  // public function getPlugin($pluginName)
-  // {
-  //   return $this->pluginObjects[$pluginName] ?? null;
-  // }
+  public function getPlugin($pluginName)
+  {
+    return $this->pluginObjects[$pluginName] ?? null;
+  }
 
-  // public function getPlugins() {
-  //   return $this->pluginObjects;
-  // }
+  public function getPlugins() {
+    return $this->pluginObjects;
+  }
 
-  // public function loadAllPlugins($pluginFolder, $subFolder = "") {
-  //   $folder = $pluginFolder.(empty($subFolder) ? "" : "/{$subFolder}");
+  public function loadAllPlugins($pluginFolder, $subFolder = "") {
+    $folder = $pluginFolder.(empty($subFolder) ? "" : "/{$subFolder}");
 
-  //   foreach (scandir($folder) as $file) {
-  //     if (strpos($file, ".") !== false) continue;
+    foreach (scandir($folder) as $file) {
+      if (strpos($file, ".") !== false) continue;
 
-  //     $fullPath = (empty($subFolder) ? "" : "{$subFolder}/").$file;
+      $fullPath = (empty($subFolder) ? "" : "{$subFolder}/").$file;
 
-  //     if (
-  //       is_dir("{$folder}/{$file}")
-  //       && !is_file("{$folder}/{$file}/Main.php")
-  //     ) {
-  //       $this->loadAllPlugins($pluginFolder, $fullPath);
-  //     } else if (is_file("{$folder}/{$file}/Main.php")) {
-  //       try {
-  //         $tmpPluginClassName = $this->getPluginClassName($fullPath);
+      if (
+        is_dir("{$folder}/{$file}")
+        && !is_file("{$folder}/{$file}/Main.php")
+      ) {
+        $this->loadAllPlugins($pluginFolder, $fullPath);
+      } else if (is_file("{$folder}/{$file}/Main.php")) {
+        try {
+          $tmpPluginClassName = $this->getPluginClassName($fullPath);
 
-  //         if (class_exists($tmpPluginClassName)) {
-  //           $this->plugins[] = $fullPath;
-  //           $this->pluginObjects[$fullPath] = new $tmpPluginClassName($this);
-  //         }
-  //       } catch (\Exception $e) {
-  //         exit("Failed to load plugin {$fullPath}: ".$e->getMessage());
-  //       }
-  //     }
-  //   }
-  // }
+          if (class_exists($tmpPluginClassName)) {
+            $this->plugins[] = $fullPath;
+            $this->pluginObjects[$fullPath] = new $tmpPluginClassName($this);
+          }
+        } catch (\Exception $e) {
+          exit("Failed to load plugin {$fullPath}: ".$e->getMessage());
+        }
+      }
+    }
+  }
 
   //////////////////////////////////////////////////////////////////////////////
   // TRANSLATIONS
@@ -793,9 +793,9 @@ class Loader
         // V takom pripade budem instalaciu opakovat v dalsom kole
       }
 
-      // $this->dispatchEventToPlugins("onWidgetAfterInstall", [
-      //   "widget" => $widget,
-      // ]);
+      $this->dispatchEventToPlugins("onWidgetAfterInstall", [
+        "widget" => $widget,
+      ]);
     }
 
     $this->db->commit();
@@ -956,7 +956,7 @@ class Loader
 
       $return = '';
 
-      // $this->dispatchEventToPlugins("onADIOSBeforeRender", ["app" => $this]);
+      $this->dispatchEventToPlugins("onADIOSBeforeRender", ["app" => $this]);
 
       unset($this->params['__IS_AJAX__']);
 
@@ -1324,22 +1324,22 @@ class Loader
    * @throws \ADIOS\Core\Exception When plugin's hook returns invalid value.
    * @return array<string, mixed> Event data modified by plugins which implement the hook.
    */
-  // public function dispatchEventToPlugins(string $eventName, array $eventData = []): array
-  // {
-  //   foreach ($this->pluginObjects as $plugin) {
-  //     if (method_exists($plugin, $eventName)) {
-  //       $eventData = $plugin->$eventName($eventData);
-  //       if (!is_array($eventData) && $eventData !== false) {
-  //         throw new \ADIOS\Core\Exceptions\GeneralException("Plugin {$plugin->name}, event {$eventName}: No value returned. Either forward \$event or return FALSE.");
-  //       }
+  public function dispatchEventToPlugins(string $eventName, array $eventData = []): array
+  {
+    foreach ($this->pluginObjects as $plugin) {
+      if (method_exists($plugin, $eventName)) {
+        $eventData = $plugin->$eventName($eventData);
+        if (!is_array($eventData) && $eventData !== false) {
+          throw new \ADIOS\Core\Exceptions\GeneralException("Plugin {$plugin->name}, event {$eventName}: No value returned. Either forward \$event or return FALSE.");
+        }
 
-  //       if ($eventData === false) {
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   return $eventData;
-  // }
+        if ($eventData === false) {
+          break;
+        }
+      }
+    }
+    return $eventData;
+  }
 
   public function hasPermissionForController($controller, $params) {
     return true;

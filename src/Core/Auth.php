@@ -5,7 +5,7 @@ namespace ADIOS\Core;
 class Auth {
   public \ADIOS\Core\Loader $app;
   public array $params;
-  private ?array $user = null;
+  protected ?array $user = null;
 
   function __construct(\ADIOS\Core\Loader $app, array $params = [])
   {

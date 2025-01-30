@@ -201,7 +201,7 @@ class Model
    *
    * @return void
    */
-  public function setConfig(string $configName, $value): void
+  public function setConfig(string $configName, string $value): void
   {
     $this->app->setConfig('models/' . str_replace("/", "-", $this->fullName) . '/' . $configName, $value);
   }

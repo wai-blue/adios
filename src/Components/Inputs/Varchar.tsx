@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
 import * as uuid from 'uuid';
 import AsyncSelect from 'react-select/async'
+import AsyncCreatable from 'react-select/async-creatable'
 import request from '../Request'
 
 interface VarcharInputState extends InputState {
@@ -77,26 +78,27 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
   renderInputElement() {
 
     if (this.props.description.autocomplete) {
-      return (
-        <AsyncSelect
-          value={{
-            label: this.state.value ?? '',
-            value: this.state.value ?? '',
-          }}
-          isClearable={true}
-          isDisabled={this.state.readonly || !this.state.isInitialized}
-          loadOptions={(inputValue: string, callback: any) => this.loadData(inputValue, callback)}
-          defaultOptions={this.state.data}
-          getOptionLabel={(option: any) => { return option.label }}
-          getOptionValue={(option: any) => { return option.value }}
-          onChange={(item: any) => { this.onChange(item?.value ?? ''); }}
-          placeholder={this.props.params?.placeholder}
-          className="adios-lookup"
-          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-          menuPosition="fixed"
-          menuPortalTarget={document.body}
-        />
-      )
+      let selectProps = {
+        value: {
+          label: this.state.value ?? '',
+          value: this.state.value ?? '',
+        },
+        isClearable: true,
+        isDisabled: this.state.readonly || !this.state.isInitialized,
+        loadOptions: (inputValue: string, callback: any) => this.loadData(inputValue, callback),
+        defaultOptions: this.state.data,
+        getOptionLabel: (option: any) => { return option.label },
+        getOptionValue: (option: any) => { return option.value },
+        onChange: (item: any) => { console.log('onchange', item.value); this.onChange(item?.value ?? ''); },
+        placeholder: this.props.params?.placeholder,
+        className: 'adios-lookup',
+        styles: { menuPortal: (base) => ({ ...base, zIndex: 9999 }) },
+        // menuPosition: 'fixed',
+        menuPortalTarget: document.body,
+      }
+
+      if (this.props.description.autocomplete.creatable) return <AsyncCreatable {...selectProps} />;
+      else return <AsyncSelect {...selectProps} />;
     } else {
     
       return <><div className="w-full">

@@ -13,7 +13,7 @@
   'class' => [
     'type' => 'varchar',
     'title' => 'Class',
-    'autocomplete' => (new \ADIOS\Core\Db\ColumnProperty\Autocomplete($this))->setEndpoint('api/classes/get'),
+    'autocomplete' => (new \ADIOS\Core\Db\ColumnProperty\Autocomplete($this))->setEndpoint('api/classes/get')->setCreatable(true),
   ],
 ```
 

@@ -5,11 +5,13 @@ namespace ADIOS\Core\Db;
 abstract class ColumnProperty implements \JsonSerializable
 {
 
-  protected \ADIOS\Core\Db $db;
+  protected Column $column;
 
-  public function __constructor(\ADIOS\Core\Db $db)
-  {
-    $this->db = $db;
-  }
+  public function __constructor() { }
+
+  public function toColumn(): Column { return $this->column; }
+
+  public function setColumn(Column $column): void { $this->column = $column; }
+
 
 }

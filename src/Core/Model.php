@@ -530,6 +530,11 @@ class Model
     return $newColumns;
   }
 
+  public function getColumn(string $column): Db\Column
+  {
+    return $this->columns()[$column];
+  }
+
   /** @deprecated Use new definition of columns instead. */
   public function columnsLegacy(array $columns = []): array
   {
@@ -764,7 +769,7 @@ class Model
 
   public function columnDescribe(string $column): array
   {
-    return (array) ($this->columnsLegacy()[$column] ?? []);
+    return (array) ($this->columns()[$column]->toArray() ?? []);
   }
 
   /**

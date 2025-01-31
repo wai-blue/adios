@@ -38,10 +38,16 @@ abstract class Column implements \JsonSerializable
   public function setRawSqlDefinition(string $rawSqlDefinition): Column { $this->rawSqlDefinition = $rawSqlDefinition; return $this; }
 
 
-
-  public function setProperty(string $name, \ADIOS\Core\Db\ColumnProperty $property): void
+  public function getProperty(string $name): ColumnProperty
   {
-    $this->properties[$name] = $property;
+    return $this->properties[$name];
+  }
+
+  public function setProperty(string $propertyName, ColumnProperty $property): Column
+  {
+    $property->setColumn($this);
+    $this->properties[$propertyName] = $property;
+    return $this;
   }
 
   public function jsonSerialize(): array

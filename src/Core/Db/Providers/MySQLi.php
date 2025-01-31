@@ -1001,7 +1001,6 @@ class MySQLi extends \ADIOS\Core\Db
       }
 
       $table_columns = $this->tables[$table_name];
-      $table_params = $table_columns['%%table_params%%'] ?? [];
 
       $sql = "drop table if exists `{$table_name}`;;\n";
       $sql .= "create table `{$table_name}` (\n";

@@ -651,19 +651,6 @@ class Loader
       echo $jsCache;
 
       exit();
-    // } else if ($this->requestedUri == "adios/react.js") {
-    //   $jsCache = $this->renderReactJsBundle();
-    //   $cachingTime = 3600;
-
-    //   header("Content-type: text/js");
-    //   header("ETag: ".md5($jsCache));
-    //   header($headerExpires);
-    //   header("Pragma: cache");
-    //   header($headerCacheControl);
-
-    //   echo $jsCache;
-
-    //   exit();
     } else {
       foreach ($this->assetsUrlMap as $urlPart => $mapping) {
         if (preg_match('/^'.str_replace("/", "\\/", $urlPart).'/', $this->requestedUri, $m)) {
@@ -759,23 +746,6 @@ class Loader
         // V takom pripade budem instalaciu opakovat v dalsom kole
       }
     }
-
-    // foreach ($this->registeredModels as $modelName) {
-    //   try {
-    //     $model = $this->getModel($modelName);
-
-    //     $start = microtime(true);
-
-    //     $model->createSqlForeignKeys();
-    //     $this->console->info("Indexes for model {$modelName} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
-    //   } catch (\Exception $e) {
-    //     $this->console->error("Indexes installation for model {$modelName} failed.", ["exception" => $e->getMessage()]);
-    //   } catch (\Illuminate\Database\QueryException $e) {
-    //     //
-    //   } catch (\ADIOS\Core\Exceptions\DBException $e) {
-    //     //
-    //   }
-    // }
 
     foreach ($this->widgets as $widget) {
       try {
@@ -1127,37 +1097,6 @@ class Loader
 
   public function getControllerClassName(string $controller) : string {
     return '\\' . trim(str_replace('/', '\\', $controller), '\\');
-
-    // $controllerPathParts = [];
-    // foreach (explode("/", $controller) as $controllerPathPart) {
-    //   // convert-dash-string-toCamelCase
-    //   $controllerPathParts[] = str_replace(' ', '', ucwords(str_replace('-', ' ', $controllerPathPart)));
-    // }
-    // $controller = join("/", $controllerPathParts);
-
-    // $controllerClassName = '';
-
-    // // Dusan 31.5.2023: Tento sposob zapisu akcii je zjednoteny so sposobom zapisu modelov.
-    // foreach (array_keys($this->widgets) as $widgetName) {
-    //   if (strpos(strtolower($controller), strtolower($widgetName)) === 0) {
-    //     $controllerClassName =
-    //       '\\' . $this->config['appNamespace'] . '\\Widgets\\'
-    //       . $widgetName
-    //       . '\\Controllers\\'
-    //       . substr($controller, strlen($widgetName) + 1)
-    //     ;
-    //   }
-    // }
-    // $controllerClassName = str_replace('/', '\\', $controllerClassName);
-
-    // if (!class_exists($controllerClassName)) {
-    //   // Dusan 31.5.2023: Tento sposob zapisu akcii je deprecated.
-    //   $controllerClassName = 'ADIOS\\Controllers\\' . str_replace('/', '\\', $controller);
-
-    //   // $this->console->warning('[ADIOS] Deprecated class name for controller ' . $controller . '.');
-    // }
-
-    // return $controllerClassName;
   }
 
   public function controllerExists(string $controller) : bool {
@@ -1391,21 +1330,6 @@ class Loader
     }
   }
 
-  // TODO: toto treba prekontrolovat, velmi pravdepodobne to nefunguje
-  // public function mergeConfig($config_to_merge) {
-  //   if (is_array($config_to_merge)) {
-  //     foreach ($config_to_merge as $key => $value) {
-  //       if (is_array($value)) {
-  //         $this->config[$key] = $this->mergeConfig($config_original[$key], $value);
-  //       } else {
-  //         $this->config[$key] = $value;
-  //       }
-  //     }
-  //   }
-
-  //   return $this->config;
-  // }
-
   public function saveConfig(array $config, string $path = '') {
     try {
       if (is_array($config)) {
@@ -1599,25 +1523,6 @@ class Loader
       dirname(__FILE__)."/../Assets/Css/colors.css",
     ];
 
-    // foreach (scandir(dirname(__FILE__).'/../Assets/Css/Ui') as $file) {
-    //   if ('.css' == substr($file, -4)) {
-    //     $cssFiles[] = dirname(__FILE__)."/../Assets/Css/Ui/{$file}";
-    //   }
-    // }
-
-    // foreach (scandir($this->widgetsDir) as $widget) {
-    //   if (in_array($widget, [".", ".."])) continue;
-    //   if (is_file($this->widgetsDir."/{$widget}/Main.css")) {
-    //     $cssFiles[] = $this->widgetsDir."/{$widget}/Main.css";
-    //   }
-
-    //   if (is_dir($this->widgetsDir."/{$widget}/Assets/Css")) {
-    //     foreach (scandir($this->widgetsDir."/{$widget}/Assets/Css") as $widgetCssFile) {
-    //       $cssFiles[] = $this->widgetsDir."/{$widget}/Assets/Css/{$widgetCssFile}";
-    //     }
-    //   }
-    // }
-
     foreach ($cssFiles as $file) {
       $css .= @file_get_contents($file)."\n";
     }
@@ -1643,15 +1548,15 @@ class Loader
 
     $jsFiles = [
       dirname(__FILE__)."/../Assets/Js/jquery-3.5.1.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.scrollTo.min.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.window.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.ui.widget.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.ui.mouse.js",
-      dirname(__FILE__)."/../Assets/Js/jquery-ui-touch-punch.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.scrollTo.min.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.window.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.ui.widget.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.ui.mouse.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery-ui-touch-punch.js",
       dirname(__FILE__)."/../Assets/Js/md5.js",
       dirname(__FILE__)."/../Assets/Js/base64.js",
       dirname(__FILE__)."/../Assets/Js/cookie.js",
-      dirname(__FILE__)."/../Assets/Js/keyboard_shortcuts.js",
+      // dirname(__FILE__)."/../Assets/Js/keyboard_shortcuts.js",
       dirname(__FILE__)."/../Assets/Js/json.js",
       dirname(__FILE__)."/../Assets/Js/moment.min.js",
       dirname(__FILE__)."/../Assets/Js/chart.min.js",
@@ -1659,58 +1564,24 @@ class Loader
       dirname(__FILE__)."/../Assets/Js/ajax_functions.js",
       dirname(__FILE__)."/../Assets/Js/adios.js",
       dirname(__FILE__)."/../Assets/Js/quill-1.3.6.min.js",
-      dirname(__FILE__)."/../Assets/Js/bootstrap.bundle.js",
+      // dirname(__FILE__)."/../Assets/Js/bootstrap.bundle.js",
       dirname(__FILE__)."/../Assets/Js/jquery.easing.js",
       dirname(__FILE__)."/../Assets/Js/sb-admin-2.js",
-      dirname(__FILE__)."/../Assets/Js/jsoneditor.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.tag-editor.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.caret.min.js",
-      dirname(__FILE__)."/../Assets/Js/jquery-ui.min.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.multi-select.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.quicksearch.js",
-      dirname(__FILE__)."/../Assets/Js/datatables.js",
+      // dirname(__FILE__)."/../Assets/Js/jsoneditor.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.tag-editor.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.caret.min.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery-ui.min.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.multi-select.js",
+      // dirname(__FILE__)."/../Assets/Js/jquery.quicksearch.js",
+      // dirname(__FILE__)."/../Assets/Js/datatables.js",
       dirname(__FILE__)."/../Assets/Js/jeditable.js",
       dirname(__FILE__)."/../Assets/Js/draggable.js"
     ];
 
-    // foreach (scandir(dirname(__FILE__).'/../Assets/Js/Ui') as $file) {
-    //   if ('.js' == substr($file, -3)) {
-    //     $jsFiles[] = dirname(__FILE__)."/../Assets/Js/Ui/{$file}";
-    //   }
-    // }
-
-    // if (is_dir($this->widgetsDir)) {
-    //   foreach (scandir($this->widgetsDir) as $widget) {
-    //     if (!in_array($widget, [".", ".."]) && is_file($this->widgetsDir."/{$widget}/main.js")) {
-    //       $jsFiles[] = $this->widgetsDir."/{$widget}/main.js";
-    //     }
-
-    //     if (is_dir($this->widgetsDir."/{$widget}/Assets/Js")) {
-    //       foreach (scandir($this->widgetsDir."/{$widget}/Assets/Js") as $widgetJsFile) {
-    //         $jsFiles[] = $this->widgetsDir."/{$widget}/Assets/Js/{$widgetJsFile}";
-    //       }
-    //     }
-    //   }
-    // }
 
     foreach ($jsFiles as $file) {
-      $js .= @file_get_contents($file).";\n";
+      $js .= (string) @file_get_contents($file) . ";\n";
     }
-
-    // $js .= "
-    //   var adios_language_translations = {};
-    // ";
-
-    // foreach ($this->config['availableLanguages'] as $language) {
-    //   $js .= "
-    //     adios_language_translations['{$language}'] = {
-    //       'Confirmation': '".ads($this->translate("Confirmation", [], $this, $language))."',
-    //       'OK, I understand': '".ads($this->translate("OK, I understand", [], $this, $language))."',
-    //       'Cancel': '".ads($this->translate("Cancel", [], $this, $language))."',
-    //       'Warning': '".ads($this->translate("Warning", [], $this, $language))."',
-    //     };
-    //   ";
-    // }
 
     return $js;
   }

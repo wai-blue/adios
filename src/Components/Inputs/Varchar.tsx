@@ -32,7 +32,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
   }
 
   componentDidMount() {
-    if (this.props.description.autocomplete) {
+    if (this.props.description?.autocomplete) {
       this.loadData();
     }
   }
@@ -41,8 +41,8 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
     super.componentDidUpdate(prevProps);
 
     if (
-      this.props.description.autocomplete
-      && this.props.description.autocomplete.endpoint != prevProps.description.autocomplete.endpoint
+      this.props.description?.autocomplete
+      && this.props.description?.autocomplete.endpoint != prevProps.description?.autocomplete.endpoint
     ) {
       this.loadData();
     }
@@ -50,7 +50,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
 
   getEndpointUrl(): string
   {
-    return this.state.description.autocomplete.endpoint ?? '';
+    return this.state.description?.autocomplete.endpoint ?? '';
   }
 
   loadData(inputValue: string|null = null, callback: ((option: Array<any>) => void)|null = null) {
@@ -77,7 +77,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
 
   renderInputElement() {
 
-    if (this.props.description.autocomplete) {
+    if (this.props.description?.autocomplete) {
       let selectProps = {
         value: {
           label: this.state.value ?? '',
@@ -97,7 +97,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
         menuPortalTarget: document.body,
       }
 
-      if (this.props.description.autocomplete.creatable) return <AsyncCreatable {...selectProps} />;
+      if (this.props.description?.autocomplete.creatable) return <AsyncCreatable {...selectProps} />;
       else return <AsyncSelect {...selectProps} />;
     } else {
     

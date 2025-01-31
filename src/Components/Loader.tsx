@@ -190,6 +190,10 @@ export class ADIOS {
     }
   };
 
+  getReactElement(elementId: string): any {
+    return this.reactElements[elementId] ?? null;
+  }
+
   /**
   * Validate attribute value
   * E.g. if string contains Callback create frunction from string

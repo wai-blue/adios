@@ -583,9 +583,11 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   input(columnName: string, customInputProps?: any, onChange?: any): JSX.Element {
     const record = this.state.record ?? {};
     const columns = this.state.description?.columns ?? {};
+    const description = columns[columnName] ?? {};
 
     const inputProps: InputProps = {
       ...this.getDefaultInputProps(),
+      description: description,
       params: this.buildInputParams(columnName),
       value: record[columnName] ?? '',
       columnName: columnName,

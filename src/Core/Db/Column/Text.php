@@ -8,9 +8,9 @@ class Text extends \ADIOS\Core\Db\Column
   protected string $type = 'text';
   protected string $interface = 'plainText';
 
-  public function __constructor(\ADIOS\Core\Db $db, string $title, string $interface = 'plainText')
+  public function __construct(\ADIOS\Core\Model $model, string $title, string $interface = 'plainText')
   {
-    parent::__constructor($db, $title);
+    parent::__construct($model, $title);
     $this->interface = $interface;
   }
 

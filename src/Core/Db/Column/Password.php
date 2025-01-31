@@ -7,10 +7,11 @@ class Password extends \ADIOS\Core\Db\Column
 
   protected string $type = 'password';
   protected int $byteSize = 255;
+  protected bool $hidden = true;
 
-  public function __constructor(\ADIOS\Core\Db $db, string $title, int $byteSize = 255)
+  public function __construct(\ADIOS\Core\Model $model, string $title, int $byteSize = 255)
   {
-    parent::__constructor($db, $title);
+    parent::__construct($model, $title);
     $this->byteSize = $byteSize;
   }
 

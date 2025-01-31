@@ -484,46 +484,12 @@ class Model
     $newColumns = [];
 
     if (!$this->isJunctionTable) {
-      $newColumns['id'] = (new \ADIOS\Core\Db\Column\PrimaryKey($this, 'ID', 8));
+      $newColumns['id'] = new \ADIOS\Core\Db\Column\PrimaryKey($this, 'ID', 8);
     }
 
     foreach ($columns as $colName => $column) {
       $newColumns[$colName] = $column;
     }
-
-    // default column settings
-    // foreach ($columns as $colName => $colDefinition) {
-    //   $newColumns[$colName] = $colDefinition;
-
-    //   if ($colDefinition["type"] == "char") {
-    //     $this->app->console->info("{$this->fullName}, {$colName}: char type is deprecated");
-    //   }
-
-    //   switch ($colDefinition["type"]) {
-    //     case "int":
-    //       $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 8;
-    //       break;
-    //     case "float":
-    //       $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 14;
-    //       $newColumns[$colName]["decimals"] = $colDefinition["decimals"] ?? 2;
-    //       break;
-    //     case "varchar":
-    //     case "password":
-    //       $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 255;
-    //       break;
-    //     case "lookup":
-    //       $newColumns[$colName]["model"] = trim(str_replace("\\", "/", $newColumns[$colName]["model"]), "/");
-    //       break;
-    //   }
-    // }
-
-    // foreach ($newColumns as $colName => $colDef) {
-    //   $colObject = $this->app->db->columnTypes[$colDef['type']] ?? null;
-
-    //   if ($colObject instanceof DataType) {
-    //     $newColumns[$colName] = $colObject->columnDefinitionPostProcess($colDef);
-    //   }
-    // }
 
     $this->eloquent->fillable = array_keys($newColumns);
 
@@ -552,7 +518,7 @@ class Model
     if (!$this->isJunctionTable) {
       $columnsLegacy['id'] = [
         'type' => 'int',
-        'byte_size' => '8',
+        'byteSize' => '8',
         'rawSqlDefinitions' => 'primary key auto_increment',
         'title' => 'ID',
         'readonly' => 'yes',

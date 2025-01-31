@@ -5,21 +5,23 @@ namespace ADIOS\Core\Db;
 abstract class Column implements \JsonSerializable
 {
 
-  protected \ADIOS\Core\Db $db;
+  protected \ADIOS\Core\Model $model;
 
   protected string $type = '';
   protected string $title = '';
   protected bool $readonly = false;
+  protected bool $required = false;
   protected bool $hidden = false;
   protected string $rawSqlDefinition = '';
+  protected string $inputComponent = '';
 
   /** @var array<string, \ADIOS\Core\Db\ColumnProperty> */
   protected array $properties = [];
 
-  public function __constructor(\ADIOS\Core\Db $db, string $title)
+  public function __construct(\ADIOS\Core\Model $model, string $title)
   {
-    $this->db = $db;
-    $this->title = $this->translate($title);
+    $this->model = $model;
+    $this->title = $title;
   }
 
   public function getType(): string { return $this->type; }
@@ -31,11 +33,17 @@ abstract class Column implements \JsonSerializable
   public function getReadonly(): bool { return $this->readonly; }
   public function setReadonly(bool $readonly = true): Column { $this->readonly = $readonly; return $this; }
 
+  public function getRequired(): bool { return $this->required; }
+  public function setRequired(bool $required = true): Column { $this->required = $required; return $this; }
+
   public function getHidden(): bool { return $this->hidden; }
   public function setHidden(bool $hidden = true): Column { $this->hidden = $hidden; return $this; }
 
   public function getRawSqlDefinition(): string { return $this->rawSqlDefinition; }
   public function setRawSqlDefinition(string $rawSqlDefinition): Column { $this->rawSqlDefinition = $rawSqlDefinition; return $this; }
+
+  public function getInputComponent(): string { return $this->inputComponent; }
+  public function setInputComponent(string $inputComponent): Column { $this->inputComponent = $inputComponent; return $this; }
 
 
   public function getProperty(string $name): ColumnProperty
@@ -56,6 +64,7 @@ abstract class Column implements \JsonSerializable
       'type' => $this->type,
       'title' => $this->title,
       'readonly' => $this->readonly,
+      'inputJSX' => $this->inputComponent,
     ];
 
     foreach ($this->properties as $name => $property) {

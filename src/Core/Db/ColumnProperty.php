@@ -7,7 +7,7 @@ abstract class ColumnProperty implements \JsonSerializable
 
   protected Column $column;
 
-  public function __constructor() { }
+  public function __construct() { }
 
   public function toColumn(): Column { return $this->column; }
 

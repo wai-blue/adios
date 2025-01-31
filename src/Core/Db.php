@@ -485,11 +485,11 @@ class DB
 
           if ($random_val !== NULL) {
             if (
-              $col_definition['byte_size'] != NULL
+              $col_definition['byteSize'] != NULL
               && in_array($col_definition['type'], ['varchar', 'text'])
             ) {
-              # Trims the size of the value to match the byte_size
-              while (strlen(mb_convert_encoding($random_val, 'UTF-8')) > $col_definition['byte_size']) {
+              # Trims the size of the value to match the byteSize
+              while (strlen(mb_convert_encoding($random_val, 'UTF-8')) > $col_definition['byteSize']) {
                 $random_val = mb_substr($random_val, 0, -1);
               }
             }

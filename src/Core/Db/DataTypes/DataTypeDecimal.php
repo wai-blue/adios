@@ -20,7 +20,7 @@ class DataTypeDecimal extends \ADIOS\Core\Db\DataType
 
   public function sqlCreateString($table_name, $col_name, $params = [])
   {
-    $width = min(max((int) $params['byte_size'], 10), 35);
+    $width = min(max((int) $params['byteSize'], 10), 35);
     $decimals = min(min(max((int) $params['decimals'], 2), 10), $width);
 
     $sqlDataType = ($params['sql_data_type'] ?? "decimal");

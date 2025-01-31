@@ -6,26 +6,26 @@ class Lookup extends \ADIOS\Core\Db\Column
 {
 
   protected string $type = 'lookup';
-  protected string $model = '';
+  protected string $lookupModel = '';
 
   protected bool $disableForeignKey = false;
   protected string $foreignKeyColumn = 'id';
   protected string $foreignKeyOnDelete = 'RESTRICT';
   protected string $foreignKeyOnUpdate = 'RESTRICT';
 
-  public function __constructor(\ADIOS\Core\Db $db, string $title, string $model = '')
+  public function __construct(\ADIOS\Core\Model $model, string $title, string $lookupModel = '')
   {
-    parent::__constructor($db, $title);
-    $this->model = $model;
+    parent::__construct($model, $title);
+    $this->lookupModel = $lookupModel;
   }
 
-  public function getModel(): string { return $this->model; }
-  public function setModel(string $model): Lookup { $this->model = $model; return $this; }
+  public function getLookupModel(): string { return $this->lookupModel; }
+  public function setLookupModel(string $lookupModel): Lookup { $this->lookupModel = $lookupModel; return $this; }
 
   public function jsonSerialize(): array
   {
     $column = parent::jsonSerialize();
-    $column['model'] = $this->model;
+    $column['model'] = $this->lookupModel;
     return $column;
   }
 

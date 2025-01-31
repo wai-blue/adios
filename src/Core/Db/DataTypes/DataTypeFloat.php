@@ -17,7 +17,7 @@ class DataTypeFloat extends \ADIOS\Core\Db\DataType
 {
   public function sqlCreateString($table_name, $col_name, $params = []) {
     $float_decimals = max((int) $params['decimals'], 1);
-    $float_width = (int) $params['byte_size'];
+    $float_width = (int) $params['byteSize'];
 
     $sqlDataType = ($params['sql_data_type'] ?? "double");
 

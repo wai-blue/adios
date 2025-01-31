@@ -21,7 +21,7 @@ class DataTypeInt extends DataType
   {
     $sqlDef = $params['rawSqlDefinitions'] ?? '';
     $params['rawSqlDefinitions'] = '' != trim($sqlDef) ? $sqlDef : "default " . (int) $this->getDefaultValue($params);
-    return "`$col_name` int({$params['byte_size']}) {$params['rawSqlDefinitions']} NOT NULL";
+    return "`$col_name` int({$params['byteSize']}) {$params['rawSqlDefinitions']} NOT NULL";
   }
 
   public function sqlValueString($table_name, $col_name, $value, $params = [])

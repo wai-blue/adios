@@ -8,9 +8,9 @@ class Integer extends \ADIOS\Core\Db\Column
   protected string $type = 'int';
   protected int $byteSize = 255;
 
-  public function __constructor(\ADIOS\Core\Db $db, string $title, int $byteSize = 255)
+  public function __construct(\ADIOS\Core\Model $model, string $title, int $byteSize = 255)
   {
-    parent::__constructor($db, $title);
+    parent::__construct($model, $title);
     $this->byteSize = $byteSize;
   }
 

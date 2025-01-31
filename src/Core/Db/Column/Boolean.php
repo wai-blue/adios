@@ -7,9 +7,9 @@ class Boolean extends \ADIOS\Core\Db\Column
 
   protected string $type = 'boolean';
 
-  public function __constructor(\ADIOS\Core\Db $db, string $title)
+  public function __construct(\ADIOS\Core\Model $model, string $title)
   {
-    parent::__constructor($db, $title);
+    parent::__construct($model, $title);
   }
 
 }

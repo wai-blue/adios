@@ -16,7 +16,7 @@ namespace ADIOS\Core\Db\DataTypes;
 class DataTypePassword extends \ADIOS\Core\Db\DataType
 {
   public function sqlCreateString($table_name, $col_name, $params = []) {
-    return "`$col_name` varchar({$params['byte_size']}) " . $this->getSqlDefinitions($params);
+    return "`$col_name` varchar({$params['byteSize']}) " . $this->getSqlDefinitions($params);
   }
 
   public function sqlValueString($table_name, $col_name, $value, $params = []) {

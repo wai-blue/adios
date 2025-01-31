@@ -44,7 +44,7 @@ class User extends \ADIOS\Core\Model {
   {
     return parent::columns(array_merge($columns, [
       'login' => new \ADIOS\Core\Db\Column\Varchar($this, 'Login'),
-      'password' => (new \ADIOS\Core\Db\Column\Password($this, 'Password'))->setHidden(),
+      'password' => new \ADIOS\Core\Db\Column\Password($this, 'Password'),
       'is_active' => new \ADIOS\Core\Db\Column\Boolean($this, 'Active'),
       'last_login_time' => new \ADIOS\Core\Db\Column\DateTime($this, 'Time of last login'),
       'last_login_ip' => new \ADIOS\Core\Db\Column\Varchar($this, 'Last login IP'),

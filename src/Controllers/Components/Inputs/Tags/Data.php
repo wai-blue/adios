@@ -46,7 +46,7 @@ class Data extends \ADIOS\Core\Controller {
           ->pluck($junctionData['optionKeyColumn']);
       }
 
-      $junctionOptionKeyColumn = $junctionModel->columns()[$junctionData['optionKeyColumn']];
+      $junctionOptionKeyColumn = $junctionModel->columnsLegacy()[$junctionData['optionKeyColumn']];
 
       $junctionOptionKeyModel = $this->app->getModel($junctionOptionKeyColumn['model']);
       $data = $junctionOptionKeyModel->all();

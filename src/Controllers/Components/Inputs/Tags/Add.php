@@ -43,7 +43,7 @@ class Add extends \ADIOS\Core\Controller {
       }
 
       $junctionModel = $this->app->getModel($junctionData['junctionModel']);
-      $junctionOptionKeyColumn = $junctionModel->columns()[$junctionData['optionKeyColumn']];
+      $junctionOptionKeyColumn = $junctionModel->columnsLegacy()[$junctionData['optionKeyColumn']];
       $junctionOptionKeyModel = $this->app->getModel($junctionOptionKeyColumn['model']);
 
       $insertedId = $junctionOptionKeyModel->insertGetId([

@@ -43,42 +43,13 @@ class User extends \ADIOS\Core\Model {
   public function columns(array $columns = []): array
   {
     return parent::columns(array_merge($columns, [
-      'login' => [
-        'type' => 'varchar',
-        'title' => $this->translate('Login'),
-      ],
-      'password' => [
-        'type' => 'password',
-        'title' => $this->translate('Password'),
-        'hidden' => true,
-      ],
-      'is_active' => [
-        'type' => 'boolean',
-        'title' => $this->translate('Active'),
-      ],
-      'last_login_time' => [
-        'type' => 'datetime',
-        'title' => $this->translate('Time of last login'),
-      ],
-      'last_login_ip' => [
-        'type' => 'varchar',
-        'title' => $this->translate('Last login IP'),
-      ],
-      'last_access_time' => [
-        'type' => 'datetime',
-        'title' => $this->translate('Time of last access'),
-      ],
-      'last_access_ip' => [
-        'type' => 'varchar',
-        'title' => $this->translate('Last access IP'),
-      ],
-      //'id_token_reset_password' => [
-      //  'type' => 'lookup',
-      //  'model' => "ADIOS/Models/Token",
-      //  'title' => $this->translate('Reset password token'),
-      //  'readonly' => TRUE,
-      //  'show' => false,
-      //]
+      'login' => new \ADIOS\Core\Db\Column\Varchar($this, 'Login'),
+      'password' => (new \ADIOS\Core\Db\Column\Password($this, 'Password'))->setHidden(),
+      'is_active' => new \ADIOS\Core\Db\Column\Boolean($this, 'Active'),
+      'last_login_time' => new \ADIOS\Core\Db\Column\DateTime($this, 'Time of last login'),
+      'last_login_ip' => new \ADIOS\Core\Db\Column\Varchar($this, 'Last login IP'),
+      'last_access_time' => new \ADIOS\Core\Db\Column\DateTime($this, 'Time of last access'),
+      'last_access_ip' => new \ADIOS\Core\Db\Column\Varchar($this, 'Last access IP'),
     ]));
   }
 

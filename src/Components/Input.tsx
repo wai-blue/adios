@@ -21,6 +21,7 @@ export interface InputProps {
   context?: any,
   parentForm?: Form<any, any>,
   children?: any,
+  description?: any,
 }
 
 export interface InputState {
@@ -33,6 +34,7 @@ export interface InputState {
   isInitialized: boolean,
   isInlineEditing: boolean,
   showInlineEditingButtons: boolean,
+  description: any,
 }
 
 export class Input<P extends InputProps, S extends InputState> extends Component<P, S> {
@@ -57,6 +59,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     const value: any = props.value;
     const onChange: any = props.onChange ?? null;
     const cssClass: string = props.cssClass ?? '';
+    const description: any = props.description ?? null;
 
     this.state = {
       isInitialized: isInitialized,
@@ -68,6 +71,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
       origValue: value,
       onChange: onChange,
       cssClass: cssClass,
+      description: description,
     } as S;
   }
 
@@ -107,6 +111,11 @@ export class Input<P extends InputProps, S extends InputState> extends Component
 
     if (this.props.invalid != prevProps.invalid) {
       newState.invalid = this.props.invalid;
+      setNewState = true;
+    }
+
+    if (this.props.description != prevProps.description) {
+      newState.description = this.props.description;
       setNewState = true;
     }
 

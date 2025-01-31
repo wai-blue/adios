@@ -123,7 +123,7 @@ class Query
     int $level = 0
   ): void
   {
-    foreach ($model->columns() as $modelColumn => $modelColumnParams) {
+    foreach ($model->columnsLegacy() as $modelColumn => $modelColumnParams) {
 
       if ($level == 0) {
         $this->add([

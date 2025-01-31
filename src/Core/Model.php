@@ -137,7 +137,7 @@ class Model
     if ($this->app->db) {
       $this->app->db->addTable(
         $this->table,
-        $this->columns(),
+        $this->columnsLegacy(),
         $this->isJunctionTable
       );
     }
@@ -398,7 +398,7 @@ class Model
   {
 
     $sql = '';
-    foreach ($this->columns() as $column => $columnDefinition) {
+    foreach ($this->columnsLegacy() as $column => $columnDefinition) {
       if (!empty($onlyColumn) && $onlyColumn != $column) continue;
 
       if (
@@ -448,7 +448,7 @@ class Model
     $foreignKeyModels = [];
 
     foreach ($this->app->models as $model) {
-      foreach ($model->columns() as $colName => $colDef) {
+      foreach ($model->columnsLegacy() as $colName => $colDef) {
         if (!empty($colDef["model"]) && $colDef["model"] == $this->fullName) {
           $foreignKeyModels[$model->fullName] = $colName;
         }
@@ -478,12 +478,74 @@ class Model
   //////////////////////////////////////////////////////////////////
   // definition of columns
 
+  /** @return array<string, \ADIOS\Core\Db\Column> */
   public function columns(array $columns = []): array
   {
     $newColumns = [];
 
     if (!$this->isJunctionTable) {
-      $newColumns['id'] = [
+      $newColumns['id'] = (new \ADIOS\Core\Db\Column\PrimaryKey($this, 'ID', 8));
+    }
+
+    foreach ($columns as $colName => $column) {
+      $newColumns[$colName] = $column;
+    }
+
+    // default column settings
+    // foreach ($columns as $colName => $colDefinition) {
+    //   $newColumns[$colName] = $colDefinition;
+
+    //   if ($colDefinition["type"] == "char") {
+    //     $this->app->console->info("{$this->fullName}, {$colName}: char type is deprecated");
+    //   }
+
+    //   switch ($colDefinition["type"]) {
+    //     case "int":
+    //       $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 8;
+    //       break;
+    //     case "float":
+    //       $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 14;
+    //       $newColumns[$colName]["decimals"] = $colDefinition["decimals"] ?? 2;
+    //       break;
+    //     case "varchar":
+    //     case "password":
+    //       $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 255;
+    //       break;
+    //     case "lookup":
+    //       $newColumns[$colName]["model"] = trim(str_replace("\\", "/", $newColumns[$colName]["model"]), "/");
+    //       break;
+    //   }
+    // }
+
+    // foreach ($newColumns as $colName => $colDef) {
+    //   $colObject = $this->app->db->columnTypes[$colDef['type']] ?? null;
+
+    //   if ($colObject instanceof DataType) {
+    //     $newColumns[$colName] = $colObject->columnDefinitionPostProcess($colDef);
+    //   }
+    // }
+
+    $this->eloquent->fillable = array_keys($newColumns);
+
+    return $newColumns;
+  }
+
+  /** @deprecated Use new definition of columns instead. */
+  public function columnsLegacy(array $columns = []): array
+  {
+    $columns = $this->columns($columns);
+
+    $columnsLegacy = [];
+    foreach ($columns as $colName => $column) {
+      if ($column instanceof \ADIOS\Core\Db\Column) {
+        $columnsLegacy[$colName] = $column->toArray();
+      } else if (is_array($column)) {
+        $columnsLegacy[$colName] = $column;
+      }
+    }
+
+    if (!$this->isJunctionTable) {
+      $columnsLegacy['id'] = [
         'type' => 'int',
         'byte_size' => '8',
         'rawSqlDefinitions' => 'primary key auto_increment',
@@ -496,43 +558,8 @@ class Model
       ];
     }
 
-    // default column settings
-    foreach ($columns as $colName => $colDefinition) {
-      $newColumns[$colName] = $colDefinition;
 
-      if ($colDefinition["type"] == "char") {
-        $this->app->console->info("{$this->fullName}, {$colName}: char type is deprecated");
-      }
-
-      switch ($colDefinition["type"]) {
-        case "int":
-          $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 8;
-          break;
-        case "float":
-          $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 14;
-          $newColumns[$colName]["decimals"] = $colDefinition["decimals"] ?? 2;
-          break;
-        case "varchar":
-        case "password":
-          $newColumns[$colName]["byte_size"] = $colDefinition["byte_size"] ?? 255;
-          break;
-        case "lookup":
-          $newColumns[$colName]["model"] = trim(str_replace("\\", "/", $newColumns[$colName]["model"]), "/");
-          break;
-      }
-    }
-
-    foreach ($newColumns as $colName => $colDef) {
-      $colObject = $this->app->db->columnTypes[$colDef['type']] ?? null;
-
-      if ($colObject instanceof DataType) {
-        $newColumns[$colName] = $colObject->columnDefinitionPostProcess($colDef);
-      }
-    }
-
-    $this->eloquent->fillable = array_keys($newColumns);
-
-    return $newColumns;
+    return $columnsLegacy;
   }
 
   /**
@@ -575,7 +602,7 @@ class Model
   public function getLookupSqlValueById(int $id)
   {
     $row = $this->app->db->select($this)
-      ->columns([
+      ->columnsLegacy([
         [$this->lookupSqlValue($this->table), 'lookup_value']
       ])
       ->where([['id', '=', $id]])
@@ -637,7 +664,7 @@ class Model
   public function copyRow($id)
   {
     $row = $this->app->db->select($this)
-      ->columns([Query::allColumnsWithoutLookups])
+      ->columnsLegacy([Query::allColumnsWithoutLookups])
       ->where([
         ['id', '=', (int)$id]
       ])
@@ -696,7 +723,7 @@ class Model
     $order = $params['order'] ?? $this->lookupOrder($initiatingModel, $initiatingColumn, $formData, $params);
 
     return $this->app->db->select($this)
-      ->columns([
+      ->columnsLegacy([
         ['id', 'id'],
         [$this->lookupSqlValue($this->table), 'input_lookup_value']
       ])
@@ -735,13 +762,18 @@ class Model
     );
   }
 
+  public function columnDescribe(string $column): array
+  {
+    return (array) ($this->columnsLegacy()[$column] ?? []);
+  }
+
   /**
   * @param array $description
   * @return array $description
   */
   public function tableDescribe(array $description = []): array
   {
-    $columns = $this->columns();
+    $columns = $this->columnsLegacy();
     unset($columns['id']);
 
     $description = [
@@ -764,7 +796,7 @@ class Model
   }
 
   public function formDescribe(array $description = []): array {
-    $columns = $this->columns();
+    $columns = $this->columnsLegacy();
     unset($columns['id']);
 
     $description = [
@@ -791,7 +823,7 @@ class Model
   {
     $valid = TRUE;
 
-    $colDefinition = $this->columns()[$column] ?? [];
+    $colDefinition = $this->columnsLegacy()[$column] ?? [];
     $colType = $colDefinition['type'];
 
     if ($this->app->db->isRegisteredColumnType($colType)) {
@@ -803,7 +835,7 @@ class Model
 
   public function columnNormalize(string $column, $value)
   {
-    $colDefinition = $this->columns()[$column] ?? [];
+    $colDefinition = $this->columnsLegacy()[$column] ?? [];
     $colType = $colDefinition['type'];
 
     if ($this->app->db->isRegisteredColumnType($colType)) {
@@ -815,7 +847,7 @@ class Model
 
   public function columnGetNullValue(string $column)
   {
-    $colDefinition = $this->columns()[$column] ?? [];
+    $colDefinition = $this->columnsLegacy()[$column] ?? [];
     $colType = $colDefinition['type'];
 
     if ($this->app->db->isRegisteredColumnType($colType)) {
@@ -830,7 +862,7 @@ class Model
 
   // public function recordDescribe() {
   //   $description = [
-  //     'columns' => $this->columns(),
+  //     'columns' => $this->columnsLegacy(),
   //     'defaultValues' => $this->recordDefaultValues(),
   //   ];
   //   return $description;
@@ -846,7 +878,7 @@ class Model
   {
     $invalidInputs = [];
 
-    foreach ($this->columns() as $column => $colDefinition) {
+    foreach ($this->columnsLegacy() as $column => $colDefinition) {
       if (
         (bool) ($colDefinition['required'] ?? false)
         && (!isset($record[$column]) || $record[$column] === null || $record[$column] === '')
@@ -874,7 +906,7 @@ class Model
   }
 
   public function recordNormalize(array $record): array {
-    $columns = $this->columns();
+    $columns = $this->columnsLegacy();
 
     // Vyhodene, pretoze to v recordSave() sposobovalo mazanie udajov
     // foreach ($columns as $colName => $colDef) {
@@ -1051,7 +1083,7 @@ class Model
 
   public function recordEncryptIds(array $record) {
 
-    foreach ($this->columns() as $colName => $colDefinition) {
+    foreach ($this->columnsLegacy() as $colName => $colDefinition) {
       if ($colName == 'id' || $colDefinition['type'] == 'lookup') {
         if ($record[$colName] !== null) {
           $record[$colName] = \ADIOS\Core\Helper::encrypt($record[$colName]);
@@ -1066,7 +1098,7 @@ class Model
   }
 
   public function recordDecryptIds(array $record) {
-    foreach ($this->columns() as $colName => $colDefinition) {
+    foreach ($this->columnsLegacy() as $colName => $colDefinition) {
       if ($colName == 'id' || $colDefinition['type'] == 'lookup') {
         if (isset($record[$colName]) && $record[$colName] !== null && is_string($record[$colName])) {
           $record[$colName] = \ADIOS\Core\Helper::decrypt($record[$colName]);
@@ -1170,7 +1202,7 @@ class Model
    */
   public function prepareLoadRecordQuery(array $includeRelations = [], int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed
   {
-    $tmpColumns = $this->columns();
+    $tmpColumns = $this->columnsLegacy();
 
     if ($maxRelationLevel > 4) $maxRelationLevel = 4;
 
@@ -1178,7 +1210,7 @@ class Model
     $withs = [];
     $joins = [];
 
-    foreach ($this->columns() as $colName => $colDefinition) {
+    foreach ($this->columnsLegacy() as $colName => $colDefinition) {
       if ((bool) ($colDefinition['hidden'] ?? false)) continue;
       $selectRaw[] = $this->table . '.' . $colName;
 
@@ -1252,7 +1284,7 @@ class Model
   ): \Illuminate\Database\Eloquent\Builder
   {
 
-    $columns = $this->columns();
+    $columns = $this->columnsLegacy();
     $relations = $this->relations;
 
     $query = $this->prepareLoadRecordQuery(

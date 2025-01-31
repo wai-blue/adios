@@ -22,6 +22,7 @@ class DataTypeMapPoint extends \ADIOS\Core\Db\DataType
     return "`$col_name` json " . $this->getSqlDefinitions($params);
   }
 
+  // @deprecated
   public function columnDefinitionPostProcess(array $colDef): array
   {
     $colDef['type'] = 'json';

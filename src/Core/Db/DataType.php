@@ -118,12 +118,13 @@ class DataType {
    * @param  array $colDef Original column definition
    * @return array Post-processed column definition
    */
+  // @deprecated
   public function columnDefinitionPostProcess(array $colDef): array
   {
     return $colDef;
   }
 
-  public function normalize(\ADIOS\Core\Model $model, string $colName, $value, $colDefinition)
+  public function normalize(\ADIOS\Core\Model $model, string $colName, $value, array $columnDescription)
   {
     return $value;
   }

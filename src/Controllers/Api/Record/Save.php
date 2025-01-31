@@ -85,7 +85,7 @@ class Save extends \ADIOS\Core\ApiController {
         break;
         case 'Illuminate\\Database\\UniqueConstraintViolationException';
           if ($e->errorInfo[1] == 1062) {
-            $columns = $this->model->columns();
+            $columns = $this->model->columnsLegacy();
 
             preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $e->errorInfo[2], $m);
             $invalidIndex = $m[2];

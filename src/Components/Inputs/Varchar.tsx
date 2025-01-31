@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import { Input, InputProps, InputState } from '../Input'
 import * as uuid from 'uuid';
+import AsyncSelect from 'react-select/async'
+import request from '../Request'
 
 interface VarcharInputState extends InputState {
+  data: Array<any>,
   showPredefinedValues: boolean,
 }
 
@@ -22,43 +25,113 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
   getStateFromProps(props: InputProps) {
     return {
       ...this.state, // Parent state
+      data: [],
       showPredefinedValues: false,
     };
   }
 
-  renderInputElement() {
-    return <><div className="w-full">
-      <input
-        type='text'
-        value={this.state.value}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange(e.currentTarget.value)}
-        placeholder={this.props.placeholder}
-        className={
-          (this.state.invalid ? 'is-invalid' : '')
-          + " " + (this.props.cssClass ?? "")
-          + " " + (this.state.readonly ? "bg-muted" : "")
+  componentDidMount() {
+    if (this.props.description.autocomplete) {
+      this.loadData();
+    }
+  }
+
+  componentDidUpdate(prevProps: InputProps) {
+    super.componentDidUpdate(prevProps);
+
+    if (
+      this.props.description.autocomplete
+      && this.props.description.autocomplete.endpoint != prevProps.description.autocomplete.endpoint
+    ) {
+      this.loadData();
+    }
+  }
+
+  getEndpointUrl(): string
+  {
+    return this.state.description.autocomplete.endpoint ?? '';
+  }
+
+  loadData(inputValue: string|null = null, callback: ((option: Array<any>) => void)|null = null) {
+    request.post(
+      this.getEndpointUrl(),
+      {search: inputValue},
+      {},
+      (data: any) => {
+        let dataConv: Array<any> = [];
+
+        for (let i in data) {
+          dataConv.push({'label': data[i], 'value': data[i]});
         }
-        disabled={this.state.readonly}
-      />
-      {this.props.params?.predefinedValues ?
-        this.state.showPredefinedValues ?
-          <div className="mt-1">
-            <select
-              onChange={(e) => {
-                this.onChange(e.currentTarget.value);
-              }}
-            >
-              <option value=''></option>
-              {this.props.params?.predefinedValues.map((item: string) => {
-                return <option value={item}>{item}</option>
-              })}
-            </select>
-          </div>
-        :
-          <button className="mt-1 btn btn-extra-small btn-transparent" onClick={() => { this.setState({showPredefinedValues: true}); }}>
-            <span className="text text-xs">Choose from predefined options...</span>
-          </button>
-      : null}
-    </div></>;
+
+        this.setState({
+          isInitialized: true,
+          data: dataConv
+        });
+
+        if (callback) callback(dataConv);
+      }
+    );
+  }
+
+  renderInputElement() {
+
+    if (this.props.description.autocomplete) {
+      return (
+        <AsyncSelect
+          value={{
+            label: this.state.value ?? '',
+            value: this.state.value ?? '',
+          }}
+          isClearable={true}
+          isDisabled={this.state.readonly || !this.state.isInitialized}
+          loadOptions={(inputValue: string, callback: any) => this.loadData(inputValue, callback)}
+          defaultOptions={this.state.data}
+          getOptionLabel={(option: any) => { return option.label }}
+          getOptionValue={(option: any) => { return option.value }}
+          onChange={(item: any) => { this.onChange(item?.value ?? ''); }}
+          placeholder={this.props.params?.placeholder}
+          className="adios-lookup"
+          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+          menuPosition="fixed"
+          menuPortalTarget={document.body}
+        />
+      )
+    } else {
+    
+      return <><div className="w-full">
+        <input
+          type='text'
+          value={this.state.value}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange(e.currentTarget.value)}
+          placeholder={this.props.placeholder}
+          className={
+            (this.state.invalid ? 'is-invalid' : '')
+            + " " + (this.props.cssClass ?? "")
+            + " " + (this.state.readonly ? "bg-muted" : "")
+          }
+          disabled={this.state.readonly}
+        />
+        {this.props.params?.predefinedValues ?
+          this.state.showPredefinedValues ?
+            <div className="mt-1">
+              <select
+                onChange={(e) => {
+                  this.onChange(e.currentTarget.value);
+                }}
+              >
+                <option value=''></option>
+                {this.props.params?.predefinedValues.map((item: string) => {
+                  return <option value={item}>{item}</option>
+                })}
+              </select>
+            </div>
+          :
+            <button className="mt-1 btn btn-extra-small btn-transparent" onClick={() => { this.setState({showPredefinedValues: true}); }}>
+              <span className="text text-xs">Choose from predefined options...</span>
+            </button>
+        : null}
+      </div></>;
+    }
   }
 }

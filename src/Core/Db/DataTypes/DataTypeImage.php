@@ -67,32 +67,32 @@ class DataTypeImage extends \ADIOS\Core\Db\DataType {
     return "{$this->app->configAsString('images_url')}/{$value}";
   }
 
-  public function normalize(\ADIOS\Core\Model $model, string $colName, $value, $colDefinition)
+  public function normalize(\ADIOS\Core\Model $model, string $colName, $value, array $columnDescription)
   {
     if (!is_array($value) || empty($value['fileData']) || empty($value['fileName'])) return $value;
 
     $fileName = $value['fileName'];
     $fileData = preg_replace('/data:.*?,/', '', $value['fileData']);
     $fileData = @base64_decode($fileData);
-    $folderPath = $colDefinition['folderPath'] ?? "";
+    $folderPath = $columnDescription['folderPath'] ?? "";
 
     $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-    if (empty($model->app->configAsString('uploadDir'))) throw new \Exception("{$colDefinition['title']}: Upload folder is not configured.");
-    if (!is_dir($model->app->configAsString('uploadDir'))) throw new \Exception("{$colDefinition['title']}: Upload folder does not exist.");
+    if (empty($model->app->configAsString('uploadDir'))) throw new \Exception("{$columnDescription['title']}: Upload folder is not configured.");
+    if (!is_dir($model->app->configAsString('uploadDir'))) throw new \Exception("{$columnDescription['title']}: Upload folder does not exist.");
     if (in_array($fileExtension, ['php', 'sh', 'exe', 'bat', 'htm', 'html', 'htaccess'])) {
-      throw new \Exception("{$colDefinition['title']}: This file type cannot be uploaded.");
+      throw new \Exception("{$columnDescription['title']}: This file type cannot be uploaded.");
     }
 
-    if (strpos($folderPath, "..") !== false) throw new \Exception("{$colDefinition['title']}: Invalid upload folder path.");
+    if (strpos($folderPath, "..") !== false) throw new \Exception("{$columnDescription['title']}: Invalid upload folder path.");
 
-    if (empty($colDefinition['renamePattern'])) {
+    if (empty($columnDescription['renamePattern'])) {
       $tmpParts = pathinfo($fileName);
       $fileName = \ADIOS\Core\Helper::str2url($tmpParts['filename']) . '.' . $tmpParts['extension'];
     } else {
       $tmpParts = pathinfo($fileName);
 
-      $fileName = $colDefinition['renamePattern'];
+      $fileName = $columnDescription['renamePattern'];
       $fileName = str_replace("{%Y%}", date("Y"), $fileName);
       $fileName = str_replace("{%M%}", date("m"), $fileName);
       $fileName = str_replace("{%D%}", date("d"), $fileName);

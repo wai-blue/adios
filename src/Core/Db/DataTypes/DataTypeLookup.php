@@ -52,7 +52,7 @@ class DataTypeLookup extends \ADIOS\Core\Db\DataType
       // "));
 
       $tmp = reset($this->app->db->select($model)
-        ->columns([
+        ->columnsLegacy([
           [ 'id', 'id' ],
           [ $model->lookupSqlValue(), 'input_lookup_value' ]
         ])
@@ -104,15 +104,14 @@ class DataTypeLookup extends \ADIOS\Core\Db\DataType
     return true;
   }
 
-  public function normalize(\ADIOS\Core\Model $model, string $colName, $value, $colDefinition)
+  public function normalize(\ADIOS\Core\Model $model, string $colName, $value, array $columnDescription)
   {
     if ($value === 0) {
       return null;
     } if (is_numeric($value)) {
       return ((int) $value) <= 0 ? 0 : (int) $value;
     } else if ($value['_isNew_'] ?? false) {
-    // var_dump($model->columns()[$colName]['model']);
-      $lookupModel = $model->app->getModel($model->columns()[$colName]['model']);
+      $lookupModel = $model->app->getModel($model->columnsLegacy()[$colName]['model']);
       return $lookupModel->eloquent->create($lookupModel->getNewRecordDataFromString($value['_LOOKUP'] ?? ''))->id;
     } else if (empty($value)) {
       return null;

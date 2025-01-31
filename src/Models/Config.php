@@ -14,18 +14,8 @@ class Config extends \ADIOS\Core\Model {
   public function columns(array $columns = []): array
   {
     return parent::columns([
-      'path' => [
-        'type' => 'varchar',
-        'byte_size' => '250',
-        'title' => 'Path',
-        'show_column' => true
-      ],
-      'value' => [
-        'type' => 'text',
-        'interface' => 'plain_text',
-        'title' => 'Value',
-        'show_column' => true
-      ],
+      'path' => new \ADIOS\Core\Db\Column\Varchar($this, 'Path'),
+      'value' => new \ADIOS\Core\Db\Column\Text($this, 'Value'),
     ]);
   }
 

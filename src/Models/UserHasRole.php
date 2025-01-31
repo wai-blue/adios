@@ -16,20 +16,8 @@ class UserHasRole extends \ADIOS\Core\Model {
   public function columns(array $columns = []): array
   {
     return parent::columns([
-      'id_user' => [
-        'type' => 'lookup',
-        'title' => $this->translate('User'),
-        'model' => "ADIOS/Models/User",
-        'foreignKeyOnUpdate' => 'CASCADE',
-        'foreignKeyOnDelete' => 'CASCADE',
-      ],
-      'id_role' => [
-        'type' => 'lookup',
-        'title' => $this->translate('Role'),
-        'model' => "ADIOS/Models/UserRole",
-        'foreignKeyOnUpdate' => 'CASCADE',
-        'foreignKeyOnDelete' => 'CASCADE',
-      ],
+      'id_user' => (new \ADIOS\Core\Db\Column\Lookup($this, 'User', \ADIOS\Models\User::class)),
+      'id_role' => (new \ADIOS\Core\Db\Column\Lookup($this, 'Role', \ADIOS\Models\UserRole::class)),
     ]);
   }
 }

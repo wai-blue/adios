@@ -22,7 +22,7 @@ class Lookup extends \ADIOS\Core\ApiController {
     $search = $this->app->urlParamAsString('search');
     if (!empty($search)) {
       $query->where(function($q) {
-        foreach ($this->model->columns() as $columnName => $column) {
+        foreach ($this->model->columnsLegacy() as $columnName => $column) {
           $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $search . '%');
         }
       });

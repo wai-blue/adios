@@ -42,6 +42,7 @@ class DataTypeJson extends \ADIOS\Core\Db\DataType
     return $sql;
   }
 
+  // @deprecated
   public function columnDefinitionPostProcess(array $colDef): array
   {
     if (

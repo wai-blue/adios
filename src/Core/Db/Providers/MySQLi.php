@@ -163,7 +163,7 @@ class MySQLi extends \ADIOS\Core\Db
   private function columnSqlFilter($model, $columnName, $filterValue, $column = NULL)
   {
     if ($column === NULL) {
-      $column = $model->columns()[$columnName];
+      $column = $model->columnsLegacy()[$columnName];
     }
 
     $type = $column['type'];
@@ -1055,110 +1055,5 @@ class MySQLi extends \ADIOS\Core\Db
     }
     $this->log_disabled = $log_status;
   }
-
-
-  // public function createSqlForeignKeys($table, $onlyColumn = '')
-  // {
-  //   $sql = '';
-  //   foreach ($this->tables[$table] as $column => $columnDefinition) {
-  //     if (!empty($onlyColumn) && $onlyColumn != $column) continue;
-
-  //     if (
-  //       !($columnDefinition['disableForeignKey'] ?? false)
-  //       && 'lookup' == $columnDefinition['type']
-  //     ) {
-  //       $lookupModel = $this->app->getModel($columnDefinition['model']);
-  //       $foreignKeyColumn = $columnDefinition['foreignKeyColumn'] ?? "id";
-  //       $foreignKeyOnDelete = $columnDefinition['foreignKeyOnDelete'] ?? "RESTRICT";
-  //       $foreignKeyOnUpdate = $columnDefinition['foreignKeyOnUpdate'] ?? "RESTRICT";
-
-  //       $sql .= "
-  //         ALTER TABLE `{$table}`
-  //         ADD CONSTRAINT `fk_" . md5($table . '_' . $column) . "`
-  //         FOREIGN KEY (`{$column}`)
-  //         REFERENCES `" . $lookupModel->getFullTableSqlName() . "` (`{$foreignKeyColumn}`)
-  //         ON DELETE {$foreignKeyOnDelete}
-  //         ON UPDATE {$foreignKeyOnUpdate};;
-  //       ";
-  //     }
-  //   }
-
-  //   if (!empty($sql)) {
-  //   echo $sql;
-  //     $this->multiQuery($sql);
-  //   }
-  // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Dusan 5.6.2023: Vyzera to tak, ze tato metoda sa nikde nepouziva.
-
-  // public function where($model, $filterValues)
-  // {
-  //   $having = "TRUE";
-
-  //   if (is_array($filterValues)) {
-  //     foreach ($filterValues as $columnName => $filterValue) {
-  //       if (empty($filterValue)) continue;
-
-  //       if (strpos($columnName, "LOOKUP___") === 0) {
-  //         list($dummy, $srcColumnName, $lookupColumnName) = explode("___", $columnName);
-
-  //         $srcColumn = $model->columns()[$srcColumnName];
-  //         $lookupModel = $this->app->getModel($srcColumn['model']);
-
-  //         $having .= " and (" . $this->columnSqlFilter(
-  //           $lookupModel,
-  //           $columnName,
-  //           $filterValue,
-  //           $lookupModel->columns()[$lookupColumnName]
-  //         ) . ")";
-  //       } else {
-  //         $having .= " and (" . $this->columnSqlFilter(
-  //           $model,
-  //           $columnName,
-  //           $filterValue
-  //         ) . ")";
-  //       }
-  //     }
-  //   }
-
-  //   return $having;
-  // }
-
-  // Dusan 5.6.2023: Vyzera to tak, ze tato metoda sa nikde nepouziva.
-
-  // /**
-  //  * @param mixed $col_name
-  //  * @param mixed $col_type
-  //  * @param mixed $value
-  //  * @param array $params
-  //  *
-  //  * @return [type]
-  //  */
-  // public function filter($col_name, $col_type, $value, $params = [])
-  // {
-  //   if (false !== strpos('.', $col_name)) {
-  //     list($table_name, $col_name) = explode('.', $col_name);
-  //   }
-  //   if (is_object($this->columnTypes[$col_type])) {
-  //     return ('' == $table_name ? '' : "{$table_name}.") . $this->columnTypes[$col_type]->filter($col_name, $value, $params);
-  //   } else {
-  //     return 'TRUE';
-  //   }
-  // }
-
 
 }

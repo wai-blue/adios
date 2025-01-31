@@ -29,11 +29,7 @@ class UserRole extends \ADIOS\Core\Model {
   public function columns(array $columns = []): array
   {
     return parent::columns([
-      'name' => [
-        'type' => 'varchar',
-        'title' => $this->translate('Role name'),
-        'show_column' => true
-      ],
+      'name' => new \ADIOS\Core\Db\Column\Varchar($this, 'Role name'),
     ]);
   }
 }

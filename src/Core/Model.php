@@ -71,6 +71,8 @@ class Model
 
   public string $translationContext = '';
 
+  public string $sqlEngine = 'InnoDB';
+
   var $pdo;
 
   /**
@@ -134,13 +136,13 @@ class Model
       //
     }
 
-    if ($this->app->db) {
-      $this->app->db->addTable(
-        $this->table,
-        $this->columnsLegacy(),
-        $this->isJunctionTable
-      );
-    }
+    // if ($this->app->db) {
+    //   $this->app->db->addTable(
+    //     $this->table,
+    //     $this->columnsLegacy(),
+    //     $this->isJunctionTable
+    //   );
+    // }
 
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();
@@ -158,14 +160,14 @@ class Model
           onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
         >Install upgrades</a>
       ");
-    } else if (!$this->hasSqlTable()) {
-      $this->app->userNotifications->addHtml("
-        Model <b>{$this->fullName}</b> has no SQL table.
-        <a
-          href='javascript:void(0)'
-          onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
-        >Create table</a>
-      ");
+    // } else if (!$this->hasSqlTable()) {
+    //   $this->app->userNotifications->addHtml("
+    //     Model <b>{$this->fullName}</b> has no SQL table.
+    //     <a
+    //       href='javascript:void(0)'
+    //       onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
+    //     >Create table</a>
+    //   ");
     } else if (!$this->isInstalled()) {
       $this->app->userNotifications->addHtml("
         Model <b>{$this->fullName}</b> is not installed.
@@ -235,10 +237,10 @@ class Model
     return $this->app->translate($string, $vars, $this->translationContext);
   }
 
-  public function hasSqlTable()
-  {
-    return in_array($this->table, $this->app->db->existingSqlTables ?? []);
-  }
+  // public function hasSqlTable()
+  // {
+  //   return in_array($this->table, $this->app->db->existingSqlTables ?? []);
+  // }
 
   /**
    * Checks whether model is installed.
@@ -277,6 +279,35 @@ class Model
     ];
   }
 
+  public function createSqlTable()
+  {
+
+    $columns = $this->columns();
+
+    $createSql = "create table `{$this->table}` (\n";
+
+    foreach ($columns as $columnName => $column) {
+      $tmp = $column->sqlCreateString($this->table, $columnName);
+      if (!empty($tmp)) $createSql .= " {$tmp},\n";
+    }
+
+    // indexy
+    foreach ($columns as $columnName => $column) {
+      $tmp = $column->sqlIndexString($this->table, $columnName);
+      if (!empty($tmp)) $createSql .= " {$tmp},\n";
+    }
+
+    $createSql = substr($createSql, 0, -2) . ") ENGINE = {$this->sqlEngine}";
+
+
+    $this->app->pdo->startTransaction();
+    $this->app->pdo->execute("SET foreign_key_checks = 0");
+    $this->app->pdo->execute("drop table if exists `{$this->table}`");
+    $this->app->pdo->execute($createSql);
+    $this->app->pdo->execute("SET foreign_key_checks = 1");
+    $this->app->pdo->commit();
+  }
+
   /**
    * Installs the first version of the model into SQL database. Automatically creates indexes.
    *
@@ -285,7 +316,7 @@ class Model
   public function install()
   {
     if (!empty($this->table)) {
-      $this->app->db->createSqlTable($this->table);
+      $this->createSqlTable();
 
       foreach ($this->indexes() as $indexOrConstraintName => $indexDef) {
         if (empty($indexOrConstraintName) || is_numeric($indexOrConstraintName)) {
@@ -315,13 +346,13 @@ class Model
 
         switch ($indexDef["type"]) {
           case "index":
-            $this->app->db->query("
+            $this->app->pdo->execute("
               alter table `" . $this->table . "`
               add index `{$indexOrConstraintName}` ({$tmpColumns})
             ");
             break;
           case "unique":
-            $this->app->db->query("
+            $this->app->pdo->execute("
               alter table `" . $this->table . "`
               add constraint `{$indexOrConstraintName}` unique ({$tmpColumns})
             ");
@@ -360,22 +391,22 @@ class Model
       $lastVersion = $this->getLastAvailableVersion();
 
       try {
-        $this->app->db->startTransaction();
+        $this->app->pdo->startTransaction();
 
         $upgrades = $this->upgrades();
 
         for ($v = $currentVersion + 1; $v <= $lastVersion; $v++) {
           if (is_array($upgrades[$v])) {
             foreach ($upgrades[$v] as $query) {
-              $this->app->db->query($query);
+              $this->app->pdo->execute($query);
             }
           }
         }
 
-        $this->app->db->commit();
+        $this->app->pdo->commit();
         $this->saveConfig('installed-version', $lastVersion);
       } catch (DBException $e) {
-        $this->app->db->rollback();
+        $this->app->pdo->rollback();
         throw new DBException($e->getMessage());
       }
     }
@@ -383,9 +414,9 @@ class Model
 
   public function dropTableIfExists(): \ADIOS\Core\Model
   {
-    $this->app->db->query("set foreign_key_checks = 0");
-    $this->app->db->query("drop table if exists `" . $this->table . "`");
-    $this->app->db->query("set foreign_key_checks = 1");
+    $this->app->pdo->execute("set foreign_key_checks = 0");
+    $this->app->pdo->execute("drop table if exists `" . $this->table . "`");
+    $this->app->pdo->execute("set foreign_key_checks = 1");
     return $this;
   }
 
@@ -422,7 +453,9 @@ class Model
     }
 
     if (!empty($sql)) {
-      $this->app->db->multiQuery($sql);
+      foreach (explode(';;', $sql) as $query) {
+        $this->app->pdo->execute(trim($query));
+      }
     }
 
     // if (!empty($this->table)) {
@@ -442,21 +475,6 @@ class Model
 
   //////////////////////////////////////////////////////////////////
   // misc helper methods
-
-  public function findForeignKeyModels()
-  {
-    $foreignKeyModels = [];
-
-    foreach ($this->app->models as $model) {
-      foreach ($model->columnsLegacy() as $colName => $colDef) {
-        if (!empty($colDef["model"]) && $colDef["model"] == $this->fullName) {
-          $foreignKeyModels[$model->fullName] = $colName;
-        }
-      }
-    }
-
-    return $foreignKeyModels;
-  }
 
   public function getEnumValues()
   {
@@ -570,81 +588,81 @@ class Model
     return $item;
   }
 
-  public function getLookupSqlValueById(int $id)
-  {
-    $row = $this->app->db->select($this)
-      ->columnsLegacy([
-        [$this->lookupSqlValue($this->table), 'lookup_value']
-      ])
-      ->where([['id', '=', $id]])
-      ->fetch();
+  // public function getLookupSqlValueById(int $id)
+  // {
+  //   $row = $this->app->db->select($this)
+  //     ->columnsLegacy([
+  //       [$this->lookupSqlValue($this->table), 'lookup_value']
+  //     ])
+  //     ->where([['id', '=', $id]])
+  //     ->fetch();
 
-    return $row[0]['lookup_value'] ?? '';
-  }
+  //   return $row[0]['lookup_value'] ?? '';
+  // }
 
-  public function insertRow($data)
-  {
-    return $this->app->db->insert($this)
-      ->set($data)
-      ->execute();
-  }
+  // public function insertRow($data)
+  // {
+  //   return $this->app->db->insert($this)
+  //     ->set($data)
+  //     ->execute();
+  // }
 
-  public function insertRowWithId($data)
-  {
-    return $this->app->db->insert($this)
-      ->set($data)
-      ->execute();
-  }
+  // public function insertRowWithId($data)
+  // {
+  //   return $this->app->db->insert($this)
+  //     ->set($data)
+  //     ->execute();
+  // }
 
-  public function insertOrUpdateRow($data)
-  {
-    unset($data['id']);
+  // public function insertOrUpdateRow($data)
+  // {
+  //   unset($data['id']);
 
-    $duplicateKeyData = $data;
+  //   $duplicateKeyData = $data;
 
-    return $this->app->db->insert($this)
-      ->set($data)
-      ->onDuplicateKey($duplicateKeyData)
-      ->execute();
-  }
+  //   return $this->app->db->insert($this)
+  //     ->set($data)
+  //     ->onDuplicateKey($duplicateKeyData)
+  //     ->execute();
+  // }
 
-  public function insertRandomRow($data = [], $dictionary = [])
-  {
-    return $this->insertRow(
-      $this->app->db->getRandomColumnValues($this, $data, $dictionary)
-    );
-  }
+  // public function insertRandomRow($data = [], $dictionary = [])
+  // {
+  //   return $this->insertRow(
+  //     $this->app->db->getRandomColumnValues($this, $data, $dictionary)
+  //   );
+  // }
 
-  public function updateRow($data, $id)
-  {
-    $queryOk = $this->app->db->update($this)
-      ->set($data)
-      ->whereId((int)$id)
-      ->execute();
+  // public function updateRow($data, $id)
+  // {
+  //   $queryOk = $this->app->db->update($this)
+  //     ->set($data)
+  //     ->whereId((int)$id)
+  //     ->execute();
 
-    return ($queryOk ? $id : FALSE);
-  }
+  //   return ($queryOk ? $id : FALSE);
+  // }
 
-  public function deleteRow($id)
-  {
-    return $this->app->db->delete($this)
-      ->whereId((int)$id)
-      ->execute();
-  }
+  // public function deleteRow($id)
+  // {
+  //   return $this->app->db->delete($this)
+  //     ->whereId((int)$id)
+  //     ->execute();
+  // }
 
-  public function copyRow($id)
-  {
-    $row = $this->app->db->select($this)
-      ->columnsLegacy([Query::allColumnsWithoutLookups])
-      ->where([
-        ['id', '=', (int)$id]
-      ])
-      ->fetchOne();
+  // public function copyRow($id)
+  // {
+  //   $row = $this->app->db->select($this)
+  //     ->columnsLegacy([Query::allColumnsWithoutLookups])
+  //     ->where([
+  //       ['id', '=', (int)$id]
+  //     ])
+  //     ->fetchOne();
 
-    unset($row['id']);
+  //   unset($row['id']);
 
-    return $this->insertRow($row);
-  }
+  //   return $this->insertRow($row);
+  // }
 
   public function search($q)
   {
@@ -669,59 +687,59 @@ class Model
   // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
   // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
   // $formData = aktualne data formulara
-  public function lookupOrder(
-    $initiatingModel = NULL,
-    $initiatingColumn = NULL,
-    $formData = [],
-    $params = []
-  )
-  {
-    return [['input_lookup_value', 'asc']];
-  }
+  // public function lookupOrder(
+  //   $initiatingModel = NULL,
+  //   $initiatingColumn = NULL,
+  //   $formData = [],
+  //   $params = []
+  // )
+  // {
+  //   return [['input_lookup_value', 'asc']];
+  // }
 
   // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
   // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
   // $formData = aktualne data formulara
-  public function lookupQuery(
-    $initiatingModel = NULL,
-    $initiatingColumn = NULL,
-    $formData = [],
-    $params = [],
-    $having = "TRUE"
-  ): Query
-  {
-    $where = $params['where'] ?? $this->lookupWhere($initiatingModel, $initiatingColumn, $formData, $params);
-    $order = $params['order'] ?? $this->lookupOrder($initiatingModel, $initiatingColumn, $formData, $params);
+  // public function lookupQuery(
+  //   $initiatingModel = NULL,
+  //   $initiatingColumn = NULL,
+  //   $formData = [],
+  //   $params = [],
+  //   $having = "TRUE"
+  // ): Query
+  // {
+  //   $where = $params['where'] ?? $this->lookupWhere($initiatingModel, $initiatingColumn, $formData, $params);
+  //   $order = $params['order'] ?? $this->lookupOrder($initiatingModel, $initiatingColumn, $formData, $params);
 
-    return $this->app->db->select($this)
-      ->columnsLegacy([
-        ['id', 'id'],
-        [$this->lookupSqlValue($this->table), 'input_lookup_value']
-      ])
-      ->where($where)
-      ->havingRaw($having)
-      ->order($order);
-  }
+  //   return $this->app->db->select($this)
+  //     ->columnsLegacy([
+  //       ['id', 'id'],
+  //       [$this->lookupSqlValue($this->table), 'input_lookup_value']
+  //     ])
+  //     ->where($where)
+  //     ->havingRaw($having)
+  //     ->order($order);
+  // }
 
-  // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
-  // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
-  // $formData = aktualne data formulara
-  public function lookupSqlQuery(
-    $initiatingModel = NULL,
-    $initiatingColumn = NULL,
-    $formData = [],
-    $params = [],
-    $having = "TRUE"
-  ): string
-  {
-    return $this->lookupQuery(
-      $initiatingModel,
-      $initiatingColumn,
-      $formData,
-      $params,
-      $having
-    )->buildSql();
-  }
+  // // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
+  // // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
+  // // $formData = aktualne data formulara
+  // public function lookupSqlQuery(
+  //   $initiatingModel = NULL,
+  //   $initiatingColumn = NULL,
+  //   $formData = [],
+  //   $params = [],
+  //   $having = "TRUE"
+  // ): string
+  // {
+  //   return $this->lookupQuery(
+  //     $initiatingModel,
+  //     $initiatingColumn,
+  //     $formData,
+  //     $params,
+  //     $having
+  //   )->buildSql();
+  // }
 
   public function lookupSqlValue($tableAlias = NULL): string
   {
@@ -738,11 +756,28 @@ class Model
     return (array) ($this->columns()[$column]->toArray() ?? []);
   }
 
+  public function tableDescribe(): \ADIOS\Core\Description\Table
+  {
+    $columns = $this->columns();
+    if (isset($columns['id'])) unset($columns['id']);
+
+    $description = new \ADIOS\Core\Description\Table();
+    $description->columns = $columns;
+    $description->permissions = [
+      'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
+      'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
+      'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
+      'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
+    ];
+
+    return $description;
+  }
+
   /**
   * @param array $description
   * @return array $description
   */
-  public function tableDescribe(array $description = []): array
+  public function tableDescribeLegacy(array $description = []): array
   {
     $columns = $this->columnsLegacy();
     unset($columns['id']);
@@ -766,7 +801,32 @@ class Model
     return $description;
   }
 
-  public function formDescribe(array $description = []): array {
+
+  public function formDescribe(): \ADIOS\Core\Description\Form
+  {
+    $columns = $this->columns();
+    if (isset($columns['id'])) unset($columns['id']);
+
+    $description = new \ADIOS\Core\Description\Form();
+    $description->ui['addButtonText'] = $this->translate('Add');
+    $description->ui['saveButtonText'] = $this->translate('Save');
+    $description->ui['copyButtonText'] = $this->translate('Copy');
+    $description->ui['deleteButtonText'] = $this->translate('Delete');
+    $description->columns = $columns;
+    $description->permissions = [
+      'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
+      'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
+      'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
+      'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
+    ];
+    $description->defaultValues = $this->recordDefaultValues();
+
+    $description->includeRelations = array_keys($this->relations);
+
+    return $description;
+  }
+
+  public function formDescribeLegacy(array $description = []): array {
     $columns = $this->columnsLegacy();
     unset($columns['id']);
 
@@ -790,42 +850,19 @@ class Model
   //////////////////////////////////////////////////////////////////
   // Column-related methods
 
-  public function columnValidate(string $column, $value): bool
+  public function columnValidate(string $column, mixed $value): bool
   {
-    $valid = TRUE;
-
-    $colDefinition = $this->columnsLegacy()[$column] ?? [];
-    $colType = $colDefinition['type'];
-
-    if ($this->app->db->isRegisteredColumnType($colType)) {
-      $valid = $this->app->db->columnTypes[$colType]->validate($this, $value);
-    }
-
-    return $valid;
+    return $this->columns()[$column]->validate($value);
   }
 
-  public function columnNormalize(string $column, $value)
+  public function columnNormalize(string $column, mixed $value)
   {
-    $colDefinition = $this->columnsLegacy()[$column] ?? [];
-    $colType = $colDefinition['type'];
-
-    if ($this->app->db->isRegisteredColumnType($colType)) {
-      $value = $this->app->db->columnTypes[$colType]->normalize($this, $column, $value, $colDefinition);
-    }
-
-    return $value;
+    return $this->columns()[$column]->normalize($value);
   }
 
   public function columnGetNullValue(string $column)
   {
-    $colDefinition = $this->columnsLegacy()[$column] ?? [];
-    $colType = $colDefinition['type'];
-
-    if ($this->app->db->isRegisteredColumnType($colType)) {
-      $value = $this->app->db->columnTypes[$colType]->getNullValue($this, $column);
-    }
-
-    return $value;
+    return $this->columns()[$column]->getNullValue();
   }
 
   //////////////////////////////////////////////////////////////////

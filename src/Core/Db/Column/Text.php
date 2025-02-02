@@ -6,6 +6,7 @@ class Text extends \ADIOS\Core\Db\Column
 {
 
   protected string $type = 'text';
+  protected string $sqlDataType = 'text';
   protected string $interface = 'plainText';
 
   public function __construct(\ADIOS\Core\Model $model, string $title, string $interface = 'plainText')
@@ -14,16 +15,8 @@ class Text extends \ADIOS\Core\Db\Column
     $this->interface = $interface;
   }
 
-  public function getInterface(): int
-  {
-    return $this->interface;
-  }
-
-  public function setInterface(int $interface): Autocomplete
-  {
-    $this->interface = $interface;
-    return $this;
-  }
+  public function getInterface(): int { return $this->interface; }
+  public function setInterface(int $interface): Decimal { $this->interface = $interface; return $this; }
 
   public function jsonSerialize(): array
   {

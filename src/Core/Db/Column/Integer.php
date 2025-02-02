@@ -14,22 +14,39 @@ class Integer extends \ADIOS\Core\Db\Column
     $this->byteSize = $byteSize;
   }
 
-  public function getByteSize(): int
-  {
-    return $this->byteSize;
-  }
-
-  public function setByteSize(int $byteSize): Autocomplete
-  {
-    $this->byteSize = $byteSize;
-    return $this;
-  }
+  public function getByteSize(): int { return $this->byteSize; }
+  public function setByteSize(int $byteSize): Decimal { $this->byteSize = $byteSize; return $this; }
 
   public function jsonSerialize(): array
   {
     $column = parent::jsonSerialize();
     $column['byteSize'] = $this->byteSize;
     return $column;
+  }
+
+  public function getNullValue(): mixed
+  {
+    return 0;
+  }
+  
+  public function normalize(mixed $value): mixed
+  {
+    return (int) $value;
+  }
+
+  public function validate(mixed $value): bool
+  {
+    return empty($value) || is_numeric($value);
+  }
+
+  public function sqlCreateString(string $table, string $columnName): string
+  {
+    return "`{$columnName}` int($this->byteSize) " . $this->getRawSqlDefinition();
+  }
+
+  public function sqlIndexString(string $table, string $columnName): string
+  {
+    return "index `{$columnName}` (`{$columnName}`)";
   }
 
 }

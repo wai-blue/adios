@@ -2,35 +2,32 @@
 
 namespace ADIOS\Core\Db\Column;
 
-class Password extends \ADIOS\Core\Db\Column
+class Password extends \ADIOS\Core\Db\Column\Varchar
 {
 
   protected string $type = 'password';
-  protected int $byteSize = 255;
   protected bool $hidden = true;
 
-  public function __construct(\ADIOS\Core\Model $model, string $title, int $byteSize = 255)
+  public function normalize(mixed $value): mixed
   {
-    parent::__construct($model, $title);
-    $this->byteSize = $byteSize;
+    if (is_array($value)) {
+      if (method_exists($this->model, 'hashPassword')) {
+        return $this->model->hashPassword((string) $value[0]);
+      } else {
+        return password_hash($value[0], PASSWORD_DEFAULT);
+      }
+    } else {
+      return null;
+    }
   }
 
-  public function getByteSize(): int
+  public function validate($value): bool
   {
-    return $this->byteSize;
-  }
-
-  public function setByteSize(int $byteSize): Autocomplete
-  {
-    $this->byteSize = $byteSize;
-    return $this;
-  }
-
-  public function jsonSerialize(): array
-  {
-    $column = parent::jsonSerialize();
-    $column['byteSize'] = $this->byteSize;
-    return $column;
+    if (is_array($value)) {
+      return $value[0] == $value[1];
+    } else {
+      return true;
+    }
   }
 
 }

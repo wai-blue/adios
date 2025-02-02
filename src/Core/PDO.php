@@ -52,20 +52,40 @@ class PDO {
     _var_dump(ob_get_clean());
   }
 
-  public function execute($query, $data = []) {
-    $stmt = $this->connection->prepare($query);
-    $stmt->execute($data);
+  public function execute(string $query, array $data = []): void
+  {
+    if (!empty($query)) {
+      $stmt = $this->connection->prepare($query);
+      $stmt->execute($data);
+    }
   }
 
-  public function fetchAll($query, $data = []) {
+  public function fetchAll(string $query, array $data = [])
+  {
     $stmt = $this->connection->prepare($query);
     $stmt->execute($data);
     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
   }
 
-  public function fetchFirst($query, $data = []) {
+  public function fetchFirst(string $query, array $data = [])
+  {
     $tmp = $this->fetchAll($query, $data);
     return reset($tmp);
+  }
+
+  public function startTransaction(): void
+  {
+    $this->execute('start transaction');
+  }
+
+  public function commit(): void
+  {
+    $this->execute('commit');
+  }
+
+  public function rollback(): void
+  {
+    $this->execute('rollback');
   }
 
 }

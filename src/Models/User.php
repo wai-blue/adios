@@ -53,10 +53,10 @@ class User extends \ADIOS\Core\Model {
     ]));
   }
 
-  public function tableDescribe(array $description = []): array
+  public function tableDescribe(): \ADIOS\Core\Description\Table
   {
-    $description = parent::tableDescribe($description);
-    unset($description['columns']['password']);
+    $description = parent::tableDescribe();
+    unset($description->columns['password']);
     return $description;
   }
 

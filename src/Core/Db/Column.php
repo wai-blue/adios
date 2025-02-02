@@ -8,12 +8,14 @@ abstract class Column implements \JsonSerializable
   protected \ADIOS\Core\Model $model;
 
   protected string $type = '';
+  protected string $sqlDataType = '';
   protected string $title = '';
   protected bool $readonly = false;
   protected bool $required = false;
   protected bool $hidden = false;
   protected string $rawSqlDefinition = '';
   protected string $inputComponent = '';
+  protected mixed $defaultValue = null;
 
   /** @var array<string, \ADIOS\Core\Db\ColumnProperty> */
   protected array $properties = [];
@@ -26,6 +28,9 @@ abstract class Column implements \JsonSerializable
 
   public function getType(): string { return $this->type; }
   public function setType(string $type): Column { $this->type = $type; return $this; }
+
+  public function getSqlDataType(): string { return $this->sqlDataType; }
+  public function setSqlDataType(string $sqlDataType): Column { $this->sqlDataType = $sqlDataType; return $this; }
 
   public function getTitle(): string { return $this->title; }
   public function setTitle(string $title): Column { $this->title = $title; return $this; }
@@ -44,6 +49,9 @@ abstract class Column implements \JsonSerializable
 
   public function getInputComponent(): string { return $this->inputComponent; }
   public function setInputComponent(string $inputComponent): Column { $this->inputComponent = $inputComponent; return $this; }
+
+  public function getDefaultValue(): mixed { return $this->defaultValue; }
+  public function setDefaultValue(mixed $defaultValue): Column { $this->defaultValue = $defaultValue; return $this; }
 
 
   public function getProperty(string $name): ColumnProperty
@@ -64,7 +72,9 @@ abstract class Column implements \JsonSerializable
       'type' => $this->type,
       'title' => $this->title,
       'readonly' => $this->readonly,
+      'required' => $this->required,
       'inputJSX' => $this->inputComponent,
+      'defaultValue' => $this->defaultValue,
     ];
 
     foreach ($this->properties as $name => $property) {
@@ -78,5 +88,27 @@ abstract class Column implements \JsonSerializable
   {
     return $this->jsonSerialize();
   }
+
+  public function getNullValue(): mixed
+  {
+    return null;
+  }
+  
+  public function normalize(mixed $value): mixed
+  {
+    return $value;
+  }
+
+  public function validate(mixed $value): bool
+  {
+    return TRUE;
+  }
+
+  public function sqlCreateString(string $table, string $columnName): string
+  {
+    return (empty($this->sqlDataType) ? '' : "`{$columnName}` {$this->sqlDataType} " . $this->getRawSqlDefinition());
+  }
+
+  public function sqlIndexString(string $table, string $columnName): string { return ''; }
 
 }

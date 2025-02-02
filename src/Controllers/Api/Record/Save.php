@@ -85,12 +85,12 @@ class Save extends \ADIOS\Core\ApiController {
         break;
         case 'Illuminate\\Database\\UniqueConstraintViolationException';
           if ($e->errorInfo[1] == 1062) {
-            $columns = $this->model->columnsLegacy();
+            $columns = $this->model->columns();
 
             preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $e->errorInfo[2], $m);
             $invalidIndex = $m[2];
             $invalidValue = $m[1];
-            $invalidIndexName = $columns[$invalidIndex]["title"];
+            $invalidIndexName = $columns[$invalidIndex]->getTitle();
 
             $errorMessage = "Value '{$invalidValue}' for {$invalidIndexName} already exists.";
 

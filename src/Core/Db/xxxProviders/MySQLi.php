@@ -495,118 +495,118 @@ class MySQLi extends \ADIOS\Core\Db
    *
    * @return string
    */
-  private function buildSqlWhere(\ADIOS\Core\Db\Query $query, ?array $wheres = NULL, string $logic = ''): string
-  {
+  // private function buildSqlWhere(\ADIOS\Core\Db\Query $query, ?array $wheres = NULL, string $logic = ''): string
+  // {
 
-    $model = $query->getModel();
+  //   $model = $query->getModel();
 
-    $whereRaws = [];
+  //   $whereRaws = [];
 
-    if ($wheres === NULL) {
-      $wheres = $query->getStatements(\ADIOS\Core\Db\Query::where);
-      $whereRaws = $query->getStatements(\ADIOS\Core\Db\Query::whereRaw);
-    }
+  //   if ($wheres === NULL) {
+  //     $wheres = $query->getStatements(\ADIOS\Core\Db\Query::where);
+  //     $whereRaws = $query->getStatements(\ADIOS\Core\Db\Query::whereRaw);
+  //   }
 
-    if (!\ADIOS\Core\Db\Query::isValidLogic($logic)) $logic = \ADIOS\Core\Db\Query::logicAnd;
+  //   if (!\ADIOS\Core\Db\Query::isValidLogic($logic)) $logic = \ADIOS\Core\Db\Query::logicAnd;
 
-    // wheres and whereRaws
-    $wheresArray = [];
-    foreach ($wheres as $where) {
-      if (is_array($where['statements'])) {
-        $tmp = '(' . $this->buildSqlwhere($query, $where['statements'], $where['logic']) . ')';
-        $wheresArray[] = $tmp;
-      } else {
-        list($statementType, $column, $operator, $value) = $where;
+  //   // wheres and whereRaws
+  //   $wheresArray = [];
+  //   foreach ($wheres as $where) {
+  //     if (is_array($where['statements'])) {
+  //       $tmp = '(' . $this->buildSqlwhere($query, $where['statements'], $where['logic']) . ')';
+  //       $wheresArray[] = $tmp;
+  //     } else {
+  //       list($statementType, $column, $operator, $value) = $where;
 
-        if ($operator === \ADIOS\Core\Db\Query::columnFilter) {
-          $wheresArray[] = $this->columnSqlFilter(
-            $model,
-            $column,
-            $value
-          );
-        } else if ($operator === \ADIOS\Core\Db\Query::like) {
-          if (strpos($column, '`') === FALSE) {
-            $wheresArray[] = '`' . $column . '` like "%' . $this->escape($value) . '%"';
-          } else {
-            $wheresArray[] = $column . '  like "%' . $this->escape($value) . '%"';
-          }
-        } else {
-          if (strpos($column, '`') === FALSE) {
-            $wheresArray[] = '`' . $column . '` '. $operator . ' ' . $this->typedSqlValue($value);
-          } else {
-            $wheresArray[] = $column . ' '. $operator . ' ' . $this->typedSqlValue($value);
-          }
-        }
-      }
-    }
+  //       if ($operator === \ADIOS\Core\Db\Query::columnFilter) {
+  //         $wheresArray[] = $this->columnSqlFilter(
+  //           $model,
+  //           $column,
+  //           $value
+  //         );
+  //       } else if ($operator === \ADIOS\Core\Db\Query::like) {
+  //         if (strpos($column, '`') === FALSE) {
+  //           $wheresArray[] = '`' . $column . '` like "%' . $this->escape($value) . '%"';
+  //         } else {
+  //           $wheresArray[] = $column . '  like "%' . $this->escape($value) . '%"';
+  //         }
+  //       } else {
+  //         if (strpos($column, '`') === FALSE) {
+  //           $wheresArray[] = '`' . $column . '` '. $operator . ' ' . $this->typedSqlValue($value);
+  //         } else {
+  //           $wheresArray[] = $column . ' '. $operator . ' ' . $this->typedSqlValue($value);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    foreach ($whereRaws as $whereRaw) {
-      if (!empty($whereRaw[1])) {
-        $wheresArray[] = $whereRaw[1];
-      }
-    }
+  //   foreach ($whereRaws as $whereRaw) {
+  //     if (!empty($whereRaw[1])) {
+  //       $wheresArray[] = $whereRaw[1];
+  //     }
+  //   }
 
-    return (count($wheresArray) == 0 ? '' : join(' ' . $logic . ' ', $wheresArray));
-  }
+  //   return (count($wheresArray) == 0 ? '' : join(' ' . $logic . ' ', $wheresArray));
+  // }
 
   /**
    * @param \ADIOS\Core\Db\Query $query
    *
    * @return string
    */
-  private function buildSqlHaving(\ADIOS\Core\Db\Query $query, ?array $havings = NULL, string $logic = ''): string
-  {
+  // private function buildSqlHaving(\ADIOS\Core\Db\Query $query, ?array $havings = NULL, string $logic = ''): string
+  // {
 
-    $model = $query->getModel();
+  //   $model = $query->getModel();
 
-    $havingRaws = [];
+  //   $havingRaws = [];
 
-    if ($havings === NULL) {
-      $havings = $query->getStatements(\ADIOS\Core\Db\Query::having);
-      $havingRaws = $query->getStatements(\ADIOS\Core\Db\Query::havingRaw);
-    }
+  //   if ($havings === NULL) {
+  //     $havings = $query->getStatements(\ADIOS\Core\Db\Query::having);
+  //     $havingRaws = $query->getStatements(\ADIOS\Core\Db\Query::havingRaw);
+  //   }
 
-    if (!\ADIOS\Core\Db\Query::isValidLogic($logic)) $logic = \ADIOS\Core\Db\Query::logicAnd;
+  //   if (!\ADIOS\Core\Db\Query::isValidLogic($logic)) $logic = \ADIOS\Core\Db\Query::logicAnd;
 
-    // havings and havingRaws
-    $havingsArray = [];
-    foreach ($havings as $having) {
-      if (is_array($having['statements'])) {
-        $tmp = '(' . $this->buildSqlHaving($query, $having['statements'], $having['logic']) . ')';
-        $havingsArray[] = $tmp;
-      } else {
-        list($statementType, $column, $operator, $value) = $having;
+  //   // havings and havingRaws
+  //   $havingsArray = [];
+  //   foreach ($havings as $having) {
+  //     if (is_array($having['statements'])) {
+  //       $tmp = '(' . $this->buildSqlHaving($query, $having['statements'], $having['logic']) . ')';
+  //       $havingsArray[] = $tmp;
+  //     } else {
+  //       list($statementType, $column, $operator, $value) = $having;
 
-        if ($operator === \ADIOS\Core\Db\Query::columnFilter) {
-          $havingsArray[] = $this->columnSqlFilter(
-            $model,
-            $column,
-            $value
-          );
-        } else if ($operator === \ADIOS\Core\Db\Query::like) {
-          if (strpos($column, '`') === FALSE) {
-            $havingsArray[] = '`' . $column . '` like "%' . $this->escape($value) . '%"';
-          } else {
-            $havingsArray[] = $column . '  like "%' . $this->escape($value) . '%"';
-          }
-        } else {
-          if (strpos($column, '`') === FALSE) {
-            $havingsArray[] = '`' . $column . '` '. $operator . ' ' . $this->typedSqlValue($value);
-          } else {
-            $havingsArray[] = $column . ' '. $operator . ' ' . $this->typedSqlValue($value);
-          }
-        }
-      }
-    }
+  //       if ($operator === \ADIOS\Core\Db\Query::columnFilter) {
+  //         $havingsArray[] = $this->columnSqlFilter(
+  //           $model,
+  //           $column,
+  //           $value
+  //         );
+  //       } else if ($operator === \ADIOS\Core\Db\Query::like) {
+  //         if (strpos($column, '`') === FALSE) {
+  //           $havingsArray[] = '`' . $column . '` like "%' . $this->escape($value) . '%"';
+  //         } else {
+  //           $havingsArray[] = $column . '  like "%' . $this->escape($value) . '%"';
+  //         }
+  //       } else {
+  //         if (strpos($column, '`') === FALSE) {
+  //           $havingsArray[] = '`' . $column . '` '. $operator . ' ' . $this->typedSqlValue($value);
+  //         } else {
+  //           $havingsArray[] = $column . ' '. $operator . ' ' . $this->typedSqlValue($value);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    foreach ($havingRaws as $havingRaw) {
-      if (!empty($havingRaw[1])) {
-        $havingsArray[] = $havingRaw[1];
-      }
-    }
+  //   foreach ($havingRaws as $havingRaw) {
+  //     if (!empty($havingRaw[1])) {
+  //       $havingsArray[] = $havingRaw[1];
+  //     }
+  //   }
 
-    return (count($havingsArray) == 0 ? '' : join(' ' . $logic . ' ', $havingsArray));
-  }
+  //   return (count($havingsArray) == 0 ? '' : join(' ' . $logic . ' ', $havingsArray));
+  // }
 
 
   /**
@@ -622,38 +622,38 @@ class MySQLi extends \ADIOS\Core\Db
    * @see insert_row
    * @see updateRow
    */
-  public function columnSqlValue($table, $colName, $data, $defaultValue = NULL)
-  {
-    $colType = $this->tables[$table][$colName]['type'];
-    $value = $data[$colName];
-    $valueExists = array_key_exists($colName, $data);
+  // public function columnSqlValue($table, $colName, $data, $defaultValue = NULL)
+  // {
+  //   $colType = $this->tables[$table][$colName]['type'];
+  //   $value = $data[$colName];
+  //   $valueExists = array_key_exists($colName, $data);
 
-    $sql = '';
+  //   $sql = '';
 
-    // ak je hodnota stlpca definovana ako pole, tak moze mat rozne parametre
-    if (is_array($value) && isset($value['sql']) && !empty(trim($value['sql']))) {
-      $sql = "`{$colName}` = ({$value['sql']})";
-    } else if (strpos((string) $value, "SQL:") === 0) {
-      $sql = "`{$colName}` = (" . substr($value, 4) . ")";
-    } else if (isset($this->columnTypes[$colType])) {
-      if (isset($data[$colName])) {
-        $sql = $this->columnTypes[$colType]->sqlValueString(
-          $table,
-          $colName,
-          $data[$colName],
-          [
-            'null_value' => !$valueExists,
-            'dumping_data' => FALSE,
-            'data' => $data,
-          ]
-        );
-      } else if ($defaultValue !== NULL) {
-        $sql = "`{$colName}` = ".$defaultValue;
-      }
-    }
+  //   // ak je hodnota stlpca definovana ako pole, tak moze mat rozne parametre
+  //   if (is_array($value) && isset($value['sql']) && !empty(trim($value['sql']))) {
+  //     $sql = "`{$colName}` = ({$value['sql']})";
+  //   } else if (strpos((string) $value, "SQL:") === 0) {
+  //     $sql = "`{$colName}` = (" . substr($value, 4) . ")";
+  //   } else if (isset($this->columnTypes[$colType])) {
+  //     if (isset($data[$colName])) {
+  //       $sql = $this->columnTypes[$colType]->sqlValueString(
+  //         $table,
+  //         $colName,
+  //         $data[$colName],
+  //         [
+  //           'null_value' => !$valueExists,
+  //           'dumping_data' => FALSE,
+  //           'data' => $data,
+  //         ]
+  //       );
+  //     } else if ($defaultValue !== NULL) {
+  //       $sql = "`{$colName}` = ".$defaultValue;
+  //     }
+  //   }
 
-    return (empty($sql) ? "" : "{$sql}, ");
-  }
+  //   return (empty($sql) ? "" : "{$sql}, ");
+  // }
 
   /**
    * Returns SQL string representing command which would insert a row into a database.
@@ -664,29 +664,29 @@ class MySQLi extends \ADIOS\Core\Db
    *
    * @see columnSql
    */
-  private function insertRowQuery(string $table, array $data)
-  {
-    $sql = '';
+  // private function insertRowQuery(string $table, array $data)
+  // {
+  //   $sql = '';
 
-    if (isset($this->tables[$table]['id'])) {
-      if (!isset($data['id']) || $data['id'] <= 0) {
-        $sql .= "`id`=null, ";
-      } else {
-        $sql .= "`id`='" . $this->escape($data['id']) . "', ";
-        unset($data['id']);
-      }
-    }
+  //   if (isset($this->tables[$table]['id'])) {
+  //     if (!isset($data['id']) || $data['id'] <= 0) {
+  //       $sql .= "`id`=null, ";
+  //     } else {
+  //       $sql .= "`id`='" . $this->escape($data['id']) . "', ";
+  //       unset($data['id']);
+  //     }
+  //   }
 
-    foreach ($this->tables[$table] as $colName => $colDefinition) {
-      if (!($colDefinition['virtual'] ?? false) && $colName != '%%table_params%%') {
-        $sql .= $this->columnSqlValue($table, $colName, $data, $colDefinition['defaultValue'] ?? '');
-      }
-    }
+  //   foreach ($this->tables[$table] as $colName => $colDefinition) {
+  //     if (!($colDefinition['virtual'] ?? false) && $colName != '%%table_params%%') {
+  //       $sql .= $this->columnSqlValue($table, $colName, $data, $colDefinition['defaultValue'] ?? '');
+  //     }
+  //   }
 
-    $sql = substr($sql, 0, -2);
+  //   $sql = substr($sql, 0, -2);
 
-    return $sql;
-  }
+  //   return $sql;
+  // }
 
   /**
    * Returns SQL string representing command which would update a row into a database.
@@ -698,202 +698,202 @@ class MySQLi extends \ADIOS\Core\Db
    *
    * @see _sql_column_data
    */
-  private function updateRowQuery($table, $data)
-  {
-    global $_FILES;
+  // private function updateRowQuery($table, $data)
+  // {
+  //   global $_FILES;
 
-    if (is_array($_FILES)) {
-      foreach ($_FILES as $key => $value) {
-        if (null !== $data[$key]) {
-          $data[$key] = $value;
-        }
-      }
-    }
+  //   if (is_array($_FILES)) {
+  //     foreach ($_FILES as $key => $value) {
+  //       if (null !== $data[$key]) {
+  //         $data[$key] = $value;
+  //       }
+  //     }
+  //   }
 
-    $sql = '';
-    foreach ($this->tables[$table] as $col_name => $col_definition) {
-      if (!$col_definition['virtual']) {
-        $sql .= $this->columnSqlValue($table, $col_name, $data);
-      }
-    }
+  //   $sql = '';
+  //   foreach ($this->tables[$table] as $col_name => $col_definition) {
+  //     if (!$col_definition['virtual']) {
+  //       $sql .= $this->columnSqlValue($table, $col_name, $data);
+  //     }
+  //   }
 
-    $sql = substr($sql, 0, -2);
+  //   $sql = substr($sql, 0, -2);
 
-    return $sql;
-  }
+  //   return $sql;
+  // }
 
   /**
    * @param \ADIOS\Core\Db\Query $query
    *
    * @return string
    */
-  public function buildSql(\ADIOS\Core\Db\Query $query) : string
-  {
-    $model = $query->getModel();
+  // public function buildSql(\ADIOS\Core\Db\Query $query) : string
+  // {
+  //   $model = $query->getModel();
 
-    switch ($query->getType()) {
-      case \ADIOS\Core\Db\Query::select:
+  //   switch ($query->getType()) {
+  //     case \ADIOS\Core\Db\Query::select:
 
-        $selectModifiers = $query->getStatements(\ADIOS\Core\Db\Query::selectModifier);
-        $columns = $query->getStatements(\ADIOS\Core\Db\Query::column);
-        $joins = $query->getStatements(\ADIOS\Core\Db\Query::join);
-        $orders = $query->getStatements(\ADIOS\Core\Db\Query::order);
-        $orderRaws = $query->getStatements(\ADIOS\Core\Db\Query::orderRaw);
-        $limits = $query->getStatements(\ADIOS\Core\Db\Query::limit);
+  //       $selectModifiers = $query->getStatements(\ADIOS\Core\Db\Query::selectModifier);
+  //       $columns = $query->getStatements(\ADIOS\Core\Db\Query::column);
+  //       $joins = $query->getStatements(\ADIOS\Core\Db\Query::join);
+  //       $orders = $query->getStatements(\ADIOS\Core\Db\Query::order);
+  //       $orderRaws = $query->getStatements(\ADIOS\Core\Db\Query::orderRaw);
+  //       $limits = $query->getStatements(\ADIOS\Core\Db\Query::limit);
 
-        $tableAlias = '';
+  //       $tableAlias = '';
 
-        // select modifiers
-        $selectModifiersArray = [];
-        foreach ($selectModifiers as $modifier) {
-          switch ($modifier[1]) {
-            case \ADIOS\Core\Db\Query::countRows:
-              $selectModifiersArray[] = 'SQL_CALC_FOUND_ROWS';
-            break;
-            case \ADIOS\Core\Db\Query::distinct:
-              $selectModifiersArray[] = 'DISTINCT';
-            break;
-            case \ADIOS\Core\Db\Query::distinctRow:
-              $selectModifiersArray[] = 'DISTINCTROW';
-            break;
-            case \ADIOS\Core\Db\Query::tableAlias:
-              $tableAlias = $modifier[2];
-            break;
-          }
-        }
+  //       // select modifiers
+  //       $selectModifiersArray = [];
+  //       foreach ($selectModifiers as $modifier) {
+  //         switch ($modifier[1]) {
+  //           case \ADIOS\Core\Db\Query::countRows:
+  //             $selectModifiersArray[] = 'SQL_CALC_FOUND_ROWS';
+  //           break;
+  //           case \ADIOS\Core\Db\Query::distinct:
+  //             $selectModifiersArray[] = 'DISTINCT';
+  //           break;
+  //           case \ADIOS\Core\Db\Query::distinctRow:
+  //             $selectModifiersArray[] = 'DISTINCTROW';
+  //           break;
+  //           case \ADIOS\Core\Db\Query::tableAlias:
+  //             $tableAlias = $modifier[2];
+  //           break;
+  //         }
+  //       }
 
-        // columns
-        $columnsArray = [];
-        foreach ($columns as $column) {
-          if ($column[1] === '*') {
-            $columnsArray[] = '*';
-          } else if (strpos($column[1], '`') === FALSE) {
-            if (strpos($column[1], '.') === FALSE) {
-              $columnsArray[] = '`' . $column[1] . '` as `' . $column[2] . '`';
-            } else {
-              list($tmpTable, $tmpColumn) = explode(".", $column[1]);
-              $columnsArray[] = '`' . $tmpTable . '`.`' . $tmpColumn . '` as `' . $column[2] . '`';
-            }
-          } else {
-            $columnsArray[] = $column[1] . ' as `' . $column[2] . '`';
-          }
-        }
+  //       // columns
+  //       $columnsArray = [];
+  //       foreach ($columns as $column) {
+  //         if ($column[1] === '*') {
+  //           $columnsArray[] = '*';
+  //         } else if (strpos($column[1], '`') === FALSE) {
+  //           if (strpos($column[1], '.') === FALSE) {
+  //             $columnsArray[] = '`' . $column[1] . '` as `' . $column[2] . '`';
+  //           } else {
+  //             list($tmpTable, $tmpColumn) = explode(".", $column[1]);
+  //             $columnsArray[] = '`' . $tmpTable . '`.`' . $tmpColumn . '` as `' . $column[2] . '`';
+  //           }
+  //         } else {
+  //           $columnsArray[] = $column[1] . ' as `' . $column[2] . '`';
+  //         }
+  //       }
 
-        // joins
-        $joinsArray = [];
-        foreach ($joins as $join) {
-          $joinsArray[] =
-            'LEFT JOIN `' . $join[2] . '` as `' . $join[3] . '`'
-            . ' ON `' .  $join[3] . '`.`id` = `' . $join[1] . '`.`' . $join[4] . '`';
-        }
+  //       // joins
+  //       $joinsArray = [];
+  //       foreach ($joins as $join) {
+  //         $joinsArray[] =
+  //           'LEFT JOIN `' . $join[2] . '` as `' . $join[3] . '`'
+  //           . ' ON `' .  $join[3] . '`.`id` = `' . $join[1] . '`.`' . $join[4] . '`';
+  //       }
 
-        // where
-        $where = $this->buildSqlWhere($query);
+  //       // where
+  //       $where = $this->buildSqlWhere($query);
 
-        // having
-        $having = $this->buildSqlHaving($query);
+  //       // having
+  //       $having = $this->buildSqlHaving($query);
 
-        // orders and orderRaws
-        $ordersArray = [];
-        foreach ($orders as $order) {
+  //       // orders and orderRaws
+  //       $ordersArray = [];
+  //       foreach ($orders as $order) {
 
-          $order[1] = trim($order[1]);
-          $order[1] = '`' . implode('`.`', explode(".", str_replace('`', '', $order[1]))) . '`';
+  //         $order[1] = trim($order[1]);
+  //         $order[1] = '`' . implode('`.`', explode(".", str_replace('`', '', $order[1]))) . '`';
 
-          $order[2] = strtoupper($order[2] ?? '');
+  //         $order[2] = strtoupper($order[2] ?? '');
 
-          if (!in_array($order[2], ['ASC', 'DESC'])) continue;
+  //         if (!in_array($order[2], ['ASC', 'DESC'])) continue;
 
-          $ordersArray[] = $order[1] . ' ' . $order[2];
-        }
-        foreach ($orderRaws as $orderRaw) {
-          $ordersArray[] = $orderRaw[1];
-        }
+  //         $ordersArray[] = $order[1] . ' ' . $order[2];
+  //       }
+  //       foreach ($orderRaws as $orderRaw) {
+  //         $ordersArray[] = $orderRaw[1];
+  //       }
 
-        // limit
-        if (count($limits) > 0) {
-          $limitSql = ' LIMIT ' . $limits[0][1] . ', ' . $limits[0][2];
-        } else {
-          $limitSql = '';
-        }
+  //       // limit
+  //       if (count($limits) > 0) {
+  //         $limitSql = ' LIMIT ' . $limits[0][1] . ', ' . $limits[0][2];
+  //       } else {
+  //         $limitSql = '';
+  //       }
 
-        // sql
-        $sql =
-          'SELECT ' . join(' ', $selectModifiersArray) . ' '
-            . join(', ', $columnsArray)
-          . ' FROM `' . $model->getFullTableSqlName() . '`'
-          . (empty($tableAlias) ? '' : ' AS ' . $tableAlias)
-          . ' ' . join(' ', $joinsArray)
-          . (empty($where) ? '' : ' WHERE ' . $where)
-          . (empty($having) ? '' : ' HAVING ' . $having)
-          . (count($ordersArray) == 0 ? '' : ' ORDER BY ' . join(', ', $ordersArray))
-          . $limitSql
-        ;
+  //       // sql
+  //       $sql =
+  //         'SELECT ' . join(' ', $selectModifiersArray) . ' '
+  //           . join(', ', $columnsArray)
+  //         . ' FROM `' . $model->getFullTableSqlName() . '`'
+  //         . (empty($tableAlias) ? '' : ' AS ' . $tableAlias)
+  //         . ' ' . join(' ', $joinsArray)
+  //         . (empty($where) ? '' : ' WHERE ' . $where)
+  //         . (empty($having) ? '' : ' HAVING ' . $having)
+  //         . (count($ordersArray) == 0 ? '' : ' ORDER BY ' . join(', ', $ordersArray))
+  //         . $limitSql
+  //       ;
 
-      break;
+  //     break;
 
-      case \ADIOS\Core\Db\Query::insert:
-        $sqlTableName = $model->getFullTableSqlName();
+  //     case \ADIOS\Core\Db\Query::insert:
+  //       $sqlTableName = $model->getFullTableSqlName();
 
-        $values = $query->getStatements(\ADIOS\Core\Db\Query::set);
-        $valuesOnDuplicateKey = $query->getStatements(\ADIOS\Core\Db\Query::setOnDuplicateKey);
+  //       $values = $query->getStatements(\ADIOS\Core\Db\Query::set);
+  //       $valuesOnDuplicateKey = $query->getStatements(\ADIOS\Core\Db\Query::setOnDuplicateKey);
 
-        $data = [];
-        foreach ($values as $value) {
-          $data[$value[1]] = $value[2];
-        }
+  //       $data = [];
+  //       foreach ($values as $value) {
+  //         $data[$value[1]] = $value[2];
+  //       }
 
-        $sql = 'INSERT INTO `' . $sqlTableName . '` SET ';
-        $sql .= $this->insertRowQuery($sqlTableName, $data, TRUE);
+  //       $sql = 'INSERT INTO `' . $sqlTableName . '` SET ';
+  //       $sql .= $this->insertRowQuery($sqlTableName, $data, TRUE);
 
-        if (count($valuesOnDuplicateKey) > 0) {
+  //       if (count($valuesOnDuplicateKey) > 0) {
 
-          $data = [];
-          foreach ($valuesOnDuplicateKey as $value) {
-            $data[$value[1]] = $value[2];
-          }
+  //         $data = [];
+  //         foreach ($valuesOnDuplicateKey as $value) {
+  //           $data[$value[1]] = $value[2];
+  //         }
 
-          $sql .= ' ON DUPLICATE KEY UPDATE ';
-          $sql .= $this->insertRowQuery($sqlTableName, $data, TRUE);
-        }
+  //         $sql .= ' ON DUPLICATE KEY UPDATE ';
+  //         $sql .= $this->insertRowQuery($sqlTableName, $data, TRUE);
+  //       }
 
-      break;
+  //     break;
 
-      case \ADIOS\Core\Db\Query::update:
-        $sqlTableName = $model->getFullTableSqlName();
+  //     case \ADIOS\Core\Db\Query::update:
+  //       $sqlTableName = $model->getFullTableSqlName();
 
-        $values = $query->getStatements(\ADIOS\Core\Db\Query::set);
+  //       $values = $query->getStatements(\ADIOS\Core\Db\Query::set);
 
-        $data = [];
-        foreach ($values as $value) {
-          $data[$value[1]] = $value[2];
-        }
+  //       $data = [];
+  //       foreach ($values as $value) {
+  //         $data[$value[1]] = $value[2];
+  //       }
 
-        $where = $this->buildSqlWhere($query);
+  //       $where = $this->buildSqlWhere($query);
 
-        $sql =
-          'UPDATE `' . $sqlTableName . '` SET '
-          . $this->updateRowQuery($sqlTableName, $data)
-          . (empty($where) ? '' : ' WHERE ' . $where)
-        ;
+  //       $sql =
+  //         'UPDATE `' . $sqlTableName . '` SET '
+  //         . $this->updateRowQuery($sqlTableName, $data)
+  //         . (empty($where) ? '' : ' WHERE ' . $where)
+  //       ;
 
-      break;
+  //     break;
 
-      case \ADIOS\Core\Db\Query::delete:
-        $sqlTableName = $model->getFullTableSqlName();
+  //     case \ADIOS\Core\Db\Query::delete:
+  //       $sqlTableName = $model->getFullTableSqlName();
 
-        $where = $this->buildSqlWhere($query);
+  //       $where = $this->buildSqlWhere($query);
 
-        $sql =
-          'DELETE FROM `' . $sqlTableName . '`'
-          . (empty($where) ? '' : ' WHERE ' . $where)
-        ;
+  //       $sql =
+  //         'DELETE FROM `' . $sqlTableName . '`'
+  //         . (empty($where) ? '' : ' WHERE ' . $where)
+  //       ;
 
-      break;
-    }
+  //     break;
+  //   }
 
-    return $sql;
-  }
+  //   return $sql;
+  // }
 
 
 

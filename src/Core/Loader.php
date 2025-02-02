@@ -200,8 +200,6 @@ class Loader
         $this->eloquent->addConnection($dbConnectionConfig, 'default');
       }
 
-      $dbProviderClass = $this->getConfig('db/provider', \ADIOS\Core\Db\Providers\MySQLi::class);
-      $this->db = new $dbProviderClass($this);
       $this->pdo = new \ADIOS\Core\PDO($this);
 
       if ($mode == self::ADIOS_MODE_FULL) {
@@ -353,7 +351,6 @@ class Loader
 
   public function initDatabaseConnections()
   {
-    $this->db->connect();
     $this->pdo->connect();
   }
 
@@ -724,8 +721,6 @@ class Loader
 
     $this->console->info("Database is empty, installing models.");
 
-    $this->db->startTransaction();
-
     foreach ($this->registeredModels as $modelName) {
       try {
         $model = $this->getModel($modelName);
@@ -767,8 +762,6 @@ class Loader
         "widget" => $widget,
       ]);
     }
-
-    $this->db->commit();
 
     $this->console->info("Core installation done in ".round((microtime(true) - $installationStart), 2)." seconds.");
   }
@@ -1195,14 +1188,14 @@ class Loader
 
         if (!empty($initiatingModelName)) {
           $initiatingModel = $this->getModel($initiatingModelName);
-          $columns = $initiatingModel->columnsLegacy();
+          $columns = $initiatingModel->columns();
           $indexes = $initiatingModel->indexes();
 
           preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $dbError, $m);
           $invalidIndex = $m[2];
           $invalidColumns = [];
           foreach ($indexes[$invalidIndex]['columns'] as $columnName) {
-            $invalidColumns[] = $columns[$columnName]["title"];
+            $invalidColumns[] = $columns[$columnName]->getTitle();
           }
         } else {
           preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $dbError, $m);
@@ -1339,19 +1332,12 @@ class Loader
           if (is_array($value)) {
             $this->saveConfig($value, $tmpPath.'/');
           } else if ($value === null) {
-            $this->db->query("
-              delete from `".(empty($this->gtp) ? '' : $this->gtp . '_')."config`
-              where `path` like '".$this->db->escape($tmpPath)."%'
-            ");
+            $this->pdo->execute("delete from `config` where `path` like '?%'", [$tmpPath]);
           } else {
-            $this->db->query("
-              insert into `".(empty($this->gtp) ? '' : $this->gtp . '_')."config` set
-                `path` = '".$this->db->escape($tmpPath)."',
-                `value` = '".$this->db->escape($value)."'
-              on duplicate key update
-                `path` = '".$this->db->escape($tmpPath)."',
-                `value` = '".$this->db->escape($value)."'
-            ");
+            $this->pdo->execute("
+              insert into `config` set `path` = '?', `value` = '?'
+              on duplicate key update `path` = '?', `value` = '?'
+            ", [$tmpPath, $value, $tmpPath, $value]);
           }
         }
       }
@@ -1363,14 +1349,10 @@ class Loader
   public function saveConfigByPath(string $path, string $value) {
     try {
       if (!empty($path)) {
-        $this->db->query("
-          insert into `".(empty($this->gtp) ? '' : $this->gtp . '_')."config` set
-            `path` = '".$this->db->escape($path)."',
-            `value` = '".$this->db->escape($value)."'
-          on duplicate key update
-            `path` = '".$this->db->escape($path)."',
-            `value` = '".$this->db->escape($value)."'
-        ");
+        $this->pdo->execute("
+          insert into `config` set `path` = '?', `value` = '?'
+          on duplicate key update `path` = '?', `value` = '?'
+        ", [$path, $value, $path, $value]);
       }
     } catch (\Exception $e) {
       // do nothing
@@ -1380,10 +1362,7 @@ class Loader
   public function deleteConfig($path) {
     try {
       if (!empty($path)) {
-        $this->db->query("
-          delete from `".(empty($this->gtp) ? '' : $this->gtp . '_')."config`
-          where `path` like '".$this->db->escape($path)."%'
-        ");
+        $this->pdo->execute("delete from `config` where `path` like '?%'", [$path]);
       }
     } catch (\Exception $e) {
       // do nothing

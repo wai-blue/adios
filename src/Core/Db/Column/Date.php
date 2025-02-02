@@ -2,11 +2,11 @@
 
 namespace ADIOS\Core\Db\Column;
 
-class DateTime extends \ADIOS\Core\Db\Column
+class Date extends \ADIOS\Core\Db\Column
 {
 
-  protected string $type = 'datetime';
-  protected string $sqlDataType = 'datetime';
+  protected string $type = 'date';
+  protected string $sqlDataType = 'date';
 
   public function normalize(mixed $value): mixed
   {

@@ -351,6 +351,12 @@ class Loader
 
   public function initDatabaseConnections()
   {
+    $dbConnectionConfig = $this->getDefaultConnectionConfig();
+
+    if ($dbConnectionConfig !== null) {
+      $this->eloquent->addConnection($dbConnectionConfig, 'default');
+    }
+
     $this->pdo->connect();
   }
 

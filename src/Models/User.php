@@ -53,9 +53,9 @@ class User extends \ADIOS\Core\Model {
     ]));
   }
 
-  public function tableDescribe(): \ADIOS\Core\Description\Table
+  public function describeTable(): \ADIOS\Core\Description\Table
   {
-    $description = parent::tableDescribe();
+    $description = parent::describeTable();
     unset($description->columns['password']);
     return $description;
   }

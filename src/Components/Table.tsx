@@ -334,7 +334,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
           if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
 
-          if (description.columns.length == 0) adiosError(`No columns to show in table for '${this.model}'.`);
           if (successCallback) successCallback(description);
 
           description = this.onAfterLoadTableDescription(description);

@@ -6,7 +6,7 @@
   * removed obsolete `ADIOS\Core\Loader->db` object (use safer `ADIOS\Core\Loader->pdo` for database operations)
   * protected property `ADIOS\Core\Auth->user` and new getter methods (`getUser`, `getUserId`, `getUserLanguage`, `getUserRoles`)
   * new style of column description using `ADIOS\Core\Db\Column` objects
-  * new method `Model->columnDescribe()` to support concept of descriptions for columns, similar to `tableDescribe()` and `formDescribe()`
+  * new method `Model->describeInput()` to support concept of descriptions for columns, similar to `describeTable()` and `describeForm()`
   * new classes `\ADIOS\Core\Db\ColumnProperty` and `\ADIOS\Core\Db\ColumnProperty\Autocomplete`
   * type-safe definition of columns in the model:
 

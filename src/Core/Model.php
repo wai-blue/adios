@@ -751,12 +751,12 @@ class Model
     );
   }
 
-  public function columnDescribe(string $column): array
+  public function describeInput(string $column): array
   {
     return (array) ($this->columns()[$column]->toArray() ?? []);
   }
 
-  public function tableDescribe(): \ADIOS\Core\Description\Table
+  public function describeTable(): \ADIOS\Core\Description\Table
   {
     $columns = $this->columns();
     if (isset($columns['id'])) unset($columns['id']);
@@ -802,7 +802,7 @@ class Model
   }
 
 
-  public function formDescribe(): \ADIOS\Core\Description\Form
+  public function describeForm(): \ADIOS\Core\Description\Form
   {
     $columns = $this->columns();
     if (isset($columns['id'])) unset($columns['id']);

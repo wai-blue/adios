@@ -15,6 +15,9 @@ abstract class Column implements \JsonSerializable
   protected bool $hidden = false;
   protected string $rawSqlDefinition = '';
   protected string $inputComponent = '';
+  protected string $unit = '';
+  protected string $format = '';
+  protected string $description = '';
   protected mixed $defaultValue = null;
 
   /** @var array<string, \ADIOS\Core\Db\ColumnProperty> */
@@ -40,6 +43,15 @@ abstract class Column implements \JsonSerializable
 
   public function getRequired(): bool { return $this->required; }
   public function setRequired(bool $required = true): Column { $this->required = $required; return $this; }
+
+  public function getUnit(): bool { return $this->unit; }
+  public function setUnit(bool $unit = true): Column { $this->unit = $unit; return $this; }
+
+  public function getFormat(): bool { return $this->format; }
+  public function setFormat(bool $format = true): Column { $this->format = $format; return $this; }
+
+  public function getDescription(): bool { return $this->description; }
+  public function setDescription(bool $description = true): Column { $this->description = $description; return $this; }
 
   public function getHidden(): bool { return $this->hidden; }
   public function setHidden(bool $hidden = true): Column { $this->hidden = $hidden; return $this; }

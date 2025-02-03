@@ -6,8 +6,8 @@ class Varchar extends \ADIOS\Core\Db\Column
 {
 
   protected string $type = 'varchar';
-  protected array $enumValues = [];
   protected int $byteSize = 255;
+  protected array $enumValues = [];
 
   public function __construct(\ADIOS\Core\Model $model, string $title, int $byteSize = 255)
   {

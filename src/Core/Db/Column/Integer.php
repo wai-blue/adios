@@ -7,6 +7,7 @@ class Integer extends \ADIOS\Core\Db\Column
 
   protected string $type = 'int';
   protected int $byteSize = 255;
+  protected array $enumValues = [];
 
   public function __construct(\ADIOS\Core\Model $model, string $title, int $byteSize = 255)
   {
@@ -16,6 +17,9 @@ class Integer extends \ADIOS\Core\Db\Column
 
   public function getByteSize(): int { return $this->byteSize; }
   public function setByteSize(int $byteSize): Decimal { $this->byteSize = $byteSize; return $this; }
+
+  public function getEnumValues(): array { return $this->enumValues; }
+  public function setEnumValues(array $enumValues): \ADIOS\Core\Db\Column\Integer { $this->enumValues = $enumValues; return $this; }
 
   public function jsonSerialize(): array
   {

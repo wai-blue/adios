@@ -1039,7 +1039,7 @@ class Loader
       } else {
         $error = error_get_last();
 
-        if ($error['type'] == E_ERROR) {
+        if ($error && $error['type'] == E_ERROR) {
           $return = $this->renderFatal(
             '<div style="margin-bottom:1em;">'
               . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']

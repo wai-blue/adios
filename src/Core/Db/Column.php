@@ -50,8 +50,8 @@ abstract class Column implements \JsonSerializable
   public function getFormat(): bool { return $this->format; }
   public function setFormat(bool $format = true): Column { $this->format = $format; return $this; }
 
-  public function getDescription(): bool { return $this->description; }
-  public function setDescription(bool $description = true): Column { $this->description = $description; return $this; }
+  public function getDescription(): string { return $this->description; }
+  public function setDescription(string $description): Column { $this->description = $description; return $this; }
 
   public function getHidden(): bool { return $this->hidden; }
   public function setHidden(bool $hidden = true): Column { $this->hidden = $hidden; return $this; }
@@ -87,6 +87,9 @@ abstract class Column implements \JsonSerializable
       'required' => $this->required,
       'inputJSX' => $this->inputComponent,
       'defaultValue' => $this->defaultValue,
+      'unit' => $this->unit,
+      'description' => $this->description,
+      'format' => $this->format,
     ];
 
     foreach ($this->properties as $name => $property) {

@@ -46,7 +46,7 @@ class Model
    *
    * @var mixed
    */
-  public ?Loader $app = NULL;
+  public Loader $app;
 
   /**
    * Shorthand for "global table prefix"

@@ -36,7 +36,7 @@ export interface FormPermissions {
   canDelete?: boolean,
 }
 
-export interface FormColumns {
+export interface FormInputs {
   [key: string]: any;
 }
 
@@ -55,7 +55,7 @@ export interface FormUi {
 }
 
 export interface FormDescription {
-  columns?: FormColumns,
+  inputs?: FormInputs,
   defaultValues?: FormRecord,
   permissions?: FormPermissions,
   ui?: FormUi,
@@ -161,7 +161,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       nextId: props.nextId,
       readonly: props.readonly,
       description: props.description ?? {
-        columns: {},
+        inputs: {},
         defaultValues: {},
         permissions: {
           canCreate: false,
@@ -455,8 +455,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
    * Render tab
    */
   renderContent(): JSX.Element {
-    if (this.state.description?.columns == null) {
-      return adiosError(`No columns specified for ${this.props.model}. Did the controller return definition of columns?`);
+    if (this.state.description?.inputs == null) {
+      return adiosError(`No inputs specified for ${this.props.model}. Did the controller return definition of inputs?`);
     }
 
     if (this.state.content?.tabs) {
@@ -491,8 +491,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
               return this._renderContentItem(key++, contentArea, content[contentArea]);
             })
             : this.state.record != null ? (
-              Object.keys(this.state.description?.columns ?? {}).map((columnName: string) => {
-                return this.inputWrapper(columnName);
+              Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
+                return this.inputWrapper(inputName);
               })
             ) : ''
           }
@@ -523,8 +523,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         break;
       case 'inputs':
         //@ts-ignore
-        contentItem = (contentItemParams['inputs'] as Array<string>).map((columnName: string) => {
-          return this.inputWrapper(columnName)
+        contentItem = (contentItemParams['inputs'] as Array<string>).map((inputName: string) => {
+          return this.inputWrapper(inputName)
         });
         break;
       case 'html':
@@ -556,74 +556,64 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     );
   }
 
-  buildInputParams(columnName: string) {
-    let stateColDef = (this.state.description?.columns ? this.state.description?.columns[columnName] ?? {} : {});
-    return {...stateColDef, ...{readonly: this.state.readonly}};
-  }
+  getInputProps(inputName: string, customInputProps?: any): InputProps {
+    const record = this.state.record ?? {};
+    const inputs = this.state.description?.inputs ?? {};
+    const description = inputs[inputName] ?? {};
 
-  getDefaultInputProps() {
+    // let customInputPropsWithoutOnchange = customInputProps;
+    // delete customInputPropsWithoutOnchange.onChange;
+
     return {
-      uid: this.props.uid + '_' + uuid.v4(),//columnName,
+      inputName: inputName,
+      record: record,
+      description: description,
+      value: record[inputName] ?? '',
+      invalid: this.state.invalidInputs[inputName] ?? false,
+      readonly: this.props.readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
+      uid: this.props.uid + '_' + uuid.v4(),
       parentForm: this,
       context: this.props.context ? this.props.context : this.props.uid,
       isInitialized: false,
       isInlineEditing: this.state.isInlineEditing,
       showInlineEditingButtons: false, // !this.state.isInlineEditing,
-      onInlineEditCancel: () => {
+      ...customInputProps,
+      onInlineEditCancel: () => { },
+      onInlineEditSave: () => { this.saveRecord(); },
+      onChange: (value: any) => {
+        let record = {...this.state.record};
+        record[inputName] = value;
+        this.setState({record: record, recordChanged: true}, () => {
+          if (this.props.onChange) this.props.onChange();
+          if (customInputProps && customInputProps.onChange) customInputProps.onChange();
+        });
       },
-      onInlineEditSave: () => {
-        this.saveRecord();
-      }
     };
   }
 
   /**
    * Render different input types
    */
-  input(columnName: string, customInputProps?: any, onChange?: any): JSX.Element {
-    const record = this.state.record ?? {};
-    const columns = this.state.description?.columns ?? {};
-    const description = columns[columnName] ?? {};
-
-    const inputProps: InputProps = {
-      ...this.getDefaultInputProps(),
-      description: description,
-      params: this.buildInputParams(columnName),
-      value: record[columnName] ?? '',
-      columnName: columnName,
-      invalid: this.state.invalidInputs[columnName] ?? false,
-      readonly: this.props.readonly || columns[columnName]?.readonly || columns[columnName]?.disabled,
-      // cssClass: inputParams.cssClass ?? '',
-      onChange: (value: any) => {
-        let record = {...this.state.record};
-        record[columnName] = value;
-        this.setState({record: record, recordChanged: true}, () => {
-          if (this.props.onChange) this.props.onChange();
-        });
-      },
-      ...customInputProps
-    };
-
+  input(inputName: string, customInputProps?: any): JSX.Element {
+    const inputProps = this.getInputProps(inputName, customInputProps);
     return InputFactory(inputProps);
   }
 
-  inputWrapper(columnName: string, customInputProps?: any) {
+  inputWrapper(inputName: string, customInputProps?: any) {
+    const inputProps = this.getInputProps(inputName, customInputProps);
 
-    const inputParams = this.buildInputParams(columnName);
-
-    return columnName == 'id' ? <></>: this.inputWrapperCustom(
-      columnName,
-      inputParams,
-      inputParams.title,
+    return this.inputWrapperCustom(
+      inputName,
+      inputProps,
+      inputProps.description.title,
       <>
-        {this.input(columnName, customInputProps)}
-
-        {inputParams.info
+        {this.input(inputName, customInputProps)}
+        {inputProps.description?.info
           ? <>
-            <Tooltip target={'#' + this.props.uid + '_' + columnName + ' .input-info'} />
+            <Tooltip target={'#' + this.props.uid + '_' + inputName + ' .input-info'} />
             <i
               className="input-info fas fa-info"
-              data-pr-tooltip={inputParams.info}
+              data-pr-tooltip={inputProps.description.info}
               data-pr-position="top"
             ></i>
           </>
@@ -633,23 +623,23 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     );
   }
 
-  inputWrapperCustom(columnName: string, params: any, label: string|JSX.Element, body: string|JSX.Element): JSX.Element {
+  inputWrapperCustom(inputName: string, inputProps: any, label: string|JSX.Element, body: string|JSX.Element): JSX.Element {
     return <>
       <div
-        id={this.props.uid + '_' + columnName}
-        className={"input-wrapper" + (params.required == true ? " required" : "")}
-        key={columnName}
+        id={this.props.uid + '_' + inputName}
+        className={"input-wrapper" + (inputProps.required == true ? " required" : "")}
+        key={inputName}
       >
-        <label className="input-label" htmlFor={this.props.uid + '_' + columnName}>
+        <label className="input-label" htmlFor={this.props.uid + '_' + inputName}>
           {label}
         </label>
 
-        <div className="input-body" key={columnName}>
+        <div className="input-body" key={inputName}>
           {body}
         </div>
 
-        {params.description
-          ? <div className="input-description">{params.description}</div>
+        {inputProps.description?.description
+          ? <div className="input-description">{inputProps.description.description}</div>
           : null
         }
       </div>

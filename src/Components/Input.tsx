@@ -5,7 +5,6 @@ import Form from './Form';
 export interface InputProps {
   uid: string,
   columnName?: string,
-  params?: any,
   inputClassName?: string,
   value?: any,
   onChange?: (value: any) => void,
@@ -199,7 +198,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   renderValueElement() {
     let value = this.state.value + '';
     if (value == '') return <span className="no-value"></span>;
-    else return this.state.value;
+    else return <span>{this.state.value.toString()}</span>;
   }
 
   render() {
@@ -220,7 +219,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
             ></input>
             <div className="input-element">
               {this.renderInputElement()}
-              {this.props.params?.unit ? <div className="input-unit">{this.props.params?.unit}</div> : null}
+              {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
             </div>
             {this.state.showInlineEditingButtons ? 
               <div className="inline-editing-buttons always-visible">
@@ -247,7 +246,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
           : <>
             <div className="value-element" onClick={() => { this.inlineEditEnable(); }}>
               {this.renderValueElement()}
-              {this.props.params?.unit ? <div className="input-unit">{this.props.params?.unit}</div> : null}
+              {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
             </div>
             {/* {this.state.readonly ? null :
               <div className="inline-editing-buttons">

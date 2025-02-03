@@ -2,6 +2,8 @@
 
 namespace ADIOS\Core\Db\Column;
 
+use \ADIOS\Core\Db\ColumnProperty\Autocomplete;
+
 class Lookup extends \ADIOS\Core\Db\Column
 {
 
@@ -14,6 +16,7 @@ class Lookup extends \ADIOS\Core\Db\Column
   protected string $foreignKeyColumn = 'id';
   protected string $foreignKeyOnDelete = 'RESTRICT';
   protected string $foreignKeyOnUpdate = 'RESTRICT';
+  protected ?Autocomplete $autocomplete = null;
 
   public function __construct(\ADIOS\Core\Model $model, string $title, string $lookupModel = '', string $foreignKeyBehaviour = 'RESTRICT')
   {
@@ -29,12 +32,16 @@ class Lookup extends \ADIOS\Core\Db\Column
   public function setFkOnDelete(string $fkOnDelete): Lookup { $this->foreignKeyOnDelete = $fkOnDelete; return $this; }
   public function setFkOnUpdate(string $fkOnUpdate): Lookup { $this->foreignKeyOnUpdate = $fkOnUpdate; return $this; }
 
+  public function getAutocomplete(): Autocomplete { return $this->autocomplete; }
+  public function setAutocomplete(Autocomplete $autocomplete): Varchar { $this->autocomplete = $autocomplete; return $this; }
+
   public function jsonSerialize(): array
   {
     $column = parent::jsonSerialize();
     $column['model'] = $this->lookupModel;
     $column['foreignKeyOnDelete'] = $this->foreignKeyOnDelete;
     $column['foreignKeyOnUpdate'] = $this->foreignKeyOnUpdate;
+    if ($this->autocomplete !== null) $column['autocomplete'] = $this->autocomplete;
     return $column;
   }
 

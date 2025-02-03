@@ -25,8 +25,8 @@ class Form implements \JsonSerializable
     'canDelete' => false,
   ];
 
-  /** @property array<string, \ADIOS\Core\Db\Column> */
-  public array $columns = [];
+  /** @property array<string, \ADIOS\Core\Description\Input> */
+  public array $inputs = [];
 
   /** @property array<string, mixed> */
   public array $defaultValues = [];
@@ -38,7 +38,7 @@ class Form implements \JsonSerializable
   {
     return [
       'ui' => $this->ui,
-      'columns' => $this->columns,
+      'inputs' => $this->inputs,
       'permissions' => $this->permissions,
       'defaultValues' => $this->defaultValues,
     ];

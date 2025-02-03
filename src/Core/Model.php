@@ -237,11 +237,6 @@ class Model
     return $this->app->translate($string, $vars, $this->translationContext);
   }
 
-  // public function hasSqlTable()
-  // {
-  //   return in_array($this->table, $this->app->db->existingSqlTables ?? []);
-  // }
-
   /**
    * Checks whether model is installed.
    *
@@ -298,7 +293,6 @@ class Model
     }
 
     $createSql = substr($createSql, 0, -2) . ") ENGINE = {$this->sqlEngine}";
-
 
     $this->app->pdo->startTransaction();
     $this->app->pdo->execute("SET foreign_key_checks = 0");
@@ -493,6 +487,40 @@ class Model
     return $enumValues;
   }
 
+  public function lookupSqlValue($tableAlias = NULL): string
+  {
+    $value = $this->lookupSqlValue ?? "concat('{$this->fullName}, id = ', {%TABLE%}.id)";
+
+    return ($tableAlias !== NULL
+      ? str_replace('{%TABLE%}', "`{$tableAlias}`", $value)
+      : $value
+    );
+  }
+
+  /**
+   * Check if the lookup table needs the id of the inserted record from this model
+   */
+  private function ___getInsertedIdForLookupColumn(array $lookupColumns, array $lookupData, int $insertedRecordId): array
+  {
+    foreach ($lookupColumns as $lookupColumnName => $lookupColumnData) {
+      if ($lookupColumnData['type'] != 'lookup') continue;
+
+      if ($lookupColumnData['model'] == $this->fullName) {
+        $lookupData[$lookupColumnName] = $insertedRecordId;
+        break;
+      }
+    }
+
+    return $lookupData;
+  }
+
+  private function ___validateBase64Image(string $base64String)
+  {
+    $pattern = '/^data:image\/[^;]+;base64,/';
+    return preg_match($pattern, $base64String);
+  }
+
+
   //////////////////////////////////////////////////////////////////
   // definition of columns
 
@@ -552,7 +580,7 @@ class Model
   }
 
   /**
-   * indexNames
+   * columnNames
    * @return array<string>
    */
   public function columnNames(): array
@@ -588,172 +616,16 @@ class Model
     return $item;
   }
 
-  // public function getLookupSqlValueById(int $id)
-  // {
-  //   $row = $this->app->db->select($this)
-  //     ->columnsLegacy([
-  //       [$this->lookupSqlValue($this->table), 'lookup_value']
-  //     ])
-  //     ->where([['id', '=', $id]])
-  //     ->fetch();
-
-  //   return $row[0]['lookup_value'] ?? '';
-  // }
-
-  // public function insertRow($data)
-  // {
-  //   return $this->app->db->insert($this)
-  //     ->set($data)
-  //     ->execute();
-  // }
-
-  // public function insertRowWithId($data)
-  // {
-  //   return $this->app->db->insert($this)
-  //     ->set($data)
-  //     ->execute();
-  // }
-
-  // public function insertOrUpdateRow($data)
-  // {
-  //   unset($data['id']);
-
-  //   $duplicateKeyData = $data;
-
-  //   return $this->app->db->insert($this)
-  //     ->set($data)
-  //     ->onDuplicateKey($duplicateKeyData)
-  //     ->execute();
-  // }
-
-  // public function insertRandomRow($data = [], $dictionary = [])
-  // {
-  //   return $this->insertRow(
-  //     $this->app->db->getRandomColumnValues($this, $data, $dictionary)
-  //   );
-  // }
-
-  // public function updateRow($data, $id)
-  // {
-  //   $queryOk = $this->app->db->update($this)
-  //     ->set($data)
-  //     ->whereId((int)$id)
-  //     ->execute();
-
-  //   return ($queryOk ? $id : FALSE);
-  // }
-
-  // public function deleteRow($id)
-  // {
-  //   return $this->app->db->delete($this)
-  //     ->whereId((int)$id)
-  //     ->execute();
-  // }
-
-  // public function copyRow($id)
-  // {
-  //   $row = $this->app->db->select($this)
-  //     ->columnsLegacy([Query::allColumnsWithoutLookups])
-  //     ->where([
-  //       ['id', '=', (int)$id]
-  //     ])
-  //     ->fetchOne();
-
-  //   unset($row['id']);
-
-  //   return $this->insertRow($row);
-  // }
-
   public function search($q)
   {
   }
 
   //////////////////////////////////////////////////////////////////
-  // lookup processing methods
+  // Description API
 
-  // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
-  // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
-  // $formData = aktualne data formulara
-  public function lookupWhere(
-    $initiatingModel = NULL,
-    $initiatingColumn = NULL,
-    $formData = [],
-    $params = []
-  )
+  public function describeInput(string $columnName): \ADIOS\Core\Description\Input
   {
-    return [];
-  }
-
-  // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
-  // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
-  // $formData = aktualne data formulara
-  // public function lookupOrder(
-  //   $initiatingModel = NULL,
-  //   $initiatingColumn = NULL,
-  //   $formData = [],
-  //   $params = []
-  // )
-  // {
-  //   return [['input_lookup_value', 'asc']];
-  // }
-
-  // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
-  // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
-  // $formData = aktualne data formulara
-  // public function lookupQuery(
-  //   $initiatingModel = NULL,
-  //   $initiatingColumn = NULL,
-  //   $formData = [],
-  //   $params = [],
-  //   $having = "TRUE"
-  // ): Query
-  // {
-  //   $where = $params['where'] ?? $this->lookupWhere($initiatingModel, $initiatingColumn, $formData, $params);
-  //   $order = $params['order'] ?? $this->lookupOrder($initiatingModel, $initiatingColumn, $formData, $params);
-
-  //   return $this->app->db->select($this)
-  //     ->columnsLegacy([
-  //       ['id', 'id'],
-  //       [$this->lookupSqlValue($this->table), 'input_lookup_value']
-  //     ])
-  //     ->where($where)
-  //     ->havingRaw($having)
-  //     ->order($order);
-  // }
-
-  // // $initiatingModel = model formulara, v ramci ktoreho je lookup generovany
-  // // $initiatingColumn = nazov stlpca, z ktoreho je lookup generovany
-  // // $formData = aktualne data formulara
-  // public function lookupSqlQuery(
-  //   $initiatingModel = NULL,
-  //   $initiatingColumn = NULL,
-  //   $formData = [],
-  //   $params = [],
-  //   $having = "TRUE"
-  // ): string
-  // {
-  //   return $this->lookupQuery(
-  //     $initiatingModel,
-  //     $initiatingColumn,
-  //     $formData,
-  //     $params,
-  //     $having
-  //   )->buildSql();
-  // }
-
-  public function lookupSqlValue($tableAlias = NULL): string
-  {
-    $value = $this->lookupSqlValue ?? "concat('{$this->fullName}, id = ', {%TABLE%}.id)";
-
-    return ($tableAlias !== NULL
-      ? str_replace('{%TABLE%}', "`{$tableAlias}`", $value)
-      : $value
-    );
-  }
-
-  public function describeInput(string $column): array
-  {
-    return (array) ($this->columns()[$column]->toArray() ?? []);
+    return $this->columns()[$columnName]->describeInput();
   }
 
   public function describeTable(): \ADIOS\Core\Description\Table
@@ -773,46 +645,22 @@ class Model
     return $description;
   }
 
-  /**
-  * @param array $description
-  * @return array $description
-  */
-  public function tableDescribeLegacy(array $description = []): array
-  {
-    $columns = $this->columnsLegacy();
-    unset($columns['id']);
-
-    $description = [
-      'ui' => [
-        'showHeader' => true,
-        'showFooter' => true,
-        'showFilter' => true,
-        'showHeaderTitle' => true,
-      ],
-      'columns' => $columns,
-      'permissions' => [
-        'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
-        'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
-        'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
-        'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
-      ],
-    ];
-
-    return $description;
-  }
-
-
   public function describeForm(): \ADIOS\Core\Description\Form
   {
-    $columns = $this->columns();
-    if (isset($columns['id'])) unset($columns['id']);
-
     $description = new \ADIOS\Core\Description\Form();
+
+    $columnNames = $this->columnNames();
+
+    $description->inputs = [];
+    foreach ($columnNames as $columnName) {
+      if ($columnName == 'id') continue;
+      $description->inputs[$columnName] = $this->describeInput($columnName);
+    }
+
     $description->ui['addButtonText'] = $this->translate('Add');
     $description->ui['saveButtonText'] = $this->translate('Save');
     $description->ui['copyButtonText'] = $this->translate('Copy');
     $description->ui['deleteButtonText'] = $this->translate('Delete');
-    $description->columns = $columns;
     $description->permissions = [
       'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
       'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
@@ -822,26 +670,6 @@ class Model
     $description->defaultValues = $this->recordDefaultValues();
 
     $description->includeRelations = array_keys($this->relations);
-
-    return $description;
-  }
-
-  public function formDescribeLegacy(array $description = []): array {
-    $columns = $this->columnsLegacy();
-    unset($columns['id']);
-
-    $description = [
-      'ui' => [],
-      'columns' => $columns,
-      'defaultValues' => $this->recordDefaultValues(),
-      'permissions' => [
-        'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
-        'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
-        'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
-        'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
-      ],
-      'includeRelations' => [],
-    ];
 
     return $description;
   }
@@ -867,15 +695,6 @@ class Model
 
   //////////////////////////////////////////////////////////////////
   // Record-related methods
-
-  // public function recordDescribe() {
-  //   $description = [
-  //     'columns' => $this->columnsLegacy(),
-  //     'defaultValues' => $this->recordDefaultValues(),
-  //   ];
-  //   return $description;
-  // }
-
 
   /**
    * recordValidate
@@ -916,11 +735,6 @@ class Model
   public function recordNormalize(array $record): array {
     $columns = $this->columnsLegacy();
 
-    // Vyhodene, pretoze to v recordSave() sposobovalo mazanie udajov
-    // foreach ($columns as $colName => $colDef) {
-    //   if (!isset($record[$colName])) $record[$colName] = NULL;
-    // }
-
     foreach ($record as $colName => $colValue) {
       if (!isset($columns[$colName])) {
         unset($record[$colName]);
@@ -935,29 +749,6 @@ class Model
     }
 
     return $record;
-  }
-
-  /**
-   * Check if the lookup table needs the id of the inserted record from this model
-   */
-  private function ___getInsertedIdForLookupColumn(array $lookupColumns, array $lookupData, int $insertedRecordId): array
-  {
-    foreach ($lookupColumns as $lookupColumnName => $lookupColumnData) {
-      if ($lookupColumnData['type'] != 'lookup') continue;
-
-      if ($lookupColumnData['model'] == $this->fullName) {
-        $lookupData[$lookupColumnName] = $insertedRecordId;
-        break;
-      }
-    }
-
-    return $lookupData;
-  }
-
-  private function ___validateBase64Image(string $base64String)
-  {
-    $pattern = '/^data:image\/[^;]+;base64,/';
-    return preg_match($pattern, $base64String);
   }
 
   public function recordCreate(array $record): int {

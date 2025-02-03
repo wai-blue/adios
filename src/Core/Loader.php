@@ -351,9 +351,13 @@ class Loader
 
   public function initDatabaseConnections()
   {
+    $this->eloquent = new \Illuminate\Database\Capsule\Manager;
+
     $dbConnectionConfig = $this->getDefaultConnectionConfig();
 
     if ($dbConnectionConfig !== null) {
+      $this->eloquent->setAsGlobal();
+      $this->eloquent->bootEloquent();
       $this->eloquent->addConnection($dbConnectionConfig, 'default');
     }
 

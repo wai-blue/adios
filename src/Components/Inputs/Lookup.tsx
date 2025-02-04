@@ -33,12 +33,12 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
       endpoint:
       props.endpoint
           ? props.endpoint
-          : (props.params && props.params.endpoint
-            ? props.params.endpoint
+          : (props.description && props.description.endpoint
+            ? props.description.endpoint
             : (globalThis.app.config.defaultLookupEndpoint ?? 'api/record/lookup')
           )
       ,
-      model: props.model ? props.model : (props.params && props.params.model ? props.params.model : ''),
+      model: props.model ? props.model : (props.description && props.description.model ? props.description.model : ''),
       data: [],
       customEndpointParams: this.props.customEndpointParams ?? {},
     };
@@ -80,7 +80,6 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
       formRecord: formRecord,
       __IS_AJAX__: '1',
       ...this.props.customEndpointParams,
-      ...(this.props.params?.customEndpointParams ?? {}),
       ...(this.props.parentForm?.state.customEndpointParams ?? {}),
     };
   }
@@ -133,7 +132,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
         getOptionLabel={(option: any) => { return option._LOOKUP }}
         getOptionValue={(option: any) => { return option.id }}
         onChange={(item: any) => { this.onChange(item?.id ?? 0); }}
-        placeholder={this.props.params?.placeholder}
+        placeholder={this.props.description?.ui?.placeholder}
         className="adios-lookup"
         // allowCreateWhileLoading={false}
         // formatCreateLabel={(inputValue: string) => <span className="create-new">{this.translate('Create') + ': ' + inputValue}</span>}

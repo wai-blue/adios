@@ -14,14 +14,11 @@ abstract class Column implements \JsonSerializable
   protected bool $required = false;
   protected bool $hidden = false;
   protected string $rawSqlDefinition = '';
-  protected string $inputComponent = '';
+  protected string $placeholder = '';
   protected string $unit = '';
   protected string $format = '';
   protected string $description = '';
   protected mixed $defaultValue = null;
-
-  /** @var array<string, \ADIOS\Core\Db\ColumnProperty> */
-  protected array $properties = [];
 
   public function __construct(\ADIOS\Core\Model $model, string $title)
   {
@@ -44,6 +41,9 @@ abstract class Column implements \JsonSerializable
   public function getRequired(): bool { return $this->required; }
   public function setRequired(bool $required = true): Column { $this->required = $required; return $this; }
 
+  public function getPlaceholder(): bool { return $this->placeholder; }
+  public function setPlaceholder(bool $placeholder = true): Column { $this->placeholder = $placeholder; return $this; }
+
   public function getUnit(): bool { return $this->unit; }
   public function setUnit(bool $unit = true): Column { $this->unit = $unit; return $this; }
 
@@ -59,23 +59,21 @@ abstract class Column implements \JsonSerializable
   public function getRawSqlDefinition(): string { return $this->rawSqlDefinition; }
   public function setRawSqlDefinition(string $rawSqlDefinition): Column { $this->rawSqlDefinition = $rawSqlDefinition; return $this; }
 
-  public function getInputComponent(): string { return $this->inputComponent; }
-  public function setInputComponent(string $inputComponent): Column { $this->inputComponent = $inputComponent; return $this; }
-
   public function getDefaultValue(): mixed { return $this->defaultValue; }
   public function setDefaultValue(mixed $defaultValue): Column { $this->defaultValue = $defaultValue; return $this; }
 
-
-  public function getProperty(string $name): ColumnProperty
+  public function describeInput(): \ADIOS\Core\Description\Input
   {
-    return $this->properties[$name];
-  }
-
-  public function setProperty(string $propertyName, ColumnProperty $property): Column
-  {
-    $property->setColumn($this);
-    $this->properties[$propertyName] = $property;
-    return $this;
+    $description = new \ADIOS\Core\Description\Input();
+    $description->setType($this->getType());
+    if (!empty($this->getTitle())) $description->setTitle($this->getTitle());
+    if (!empty($this->getPlaceholder())) $description->setPlaceholder($this->getPlaceholder());
+    if (!empty($this->getReadonly())) $description->setReadonly($this->getReadonly());
+    if (!empty($this->getRequired())) $description->setRequired($this->getRequired());
+    if (!empty($this->getDescription())) $description->setDescription($this->getDescription());
+    if (!empty($this->getUnit())) $description->setUnit($this->getUnit());
+    if (!empty($this->getFormat())) $description->setFormat($this->getFormat());
+    return $description;
   }
 
   public function jsonSerialize(): array
@@ -85,16 +83,12 @@ abstract class Column implements \JsonSerializable
       'title' => $this->title,
       'readonly' => $this->readonly,
       'required' => $this->required,
-      'inputJSX' => $this->inputComponent,
       'defaultValue' => $this->defaultValue,
       'unit' => $this->unit,
       'description' => $this->description,
       'format' => $this->format,
+      'placeholder' => $this->placeholder,
     ];
-
-    foreach ($this->properties as $name => $property) {
-      $column[$name] = $property->jsonSerialize();
-    }
 
     return $column;
   }

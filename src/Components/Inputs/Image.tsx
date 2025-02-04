@@ -26,7 +26,7 @@ export default class Image extends Input<InputProps, ImageInputState> {
 
   onImageChange(images: Array<ImageType>, addUpdateIndex: any) {
     let image: any = images[0];
-console.log(images, image);
+
     this.onChange({
       fileName: image ? image.file.name : null,
       fileData: image ? image.fileData : null,
@@ -41,10 +41,14 @@ console.log(images, image);
   };
 
   getImageUrl(): string {
-    if (this.state.value.fileData) {
-      return this.state.value.fileData;
-    } else if (this.state.value) {
-      return globalThis.app.config.uploadUrl + '/' + this.state.value;
+    if (this.state.value) {
+      if (this.state.value.fileData) {
+        return this.state.value.fileData;
+      } else if (this.state.value) {
+        return globalThis.app.config.uploadUrl + '/' + this.state.value;
+      } else {
+        return '';
+      }
     } else {
       return '';
     }
@@ -65,7 +69,7 @@ console.log(images, image);
         </button>
       </>;
     } else {
-      return null;
+      return <></>;
     }
   }
 

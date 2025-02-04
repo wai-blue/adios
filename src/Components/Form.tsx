@@ -36,7 +36,7 @@ export interface FormPermissions {
   canDelete?: boolean,
 }
 
-export interface FormColumns {
+export interface FormInputs {
   [key: string]: any;
 }
 
@@ -47,6 +47,9 @@ export interface FormRecord {
 export interface FormUi {
   title?: string,
   subTitle?: string,
+  showSaveButton?: boolean;
+  showCopyButton?: boolean;
+  showDeleteButton?: boolean;
   saveButtonText?: string,
   addButtonText?: string,
   copyButtonText?: string,
@@ -55,7 +58,7 @@ export interface FormUi {
 }
 
 export interface FormDescription {
-  columns?: FormColumns,
+  inputs?: FormInputs,
   defaultValues?: FormRecord,
   permissions?: FormPermissions,
   ui?: FormUi,
@@ -73,7 +76,6 @@ export interface FormProps {
   readonly?: boolean,
   content?: Content,
   hideOverlay?: boolean,
-  showCopyButton?: boolean;
   showInModal?: boolean,
   showInModalSimple?: boolean,
   isInlineEditing?: boolean,
@@ -148,6 +150,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   }
 
   getStateFromProps(props: FormProps) {
+    const isCreatingRecord: boolean = props.id ? props.id == -1 : false;
     return {
       isInitialized: false,
       endpoint: props.endpoint ? props.endpoint : (globalThis.app.config.defaultFormEndpoint ?? {
@@ -161,7 +164,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       nextId: props.nextId,
       readonly: props.readonly,
       description: props.description ?? {
-        columns: {},
+        inputs: {},
         defaultValues: {},
         permissions: {
           canCreate: false,
@@ -172,16 +175,16 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         ui: {},
       },
       content: props.content,
-      creatingRecord: props.id ? props.id == -1 : false,
-      updatingRecord: props.id ? props.id != -1 : false,
+      creatingRecord: isCreatingRecord,
+      updatingRecord: !isCreatingRecord,
       deletingRecord: false,
       recordDeleted: false,
-      isInlineEditing: props.isInlineEditing ? props.isInlineEditing : false,
+      isInlineEditing: props.isInlineEditing ? props.isInlineEditing : isCreatingRecord,
       invalidInputs: {},
       record: {},
       params: null,
       invalidRecordId: false,
-      customEndpointParams: this.props.customEndpointParams ?? {},
+      customEndpointParams: props.customEndpointParams ?? {},
       recordChanged: false,
       deleteButtonDisabled: false,
     };
@@ -249,44 +252,30 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   loadFormDescription() {
 
-    // if (this.props.description) {
-    //   let description = this.customizeDescription(this.props.description);
-    //   this.setState({
-    //     description: description,
-    //     readonly: !(description.permissions?.canUpdate || description.permissions?.canCreate),
-    //   }, () => {
-    //     if (this.state.id !== -1) {
-    //       this.loadRecord();
-    //     } else {
-    //       this.setRecord(description?.defaultValues ?? {});
-    //     }
-    //   });
-    // } else {
-      request.post(
-        this.getEndpointUrl('describeForm'),
-        this.getEndpointParams(),
-        {},
-        (description: any) => {
+    request.post(
+      this.getEndpointUrl('describeForm'),
+      this.getEndpointParams(),
+      {},
+      (description: any) => {
 
-          if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
+        if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
 
-          // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
+        // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
-          description = this.customizeDescription(description);
+        description = this.customizeDescription(description);
 
-          this.setState({
-            description: description,
-            readonly: !(description.permissions?.canUpdate || description.permissions?.canCreate),
-          }, () => {
-            if (this.state.id !== -1) {
-              this.loadRecord();
-            } else {
-              this.setRecord(description.defaultValues);
-            }
-          });
-        }
-      );
-    // }
+        this.setState({
+          description: description,
+          readonly: !(description.permissions?.canUpdate || description.permissions?.canCreate),
+        }, () => {
+          if (this.state.id !== -1) {
+            this.loadRecord();
+          } else {
+            this.setRecord(description.defaultValues ?? {});
+          }
+        });
+      }
+    );
   }
 
   reload() {
@@ -455,8 +444,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
    * Render tab
    */
   renderContent(): JSX.Element {
-    if (this.state.description?.columns == null) {
-      return adiosError(`No columns specified for ${this.props.model}. Did the controller return definition of columns?`);
+    if (this.state.description?.inputs == null) {
+      return adiosError(`No inputs specified for ${this.props.model}. Did the controller return definition of inputs?`);
     }
 
     if (this.state.content?.tabs) {
@@ -491,8 +480,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
               return this._renderContentItem(key++, contentArea, content[contentArea]);
             })
             : this.state.record != null ? (
-              Object.keys(this.state.description?.columns ?? {}).map((columnName: string) => {
-                return this.inputWrapper(columnName);
+              Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
+                return this.inputWrapper(inputName);
               })
             ) : ''
           }
@@ -523,8 +512,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         break;
       case 'inputs':
         //@ts-ignore
-        contentItem = (contentItemParams['inputs'] as Array<string>).map((columnName: string) => {
-          return this.inputWrapper(columnName)
+        contentItem = (contentItemParams['inputs'] as Array<string>).map((inputName: string) => {
+          return this.inputWrapper(inputName)
         });
         break;
       case 'html':
@@ -556,74 +545,64 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     );
   }
 
-  buildInputParams(columnName: string) {
-    let stateColDef = (this.state.description?.columns ? this.state.description?.columns[columnName] ?? {} : {});
-    return {...stateColDef, ...{readonly: this.state.readonly}};
-  }
+  getInputProps(inputName: string, customInputProps?: any): InputProps {
+    const record = this.state.record ?? {};
+    const inputs = this.state.description?.inputs ?? {};
+    const description = inputs[inputName] ?? {};
 
-  getDefaultInputProps() {
+    // let customInputPropsWithoutOnchange = customInputProps;
+    // delete customInputPropsWithoutOnchange.onChange;
+
     return {
-      uid: this.props.uid + '_' + uuid.v4(),//columnName,
+      inputName: inputName,
+      record: record,
+      description: description,
+      value: record[inputName],
+      invalid: this.state.invalidInputs[inputName] ?? false,
+      readonly: this.props.readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
+      uid: this.props.uid + '_' + uuid.v4(),
       parentForm: this,
       context: this.props.context ? this.props.context : this.props.uid,
       isInitialized: false,
       isInlineEditing: this.state.isInlineEditing,
       showInlineEditingButtons: false, // !this.state.isInlineEditing,
-      onInlineEditCancel: () => {
+      ...customInputProps,
+      onInlineEditCancel: () => { },
+      onInlineEditSave: () => { this.saveRecord(); },
+      onChange: (value: any) => {
+        let record = {...this.state.record};
+        record[inputName] = value;
+        this.setState({record: record, recordChanged: true}, () => {
+          if (this.props.onChange) this.props.onChange();
+          if (customInputProps && customInputProps.onChange) customInputProps.onChange();
+        });
       },
-      onInlineEditSave: () => {
-        this.saveRecord();
-      }
     };
   }
 
   /**
    * Render different input types
    */
-  input(columnName: string, customInputProps?: any, onChange?: any): JSX.Element {
-    const record = this.state.record ?? {};
-    const columns = this.state.description?.columns ?? {};
-    const description = columns[columnName] ?? {};
-
-    const inputProps: InputProps = {
-      ...this.getDefaultInputProps(),
-      description: description,
-      params: this.buildInputParams(columnName),
-      value: record[columnName] ?? '',
-      columnName: columnName,
-      invalid: this.state.invalidInputs[columnName] ?? false,
-      readonly: this.props.readonly || columns[columnName]?.readonly || columns[columnName]?.disabled,
-      // cssClass: inputParams.cssClass ?? '',
-      onChange: (value: any) => {
-        let record = {...this.state.record};
-        record[columnName] = value;
-        this.setState({record: record, recordChanged: true}, () => {
-          if (this.props.onChange) this.props.onChange();
-        });
-      },
-      ...customInputProps
-    };
-
+  input(inputName: string, customInputProps?: any): JSX.Element {
+    const inputProps = this.getInputProps(inputName, customInputProps);
     return InputFactory(inputProps);
   }
 
-  inputWrapper(columnName: string, customInputProps?: any) {
+  inputWrapper(inputName: string, customInputProps?: any) {
+    const inputProps = this.getInputProps(inputName, customInputProps);
 
-    const inputParams = this.buildInputParams(columnName);
-
-    return columnName == 'id' ? <></>: this.inputWrapperCustom(
-      columnName,
-      inputParams,
-      inputParams.title,
+    return this.inputWrapperCustom(
+      inputName,
+      inputProps,
+      inputProps.description.title,
       <>
-        {this.input(columnName, customInputProps)}
-
-        {inputParams.info
+        {this.input(inputName, customInputProps)}
+        {inputProps.description?.info
           ? <>
-            <Tooltip target={'#' + this.props.uid + '_' + columnName + ' .input-info'} />
+            <Tooltip target={'#' + this.props.uid + '_' + inputName + ' .input-info'} />
             <i
               className="input-info fas fa-info"
-              data-pr-tooltip={inputParams.info}
+              data-pr-tooltip={inputProps.description.info}
               data-pr-position="top"
             ></i>
           </>
@@ -633,23 +612,23 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     );
   }
 
-  inputWrapperCustom(columnName: string, params: any, label: string|JSX.Element, body: string|JSX.Element): JSX.Element {
+  inputWrapperCustom(inputName: string, inputProps: any, label: string|JSX.Element, body: string|JSX.Element): JSX.Element {
     return <>
       <div
-        id={this.props.uid + '_' + columnName}
-        className={"input-wrapper" + (params.required == true ? " required" : "")}
-        key={columnName}
+        id={this.props.uid + '_' + inputName}
+        className={"input-wrapper" + (inputProps.required == true ? " required" : "")}
+        key={inputName}
       >
-        <label className="input-label" htmlFor={this.props.uid + '_' + columnName}>
+        <label className="input-label" htmlFor={this.props.uid + '_' + inputName}>
           {label}
         </label>
 
-        <div className="input-body" key={columnName}>
+        <div className="input-body" key={inputName}>
           {body}
         </div>
 
-        {params.description
-          ? <div className="input-description">{params.description}</div>
+        {inputProps.description?.description
+          ? <div className="input-description">{inputProps.description.description}</div>
           : null
         }
       </div>
@@ -660,7 +639,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.state.description?.permissions?.canUpdate ? <button
+      {this.state.description?.ui?.showSaveButton && this.state.description?.permissions?.canUpdate ? <button
         onClick={() => this.saveRecord()}
         className={
           "btn btn-add "
@@ -692,7 +671,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.props.showCopyButton && this.state.description?.permissions?.canCreate ? <button
+      {this.state.description?.ui?.showCopyButton && this.state.description?.permissions?.canCreate ? <button
         onClick={() => this.copyRecord()}
         className={"btn btn-transparent"}
       >
@@ -706,7 +685,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.state.updatingRecord && this.state.description?.permissions?.canDelete ? <button
+      {this.state.updatingRecord && this.state.description?.ui?.showDeleteButton && this.state.description?.permissions?.canDelete ? <button
         onClick={() => {
           if (!this.state.deleteButtonDisabled) {
             if (this.state.deletingRecord) this.deleteRecord();
@@ -724,6 +703,40 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         </span>
       </button> : null}
     </>;
+  }
+
+  renderPrevRecordButton(): JSX.Element {
+    const prevId = this.state?.prevId ?? 0;
+
+    return (
+      <button
+        onClick={() => {
+          if (prevId && this.props.parentTable) {
+            this.props.parentTable.openForm(prevId);
+          }
+        }}
+        className={"btn btn-transparent" + (prevId ? "" : " btn-disabled")}
+      >
+        <span className="icon"><i className="fas fa-angle-left"></i></span>
+      </button>
+    );
+  }
+
+  renderNextRecordButton(): JSX.Element {
+    const nextId = this.state?.nextId ?? 0;
+
+    return (
+      <button
+        onClick={() => {
+          if (nextId && this.props.parentTable) {
+            this.props.parentTable.openForm(nextId);
+          }
+        }}
+        className={"btn btn-transparent" + (nextId ? "" : " btn-disabled")}
+      >
+        <span className="icon"><i className="fas fa-angle-right"></i></span>
+      </button>
+    );
   }
 
   renderEditButton(): JSX.Element {
@@ -765,26 +778,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       {this.renderCopyButton()}
       {this.renderDeleteButton()}
       {prevId || nextId ? <>
-        <button
-          onClick={() => {
-            if (prevId && this.props.parentTable) {
-              this.props.parentTable.openForm(prevId);
-            }
-          }}
-          className={"btn btn-transparent" + (prevId ? "" : " btn-disabled")}
-        >
-          <span className="icon"><i className="fas fa-angle-left"></i></span>
-        </button>
-        <button
-          onClick={() => {
-            if (nextId && this.props.parentTable) {
-              this.props.parentTable.openForm(nextId);
-            }
-          }}
-          className={"btn btn-transparent" + (nextId ? "" : " btn-disabled")}
-        >
-          <span className="icon"><i className="fas fa-angle-right"></i></span>
-        </button>
+        {this.renderPrevRecordButton()}
+        {this.renderNextRecordButton()}
       </> : null}
     </>;
   }
@@ -833,40 +828,46 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   }
 
   render() {
-    globalThis.app.setTranslationContext(this.translationContext);
+    try {
+      globalThis.app.setTranslationContext(this.translationContext);
 
-    let warningsOrErrors = this.renderWarningsOrErrors();
+      let warningsOrErrors = this.renderWarningsOrErrors();
 
-    if (warningsOrErrors) return warningsOrErrors;
-    else {
+      if (warningsOrErrors) return warningsOrErrors;
+      else {
 
-      let formTitle = this.renderTitle();
-      let formContent = this.renderContent();
-      let formFooter = this.renderFooter();
+        let formTitle = this.renderTitle();
+        let formContent = this.renderContent();
+        let formFooter = this.renderFooter();
 
-      if (this.props.showInModal) {
-        return <>
-          <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
-            <div className="modal-header-left">{this.renderHeaderLeft()}</div>
-            <div className="modal-header-title">{formTitle}</div>
-            <div className="modal-header-right">{this.renderHeaderRight()}</div>
-          </div>
-          <div className="modal-body">{formContent}</div>
-          {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
-        </>;
-      } else {
-        return <>
-          <div id={"adios-form-" + this.props.uid} className="adios component form">
-            <div className="form-header">
-              <div className="form-header-left">{this.renderHeaderLeft()}</div>
-              <div className="form-header-title">{formTitle}</div>
-              <div className="form-header-right">{this.renderHeaderRight()}</div>
+        if (this.props.showInModal) {
+          return <>
+            <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
+              <div className="modal-header-left">{this.renderHeaderLeft()}</div>
+              <div className="modal-header-title">{formTitle}</div>
+              <div className="modal-header-right">{this.renderHeaderRight()}</div>
             </div>
-            <div className="form-body">{formContent}</div>
-            {formFooter ? <div className="form-footer">{formFooter}</div> : null}
-          </div>
-        </>;
+            <div className="modal-body">{formContent}</div>
+            {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+          </>;
+        } else {
+          return <>
+            <div id={"adios-form-" + this.props.uid} className="adios component form">
+              <div className="form-header">
+                <div className="form-header-left">{this.renderHeaderLeft()}</div>
+                <div className="form-header-title">{formTitle}</div>
+                <div className="form-header-right">{this.renderHeaderRight()}</div>
+              </div>
+              <div className="form-body">{formContent}</div>
+              {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+            </div>
+          </>;
+        }
       }
+    } catch(e) {
+      console.error('Failed to render form.');
+      console.error(e);
+      return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
     }
   }
 }

@@ -11,7 +11,7 @@ interface FileInputState extends InputState {
   files: Array<any>
 }
 
-export default class Image extends Input<FileInputProps, FileInputState> {
+export default class File extends Input<FileInputProps, FileInputState> {
   static defaultProps = {
     inputClassName: 'image',
     id: uuid.v4(),
@@ -28,7 +28,7 @@ export default class Image extends Input<FileInputProps, FileInputState> {
 
   onFileChange(files: Array<ImageType>, addUpdateIndex: any) {
     let file: any = files[0];
-console.log('ofc', files, file);
+
     this.onChange({
       fileName: file ? file.file.name : null,
       fileData: file ? file.fileData : null,
@@ -43,10 +43,14 @@ console.log('ofc', files, file);
   };
 
   getFileUrl(): string {
-    if (this.state.value.fileData) {
-      return this.state.value.fileData;
-    } else if (this.state.value) {
-      return globalThis.app.config.uploadUrl + '/' + this.state.value;
+    if (this.state.value) {
+      if (this.state.value.fileData) {
+        return this.state.value.fileData;
+      } else if (this.state.value) {
+        return globalThis.app.config.uploadUrl + '/' + this.state.value;
+      } else {
+        return '';
+      }
     } else {
       return '';
     }
@@ -74,11 +78,10 @@ console.log('ofc', files, file);
         <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
         <span className="text">{this.getFileName()}</span>
       </a>
-    </> : null);
+    </> : <></>);
   }
 
   renderInputElement() {
-  console.log(this.state.value);
     return <>
       {this.renderValueElement()}
       {this.state.readonly ? null : <>

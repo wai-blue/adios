@@ -14,7 +14,6 @@ abstract class Column implements \JsonSerializable
   protected bool $required = false;
   protected bool $hidden = false;
   protected string $rawSqlDefinition = '';
-  protected string $inputComponent = '';
   protected string $placeholder = '';
   protected string $unit = '';
   protected string $format = '';
@@ -60,19 +59,14 @@ abstract class Column implements \JsonSerializable
   public function getRawSqlDefinition(): string { return $this->rawSqlDefinition; }
   public function setRawSqlDefinition(string $rawSqlDefinition): Column { $this->rawSqlDefinition = $rawSqlDefinition; return $this; }
 
-  public function getInputComponent(): string { return $this->inputComponent; }
-  public function setInputComponent(string $inputComponent): Column { $this->inputComponent = $inputComponent; return $this; }
-
   public function getDefaultValue(): mixed { return $this->defaultValue; }
   public function setDefaultValue(mixed $defaultValue): Column { $this->defaultValue = $defaultValue; return $this; }
-
 
   public function describeInput(): \ADIOS\Core\Description\Input
   {
     $description = new \ADIOS\Core\Description\Input();
     $description->setType($this->getType());
     if (!empty($this->getTitle())) $description->setTitle($this->getTitle());
-    if (!empty($this->getInputComponent())) $description->setReactComponent($this->getInputComponent());
     if (!empty($this->getPlaceholder())) $description->setPlaceholder($this->getPlaceholder());
     if (!empty($this->getReadonly())) $description->setReadonly($this->getReadonly());
     if (!empty($this->getRequired())) $description->setRequired($this->getRequired());
@@ -89,7 +83,6 @@ abstract class Column implements \JsonSerializable
       'title' => $this->title,
       'readonly' => $this->readonly,
       'required' => $this->required,
-      'inputJSX' => $this->inputComponent,
       'defaultValue' => $this->defaultValue,
       'unit' => $this->unit,
       'description' => $this->description,

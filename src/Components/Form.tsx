@@ -47,6 +47,9 @@ export interface FormRecord {
 export interface FormUi {
   title?: string,
   subTitle?: string,
+  showSaveButton?: boolean;
+  showCopyButton?: boolean;
+  showDeleteButton?: boolean;
   saveButtonText?: string,
   addButtonText?: string,
   copyButtonText?: string,
@@ -73,7 +76,6 @@ export interface FormProps {
   readonly?: boolean,
   content?: Content,
   hideOverlay?: boolean,
-  showCopyButton?: boolean;
   showInModal?: boolean,
   showInModalSimple?: boolean,
   isInlineEditing?: boolean,
@@ -148,6 +150,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   }
 
   getStateFromProps(props: FormProps) {
+    const isCreatingRecord: boolean = props.id ? props.id == -1 : false;
     return {
       isInitialized: false,
       endpoint: props.endpoint ? props.endpoint : (globalThis.app.config.defaultFormEndpoint ?? {
@@ -172,16 +175,16 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         ui: {},
       },
       content: props.content,
-      creatingRecord: props.id ? props.id == -1 : false,
-      updatingRecord: props.id ? props.id != -1 : false,
+      creatingRecord: isCreatingRecord,
+      updatingRecord: !isCreatingRecord,
       deletingRecord: false,
       recordDeleted: false,
-      isInlineEditing: props.isInlineEditing ? props.isInlineEditing : false,
+      isInlineEditing: props.isInlineEditing ? props.isInlineEditing : isCreatingRecord,
       invalidInputs: {},
       record: {},
       params: null,
       invalidRecordId: false,
-      customEndpointParams: this.props.customEndpointParams ?? {},
+      customEndpointParams: props.customEndpointParams ?? {},
       recordChanged: false,
       deleteButtonDisabled: false,
     };
@@ -249,44 +252,30 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   loadFormDescription() {
 
-    // if (this.props.description) {
-    //   let description = this.customizeDescription(this.props.description);
-    //   this.setState({
-    //     description: description,
-    //     readonly: !(description.permissions?.canUpdate || description.permissions?.canCreate),
-    //   }, () => {
-    //     if (this.state.id !== -1) {
-    //       this.loadRecord();
-    //     } else {
-    //       this.setRecord(description?.defaultValues ?? {});
-    //     }
-    //   });
-    // } else {
-      request.post(
-        this.getEndpointUrl('describeForm'),
-        this.getEndpointParams(),
-        {},
-        (description: any) => {
+    request.post(
+      this.getEndpointUrl('describeForm'),
+      this.getEndpointParams(),
+      {},
+      (description: any) => {
 
-          if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
+        if (this.props.description && this.props.descriptionSource == 'both') description = deepObjectMerge(description, this.props.description);
 
-          // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
+        // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
-          description = this.customizeDescription(description);
+        description = this.customizeDescription(description);
 
-          this.setState({
-            description: description,
-            readonly: !(description.permissions?.canUpdate || description.permissions?.canCreate),
-          }, () => {
-            if (this.state.id !== -1) {
-              this.loadRecord();
-            } else {
-              this.setRecord(description.defaultValues);
-            }
-          });
-        }
-      );
-    // }
+        this.setState({
+          description: description,
+          readonly: !(description.permissions?.canUpdate || description.permissions?.canCreate),
+        }, () => {
+          if (this.state.id !== -1) {
+            this.loadRecord();
+          } else {
+            this.setRecord(description.defaultValues ?? {});
+          }
+        });
+      }
+    );
   }
 
   reload() {
@@ -568,7 +557,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       inputName: inputName,
       record: record,
       description: description,
-      value: record[inputName] ?? '',
+      value: record[inputName],
       invalid: this.state.invalidInputs[inputName] ?? false,
       readonly: this.props.readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
       uid: this.props.uid + '_' + uuid.v4(),
@@ -650,7 +639,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.state.description?.permissions?.canUpdate ? <button
+      {this.state.description?.ui?.showSaveButton && this.state.description?.permissions?.canUpdate ? <button
         onClick={() => this.saveRecord()}
         className={
           "btn btn-add "
@@ -682,7 +671,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.props.showCopyButton && this.state.description?.permissions?.canCreate ? <button
+      {this.state.description?.ui?.showCopyButton && this.state.description?.permissions?.canCreate ? <button
         onClick={() => this.copyRecord()}
         className={"btn btn-transparent"}
       >
@@ -696,7 +685,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.state.updatingRecord && this.state.description?.permissions?.canDelete ? <button
+      {this.state.updatingRecord && this.state.description?.ui?.showDeleteButton && this.state.description?.permissions?.canDelete ? <button
         onClick={() => {
           if (!this.state.deleteButtonDisabled) {
             if (this.state.deletingRecord) this.deleteRecord();
@@ -714,6 +703,40 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         </span>
       </button> : null}
     </>;
+  }
+
+  renderPrevRecordButton(): JSX.Element {
+    const prevId = this.state?.prevId ?? 0;
+
+    return (
+      <button
+        onClick={() => {
+          if (prevId && this.props.parentTable) {
+            this.props.parentTable.openForm(prevId);
+          }
+        }}
+        className={"btn btn-transparent" + (prevId ? "" : " btn-disabled")}
+      >
+        <span className="icon"><i className="fas fa-angle-left"></i></span>
+      </button>
+    );
+  }
+
+  renderNextRecordButton(): JSX.Element {
+    const nextId = this.state?.nextId ?? 0;
+
+    return (
+      <button
+        onClick={() => {
+          if (nextId && this.props.parentTable) {
+            this.props.parentTable.openForm(nextId);
+          }
+        }}
+        className={"btn btn-transparent" + (nextId ? "" : " btn-disabled")}
+      >
+        <span className="icon"><i className="fas fa-angle-right"></i></span>
+      </button>
+    );
   }
 
   renderEditButton(): JSX.Element {
@@ -755,26 +778,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       {this.renderCopyButton()}
       {this.renderDeleteButton()}
       {prevId || nextId ? <>
-        <button
-          onClick={() => {
-            if (prevId && this.props.parentTable) {
-              this.props.parentTable.openForm(prevId);
-            }
-          }}
-          className={"btn btn-transparent" + (prevId ? "" : " btn-disabled")}
-        >
-          <span className="icon"><i className="fas fa-angle-left"></i></span>
-        </button>
-        <button
-          onClick={() => {
-            if (nextId && this.props.parentTable) {
-              this.props.parentTable.openForm(nextId);
-            }
-          }}
-          className={"btn btn-transparent" + (nextId ? "" : " btn-disabled")}
-        >
-          <span className="icon"><i className="fas fa-angle-right"></i></span>
-        </button>
+        {this.renderPrevRecordButton()}
+        {this.renderNextRecordButton()}
       </> : null}
     </>;
   }
@@ -823,40 +828,46 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   }
 
   render() {
-    globalThis.app.setTranslationContext(this.translationContext);
+    try {
+      globalThis.app.setTranslationContext(this.translationContext);
 
-    let warningsOrErrors = this.renderWarningsOrErrors();
+      let warningsOrErrors = this.renderWarningsOrErrors();
 
-    if (warningsOrErrors) return warningsOrErrors;
-    else {
+      if (warningsOrErrors) return warningsOrErrors;
+      else {
 
-      let formTitle = this.renderTitle();
-      let formContent = this.renderContent();
-      let formFooter = this.renderFooter();
+        let formTitle = this.renderTitle();
+        let formContent = this.renderContent();
+        let formFooter = this.renderFooter();
 
-      if (this.props.showInModal) {
-        return <>
-          <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
-            <div className="modal-header-left">{this.renderHeaderLeft()}</div>
-            <div className="modal-header-title">{formTitle}</div>
-            <div className="modal-header-right">{this.renderHeaderRight()}</div>
-          </div>
-          <div className="modal-body">{formContent}</div>
-          {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
-        </>;
-      } else {
-        return <>
-          <div id={"adios-form-" + this.props.uid} className="adios component form">
-            <div className="form-header">
-              <div className="form-header-left">{this.renderHeaderLeft()}</div>
-              <div className="form-header-title">{formTitle}</div>
-              <div className="form-header-right">{this.renderHeaderRight()}</div>
+        if (this.props.showInModal) {
+          return <>
+            <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
+              <div className="modal-header-left">{this.renderHeaderLeft()}</div>
+              <div className="modal-header-title">{formTitle}</div>
+              <div className="modal-header-right">{this.renderHeaderRight()}</div>
             </div>
-            <div className="form-body">{formContent}</div>
-            {formFooter ? <div className="form-footer">{formFooter}</div> : null}
-          </div>
-        </>;
+            <div className="modal-body">{formContent}</div>
+            {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+          </>;
+        } else {
+          return <>
+            <div id={"adios-form-" + this.props.uid} className="adios component form">
+              <div className="form-header">
+                <div className="form-header-left">{this.renderHeaderLeft()}</div>
+                <div className="form-header-title">{formTitle}</div>
+                <div className="form-header-right">{this.renderHeaderRight()}</div>
+              </div>
+              <div className="form-body">{formContent}</div>
+              {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+            </div>
+          </>;
+        }
       }
+    } catch(e) {
+      console.error('Failed to render form.');
+      console.error(e);
+      return <div className="alert alert-danger">Failed to render form. Check console for error log.</div>
     }
   }
 }

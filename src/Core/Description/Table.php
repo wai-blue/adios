@@ -28,13 +28,17 @@ class Table implements \JsonSerializable
   /** @property array<\ADIOS\Core\Db\Column> */
   public array $columns = [];
 
+  /** @property array<\ADIOS\Core\Db\Input> */
+  public array $inputs = [];
+
   public function jsonSerialize(): array
   {
-    return [
-      'ui' => $this->ui,
-      'columns' => $this->columns,
-      'permissions' => $this->permissions,
-    ];
+    $json = [];
+    $json['ui'] = $this->ui;
+    $json['permissions'] = $this->permissions;
+    if (count($this->columns) > 0) $json['columns'] = $this->columns;
+    if (count($this->inputs) > 0) $json['inputs'] = $this->inputs;
+    return $json;
   }
 
   public function toArray(): array

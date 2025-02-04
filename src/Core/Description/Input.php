@@ -15,6 +15,7 @@ class Input implements \JsonSerializable
   protected string $format = '';
   protected string $description = '';
   protected string $reactComponent = '';
+  protected string $lookupModel = '';
 
   /** @var array<string, \ADIOS\Core\Description\InputProperty> */
   protected array $properties = [];
@@ -46,6 +47,9 @@ class Input implements \JsonSerializable
   public function getDescription(): string { return $this->description; }
   public function setDescription(string $description): Input { $this->description = $description; return $this; }
 
+  public function getLookupModel(): string { return $this->lookupModel; }
+  public function setLookupModel(string $lookupModel): Input { $this->lookupModel = $lookupModel; return $this; }
+
   public function getProperty(string $name): InputProperty { return $this->properties[$name]; }
   public function setProperty(string $propertyName, InputProperty $property): Input { $this->properties[$propertyName] = $property; return $this; }
 
@@ -60,6 +64,7 @@ class Input implements \JsonSerializable
     if (!empty($this->unit)) $json['unit'] = $this->unit;
     if (!empty($this->format)) $json['format'] = $this->format;
     if (!empty($this->description)) $json['description'] = $this->description;
+    if (!empty($this->lookupModel)) $json['model'] = $this->lookupModel;
 
     foreach ($this->properties as $name => $property) {
       $json[$name] = $property->jsonSerialize();

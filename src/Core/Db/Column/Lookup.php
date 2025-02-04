@@ -35,6 +35,13 @@ class Lookup extends \ADIOS\Core\Db\Column
   public function getAutocomplete(): Autocomplete { return $this->autocomplete; }
   public function setAutocomplete(Autocomplete $autocomplete): Varchar { $this->autocomplete = $autocomplete; return $this; }
 
+  public function describeInput(): \ADIOS\Core\Description\Input
+  {
+    $description = parent::describeInput();
+    if (!empty($this->getLookupModel())) $description->setLookupModel($this->getLookupModel());
+    return $description;
+  }
+
   public function jsonSerialize(): array
   {
     $column = parent::jsonSerialize();

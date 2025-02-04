@@ -90,7 +90,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
         getOptionLabel: (option: any) => { return option.label },
         getOptionValue: (option: any) => { return option.value },
         onChange: (item: any) => { this.onChange(item?.value ?? ''); },
-        placeholder: this.props.params?.placeholder,
+        placeholder: this.props.description?.ui?.placeholder,
         className: 'adios-lookup',
         styles: { menuPortal: (base) => ({ ...base, zIndex: 9999 }) },
         // menuPosition: 'fixed',
@@ -104,7 +104,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
       return <><div className="w-full">
         <input
           type='text'
-          value={this.state.value}
+          value={this.state.value ?? ''}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange(e.currentTarget.value)}
           placeholder={this.props.placeholder}
           className={
@@ -114,7 +114,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
           }
           disabled={this.state.readonly}
         />
-        {this.props.params?.predefinedValues ?
+        {this.props.description?.ui?.predefinedValues ?
           this.state.showPredefinedValues ?
             <div className="mt-1">
               <select
@@ -123,7 +123,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
                 }}
               >
                 <option value=''></option>
-                {this.props.params?.predefinedValues.map((item: string) => {
+                {this.props.description?.ui?.predefinedValues.map((item: string) => {
                   return <option value={item}>{item}</option>
                 })}
               </select>

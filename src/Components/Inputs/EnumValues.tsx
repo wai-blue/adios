@@ -20,9 +20,9 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
 
     if (props.enumValues && !props.enumValues[this.state.value]) {
       this.state.value = Object.keys(props.enumValues)[0];
-      if (props.parentForm && props.columnName) {
+      if (props.parentForm && props.inputName) {
         let record = { ...props.parentForm.state.record };
-        record[props.columnName] = this.state.value;
+        record[props.inputName] = this.state.value;
         props.parentForm.setState({record: record});
       }
     }

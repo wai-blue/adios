@@ -4,7 +4,7 @@ import Form from './Form';
 
 export interface InputProps {
   uid: string,
-  columnName?: string,
+  inputName?: string,
   inputClassName?: string,
   value?: any,
   onChange?: (value: any) => void,
@@ -192,77 +192,84 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   }
 
   renderInputElement() {
-    return <input type="text" value={this.state.value} readOnly={this.state.readonly}></input>;
+    return <input type="text" value={this.state.value ?? ''} readOnly={this.state.readonly}></input>;
   }
 
   renderValueElement() {
-    let value = this.state.value + '';
+    let value = (this.state.value ?? '') + '';
     if (value == '') return <span className="no-value"></span>;
     else return <span>{this.state.value.toString()}</span>;
   }
 
   render() {
-    globalThis.app.setTranslationContext(this.translationContext);
+    try {
+      globalThis.app.setTranslationContext(this.translationContext);
 
-    return (
-      <div className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
-        {this.state.isInlineEditing
-          ? <>
-            <input
-              id={this.props.uid}
-              name={this.props.uid}
-              type="hidden"
-              value={this.serialize()}
-              style={{width: "100%", fontSize: "0.4em"}}
-              className="value bg-light"
-              readOnly={true}
-            ></input>
-            <div className="input-element">
-              {this.renderInputElement()}
-              {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
-            </div>
-            {this.state.showInlineEditingButtons ? 
-              <div className="inline-editing-buttons always-visible">
-                <button
-                  className={"btn btn-success-outline"}
-                  onClick={() => {
-                    this.inlineEditSave();
-                  }}
-                >
-                  <span className="icon !py-0"><i className="fas fa-check"></i></span>
-                </button>
-                <button
-                  className={"btn btn-cancel-outline"}
-                  onClick={() => {
-                    this.inlineEditCancel();
-                  }}
-                >
-                  <span className="icon !py-0"><i className="fas fa-times"></i></span>
-                </button>
+      return (
+        <div className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
+          {this.state.isInlineEditing
+            ? <>
+              <input
+                id={this.props.uid}
+                name={this.props.uid}
+                type="hidden"
+                value={this.serialize()}
+                style={{width: "100%", fontSize: "0.4em"}}
+                className="value bg-light"
+                readOnly={true}
+              ></input>
+              <div className="input-element">
+                {this.renderInputElement()}
+                {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
               </div>
-              : null
-            }
-          </>
-          : <>
-            <div className="value-element" onClick={() => { this.inlineEditEnable(); }}>
-              {this.renderValueElement()}
-              {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
-            </div>
-            {/* {this.state.readonly ? null :
-              <div className="inline-editing-buttons">
-                <button
-                  className="btn btn-transparent"
-                  onClick={() => {
-                    this.inlineEditEnable();
-                  }}
-                >
-                  <span className="icon !py-0"><i className="fas fa-pencil-alt"></i></span>
-                </button>
+              {this.state.showInlineEditingButtons ? 
+                <div className="inline-editing-buttons always-visible">
+                  <button
+                    className={"btn btn-success-outline"}
+                    onClick={() => {
+                      this.inlineEditSave();
+                    }}
+                  >
+                    <span className="icon !py-0"><i className="fas fa-check"></i></span>
+                  </button>
+                  <button
+                    className={"btn btn-cancel-outline"}
+                    onClick={() => {
+                      this.inlineEditCancel();
+                    }}
+                  >
+                    <span className="icon !py-0"><i className="fas fa-times"></i></span>
+                  </button>
+                </div>
+                : null
+              }
+            </>
+            : <>
+              <div className="value-element" onClick={() => { this.inlineEditEnable(); }}>
+                {this.renderValueElement()}
+                {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
               </div>
-            } */}
-          </>
-        }
-      </div></div>
-    );
+              {/* {this.state.readonly ? null :
+                <div className="inline-editing-buttons">
+                  <button
+                    className="btn btn-transparent"
+                    onClick={() => {
+                      this.inlineEditEnable();
+                    }}
+                  >
+                    <span className="icon !py-0"><i className="fas fa-pencil-alt"></i></span>
+                  </button>
+                </div>
+              } */}
+            </>
+          }
+        </div></div>
+      );
+    } catch(e) {
+      const errMsg = 'Failed to render input for ' + (this.props.description?.title ?? this.props.inputName) + '.';
+      console.error(errMsg);
+      console.error(e);
+      return <div className="alert alert-danger">{errMsg} Check console for error log.</div>
+    }
   }
 }

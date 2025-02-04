@@ -1198,7 +1198,7 @@ class Loader
 
         if (!empty($initiatingModelName)) {
           $initiatingModel = $this->getModel($initiatingModelName);
-          $columns = $initiatingModel->columns();
+          $columns = $initiatingModel->columns;
           $indexes = $initiatingModel->indexes();
 
           preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $dbError, $m);

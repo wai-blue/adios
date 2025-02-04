@@ -1,6 +1,7 @@
 import React, { Component, ChangeEvent, createRef } from 'react';
 
 import Modal, { ModalProps } from "./Modal";
+import ErrorBoundary from "./ErrorBoundary";
 import ModalSimple from "./ModalSimple";
 import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
@@ -41,6 +42,10 @@ export interface TableColumns {
   [key: string]: any;
 }
 
+export interface TableInputs {
+  [key: string]: any;
+}
+
 export interface TablePermissions {
   canCreate?: boolean,
   canRead?: boolean,
@@ -68,6 +73,7 @@ export interface TableUi {
 
 export interface TableDescription {
   columns: TableColumns,
+  inputs: TableInputs,
   permissions?: TablePermissions,
   ui?: TableUi,
 }
@@ -378,6 +384,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   getFormProps(): FormProps {
     return {
+      // isInitialized: false,
       parentTable: this,
       uid: this.props.uid + '_form',
       model: this.model,
@@ -387,7 +394,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       prevId: this.state?.recordPrevId ?? 0,
       nextId: this.state?.recordNextId ?? 0,
       endpoint: this.state.formEndpoint,
-      isInlineEditing: (this.state.recordId ?? null) === -1,
       showInModal: true,
       description: this.props.formProps?.description,
       ...this.props.formCustomProps ?? {},
@@ -422,7 +428,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         this.loadData();
         this.setState({ recordId: null });
       },
-      isInitialized: false,
     }
   }
 
@@ -515,8 +520,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   renderHeader(): JSX.Element {
     return <div className="table-header">
       <div className="table-header-left">
-        {this.renderHeaderLeft().map((item: any) => {
-          return <div>{item}</div>;
+        {this.renderHeaderLeft().map((item: any, index: any) => {
+          return <div key={'header-left-' + index}>{item}</div>;
         })}
       </div>
 
@@ -528,8 +533,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       }
 
       <div className="table-header-right">
-        {this.renderHeaderRight().map((item: any) => {
-          return <div>{item}</div>;
+        {this.renderHeaderRight().map((item: any, index: any) => {
+          return <div key={'header-right-' + index}>{item}</div>;
         })}
       </div>
     </div>
@@ -699,10 +704,11 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     const enumValues = column.enumValues;
     const inputProps = {
       uid: this.props.uid + '_' + columnName,
-      columnName: columnName,
-      params: column,
+      inputName: columnName,
       value: columnValue,
-      showInlineEditingButtons: true,
+      showInlineEditingButtons: false,
+      isInlineEditing: this.props.isInlineEditing,
+      description: (this.state.description && this.state.description.inputs ? this.state.description?.inputs[columnName] : null),
     };
     const rowIndex = options.rowIndex;
     const cellContent = enumValues ? enumValues[columnValue] : columnValue;
@@ -793,8 +799,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       if (this.props.isInlineEditing) {
         return InputFactory({
           ...inputProps,
-          isInlineEditing: this.props.isInlineEditing,
-          showInlineEditingButtons: false,
           onInlineEditCancel: () => { op.current?.hide(); },
           onChange: (value: any) => {
             if (this.state.data) {
@@ -829,6 +833,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         body={(data: any, options: any) => {
           return (
             <div
+              key={'column-' + columnName}
               className={
                 (column.cssClass ?? '')
                 + (data._toBeDeleted_ ? ' to-be-deleted' : '')
@@ -899,32 +904,40 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   render() {
-    globalThis.app.setTranslationContext(this.translationContext);
+    try {
+      globalThis.app.setTranslationContext(this.translationContext);
 
-    if (!this.state.data || !this.state.description?.columns) {
-      return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
-    }
+      if (!this.state.data || !this.state.description?.columns) {
+        return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
+      }
+      
+      const fallback: any = <div className="alert alert-danger">Failed to render table. Check console for error log.</div>
 
-    return (
-      <>
-        {this.renderFormModal()}
-        {this.state.isUsedAsInput ? null : this.renderDeleteConfirmModal()}
+      return (
+        <ErrorBoundary fallback={fallback}>
+          {this.renderFormModal()}
+          {this.state.isUsedAsInput ? null : this.renderDeleteConfirmModal()}
 
-        <div
-          id={"adios-table-" + this.props.uid}
-          className={"adios component table" + (this.props.className ? " " + this.props.className : "")}
-        >
-          {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
-          {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
+          <div
+            id={"adios-table-" + this.props.uid}
+            className={"adios component table" + (this.props.className ? " " + this.props.className : "")}
+          >
+            {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
+            {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
-          <div className="table-body" id={"adios-table-body-" + this.props.uid}>
-            <DataTable {...this.getTableProps()}>
-              {this.renderColumns()}
-            </DataTable>
+            <div className="table-body" id={"adios-table-body-" + this.props.uid}>
+              <DataTable {...this.getTableProps()}>
+                {this.renderColumns()}
+              </DataTable>
+            </div>
           </div>
-        </div>
-      </>
-    );
+        </ErrorBoundary>
+      );
+    } catch(e) {
+      console.error('Failed to render table.');
+      console.error(e);
+      return <div className="alert alert-danger">Failed to render table. Check console for error log.</div>
+    }
   }
 
   onSelectionChange(event: any) {

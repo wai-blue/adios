@@ -89,6 +89,8 @@ class Model
   public ?array $junctions = [];
   public \Illuminate\Database\Eloquent\Model $eloquent;
 
+  /** @property array<string, \ADIOS\Core\Db\Column> */
+  protected array $columns = [];
 
   /**
    * Creates instance of model's object.
@@ -115,6 +117,8 @@ class Model
     $this->shortName = end($tmp);
 
     $this->app = $app;
+
+    $this->columns = $this->columns();
 
 
 
@@ -277,7 +281,7 @@ class Model
   public function createSqlTable()
   {
 
-    $columns = $this->columns();
+    $columns = $this->columns;
 
     $createSql = "create table `{$this->table}` (\n";
 
@@ -544,7 +548,7 @@ class Model
 
   public function getColumn(string $column): Db\Column
   {
-    return $this->columns()[$column];
+    return $this->columns[$column];
   }
 
   /** @deprecated Use new definition of columns instead. */
@@ -585,7 +589,7 @@ class Model
    */
   public function columnNames(): array
   {
-    return array_keys($this->columns());
+    return array_keys($this->columns);
   }
 
   /**
@@ -625,16 +629,24 @@ class Model
 
   public function describeInput(string $columnName): \ADIOS\Core\Description\Input
   {
-    return $this->columns()[$columnName]->describeInput();
+    return $this->columns[$columnName]->describeInput();
   }
 
   public function describeTable(): \ADIOS\Core\Description\Table
   {
-    $columns = $this->columns();
+    $columns = $this->columns;
     if (isset($columns['id'])) unset($columns['id']);
 
     $description = new \ADIOS\Core\Description\Table();
     $description->columns = $columns;
+
+    $description->inputs = [];
+    foreach ($columns as $columnName => $column) {
+      if ($columnName == 'id') continue;
+      $description->inputs[$columnName] = $this->describeInput($columnName);
+    }
+
+
     $description->permissions = [
       'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
       'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
@@ -680,17 +692,17 @@ class Model
 
   public function columnValidate(string $column, mixed $value): bool
   {
-    return $this->columns()[$column]->validate($value);
+    return $this->columns[$column]->validate($value);
   }
 
   public function columnNormalize(string $column, mixed $value)
   {
-    return $this->columns()[$column]->normalize($value);
+    return $this->columns[$column]->normalize($value);
   }
 
   public function columnGetNullValue(string $column)
   {
-    return $this->columns()[$column]->getNullValue();
+    return $this->columns[$column]->getNullValue();
   }
 
   //////////////////////////////////////////////////////////////////
@@ -752,18 +764,20 @@ class Model
   }
 
   public function recordCreate(array $record): int {
-    return $this->eloquent->create($record)->id;
+    $savedRecord = $this->recordSave($record);
+    return (int) ($savedRecord['id'] ?? 0);
   }
 
   public function recordUpdate(int $id, array $record): int {
-    $this->eloquent->find($id)->update($record);
-    return $id;
+    $record['id'] = $id;
+    $savedRecord = $this->recordSave($record);
+    return (int) ($savedRecord['id'] ?? 0);
   }
 
   /** @return array<string, mixed> */
   public function recordSave(array $record): array
   {
-    $id = (int) $record['id'];
+    $id = (int) ($record['id'] ?? 0);
     $isCreate = ($id <= 0);
 
     $originalRecord = $record;
@@ -790,9 +804,9 @@ class Model
 
     if ($isCreate) {
       unset($recordForThisModel['id']);
-      $savedRecord['id'] =  $this->recordCreate($recordForThisModel);
+      $savedRecord['id'] = $this->eloquent->create($recordForThisModel)->id;
     } else {
-      $savedRecord['id'] = $this->recordUpdate($id, $recordForThisModel);
+      $this->eloquent->find($id)->update($recordForThisModel);
     }
 
     // save cross-table-alignments

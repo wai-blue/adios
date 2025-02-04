@@ -63,7 +63,6 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
 
     if (this.props.uiStyle == 'select') {
       return <>
-        {this.state.value}
         <select
           value={value}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.onChange(e.target.value)}

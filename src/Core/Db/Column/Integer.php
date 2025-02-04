@@ -21,6 +21,13 @@ class Integer extends \ADIOS\Core\Db\Column
   public function getEnumValues(): array { return $this->enumValues; }
   public function setEnumValues(array $enumValues): \ADIOS\Core\Db\Column\Integer { $this->enumValues = $enumValues; return $this; }
 
+  public function describeInput(): \ADIOS\Core\Description\Input
+  {
+    $description = parent::describeInput();
+    if (!empty($this->getEnumValues())) $description->setEnumValues($this->getEnumValues());
+    return $description;
+  }
+
   public function jsonSerialize(): array
   {
     $column = parent::jsonSerialize();

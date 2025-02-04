@@ -16,6 +16,7 @@ class Input implements \JsonSerializable
   protected string $description = '';
   protected string $reactComponent = '';
   protected string $lookupModel = '';
+  protected array $enumValues = [];
 
   /** @var array<string, \ADIOS\Core\Description\InputProperty> */
   protected array $properties = [];
@@ -50,6 +51,9 @@ class Input implements \JsonSerializable
   public function getLookupModel(): string { return $this->lookupModel; }
   public function setLookupModel(string $lookupModel): Input { $this->lookupModel = $lookupModel; return $this; }
 
+  public function getEnumValues(): array { return $this->enumValues; }
+  public function setEnumValues(array $enumValues): Input { $this->enumValues = $enumValues; return $this; }
+
   public function getProperty(string $name): InputProperty { return $this->properties[$name]; }
   public function setProperty(string $propertyName, InputProperty $property): Input { $this->properties[$propertyName] = $property; return $this; }
 
@@ -65,6 +69,7 @@ class Input implements \JsonSerializable
     if (!empty($this->format)) $json['format'] = $this->format;
     if (!empty($this->description)) $json['description'] = $this->description;
     if (!empty($this->lookupModel)) $json['model'] = $this->lookupModel;
+    if (!empty($this->enumValues)) $json['enumValues'] = $this->enumValues;
 
     foreach ($this->properties as $name => $property) {
       $json[$name] = $property->jsonSerialize();

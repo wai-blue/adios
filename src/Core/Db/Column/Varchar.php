@@ -27,6 +27,13 @@ class Varchar extends \ADIOS\Core\Db\Column
   public function getAutocomplete(): Autocomplete { return $this->autocomplete; }
   public function setAutocomplete(Autocomplete $autocomplete): Varchar { $this->autocomplete = $autocomplete; return $this; }
 
+  public function describeInput(): \ADIOS\Core\Description\Input
+  {
+    $description = parent::describeInput();
+    if (!empty($this->getEnumValues())) $description->setEnumValues($this->getEnumValues());
+    return $description;
+  }
+
   public function jsonSerialize(): array
   {
     $column = parent::jsonSerialize();

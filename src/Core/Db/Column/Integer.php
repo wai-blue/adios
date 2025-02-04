@@ -25,6 +25,7 @@ class Integer extends \ADIOS\Core\Db\Column
   {
     $column = parent::jsonSerialize();
     $column['byteSize'] = $this->byteSize;
+    $column['enumValues'] = $this->enumValues;
     return $column;
   }
 

@@ -91,7 +91,9 @@ class Loader
 
   public string $translationContext = '';
 
+  /** @property array<string, string> */
   protected array $params = [];
+
   public ?array $uploadedFiles = null;
 
   public function __construct(array $config = [], int $mode = self::ADIOS_MODE_FULL)
@@ -103,7 +105,7 @@ class Loader
 
     \ADIOS\Core\Helper::addSpeedLogTag("#1");
 
-    // $this->test = new ($this->getCoreClass('Core\\Test'))($this);
+    $this->test = $this->getTestProvider();
 
     $this->widgetsDir = $config['widgetsDir'] ?? "";
 
@@ -1071,6 +1073,11 @@ class Loader
     }
   }
 
+  public function getTestProvider(): \ADIOS\Core\Test
+  {
+    return new \ADIOS\Core\Test($this);
+  }
+
   public function getAuthProvider(): \ADIOS\Core\Auth
   {
     if (!isset($this->config['auth'])) return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
@@ -1613,9 +1620,14 @@ class Loader
     return isset($this->params[$paramName]);
   }
 
-  public function setUrlParam(string $paramName, mixed $newValue): void
+  public function setUrlParam(string $paramName, string $newValue): void
   {
     $this->params[$paramName] = $newValue;
+  }
+
+  public function removeUrlParam(string $paramName): void
+  {
+    if (isset($this->params[$paramName])) unset($this->params[$paramName]);
   }
 
   public function urlParamAsString(string $paramName, string $defaultValue = ''): string

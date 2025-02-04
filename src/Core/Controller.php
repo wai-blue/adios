@@ -9,7 +9,7 @@ namespace ADIOS\Core;
  * be rendered using Twig template or using custom render() method.
  * 
  */
-class Controller {
+class Controller implements \ADIOS\Core\Testable {
   /**
    * Reference to ADIOS object
    */
@@ -180,6 +180,13 @@ class Controller {
   public function getViewParams(): array
   {
     return $this->viewParams;
+  }
+
+  public function assert(string $assertionName, bool $assertion): void
+  {
+    if ($this->app->testMode && !$assertion) {
+      throw new Exceptions\TestAssertionFailedException('TEST FAILED: Assertion [' . $assertionName . '] not fulfilled in ' . get_parent_class($this));
+    }
   }
 
 }

@@ -1,6 +1,6 @@
 # Hubleto CHANGELOG
 
-## Release v1.7 (not released yet)
+## Release v1.7
 
   * enhanced type safety (thanks to PHPStan)
   * removed obsolete `ADIOS\Core\Loader->db` object (use safer `ADIOS\Core\Loader->pdo` for database operations)

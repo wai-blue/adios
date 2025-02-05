@@ -1,5 +1,11 @@
 # Hubleto CHANGELOG
 
+## Release 1.8 (not published yet)
+
+  * new method `Loader->urlParamNotEmpty()`
+  * various bugfixes
+  * description API is now able to describe inputs
+
 ## Release v1.7
 
   * enhanced type safety (thanks to PHPStan)

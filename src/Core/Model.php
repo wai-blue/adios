@@ -955,7 +955,7 @@ class Model
     callable|null $queryModifierCallback = null,
     int $maxRelationLevel = 4
   ): array {
-    $allRecords = $this->loadRecords($queryModifierCallback, null, $maxRelationLevel);
+    $allRecords = $this->loadRecords($queryModifierCallback, [], $maxRelationLevel);
     $record = reset($allRecords);
     if (!is_array($record)) $record = [];
     return $record;

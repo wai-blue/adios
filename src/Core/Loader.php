@@ -1620,6 +1620,11 @@ class Loader
     return isset($this->params[$paramName]);
   }
 
+  public function urlParamNotEmpty(string $paramName): bool
+  {
+    return $this->isUrlParam($paramName) && !empty($this->params[$paramName]);
+  }
+
   public function setUrlParam(string $paramName, string $newValue): void
   {
     $this->params[$paramName] = $newValue;

@@ -786,6 +786,11 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   renderFooter(): JSX.Element|null { return null; }
 
+  renderSubTitle(): JSX.Element {
+    let subTitle = this.state.description?.ui?.subTitle ?? this.props.model;
+    return <small>{subTitle}</small>;
+  }
+
   renderTitle(): JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
@@ -793,11 +798,10 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
           : this.translate('New record')
       )
     ;
-    let subTitle = this.state.description?.ui?.subTitle ?? this.props.model;
 
     return <>
       <h2>{title}</h2>
-      <small>{subTitle}</small>
+      {this.renderSubTitle()}
     </>
   }
 

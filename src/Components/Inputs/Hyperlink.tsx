@@ -29,17 +29,17 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
   }
 
   renderValueElement() {
-    return (this.state.value ? <>
+    return (
       <a
         href={this.state.value}
         target='_blank'
-        onClick={(e) => { e.stopPropagation(); }}
+        // onClick={(e) => { e.stopPropagation(); }}
         className="btn btn-transparent btn-small"
       >
         <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
-        <span className="text">{this.state.value}</span>
+        <span className="text">{this.state.value ? this.state.value : globalThis.app.translate('Paste URL link here')}</span>
       </a>
-    </> : null);
+    );
   }
 
 }

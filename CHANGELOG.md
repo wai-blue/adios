@@ -2,9 +2,10 @@
 
 ## Release 1.8 (not published yet)
 
-  * new method `Loader->urlParamNotEmpty()`
+  * new `\ADIOS\Core\Loader->urlParamNotEmpty()` method
   * various bugfixes
   * description API is now able to describe inputs
+  * new `Form.tsx->renderSubtitle()` method
 
 ## Release v1.7
 

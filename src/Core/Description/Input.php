@@ -17,6 +17,7 @@ class Input implements \JsonSerializable
   protected string $reactComponent = '';
   protected string $lookupModel = '';
   protected array $enumValues = [];
+  protected array $enumCssClasses = [];
 
   /** @var array<string, \ADIOS\Core\Description\InputProperty> */
   protected array $properties = [];
@@ -39,8 +40,8 @@ class Input implements \JsonSerializable
   public function getPlaceholder(): bool { return $this->placeholder; }
   public function setPlaceholder(bool $placeholder = true): Input { $this->placeholder = $placeholder; return $this; }
 
-  public function getUnit(): bool { return $this->unit; }
-  public function setUnit(bool $unit = true): Input { $this->unit = $unit; return $this; }
+  public function getUnit(): string { return $this->unit; }
+  public function setUnit(string $unit): Input { $this->unit = $unit; return $this; }
 
   public function getFormat(): bool { return $this->format; }
   public function setFormat(bool $format = true): Input { $this->format = $format; return $this; }
@@ -53,6 +54,9 @@ class Input implements \JsonSerializable
 
   public function getEnumValues(): array { return $this->enumValues; }
   public function setEnumValues(array $enumValues): Input { $this->enumValues = $enumValues; return $this; }
+
+  public function getEnumCssClasses(): array { return $this->enumCssClasses; }
+  public function setEnumCssClasses(array $enumCssClasses): Input { $this->enumCssClasses = $enumCssClasses; return $this; }
 
   public function getProperty(string $name): InputProperty { return $this->properties[$name]; }
   public function setProperty(string $propertyName, InputProperty $property): Input { $this->properties[$propertyName] = $property; return $this; }
@@ -70,6 +74,7 @@ class Input implements \JsonSerializable
     if (!empty($this->description)) $json['description'] = $this->description;
     if (!empty($this->lookupModel)) $json['model'] = $this->lookupModel;
     if (!empty($this->enumValues)) $json['enumValues'] = $this->enumValues;
+    if (!empty($this->enumCssClasses)) $json['enumCssClasses'] = $this->enumCssClasses;
 
     foreach ($this->properties as $name => $property) {
       $json[$name] = $property->jsonSerialize();

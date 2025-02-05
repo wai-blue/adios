@@ -42,7 +42,7 @@ export function InputFactory(inputProps: any): JSX.Element {
           case 'tags': inputToRender = <InputTags {...inputProps} model={description.model} recordId={inputProps.record.id} />; break;
           case 'file': inputToRender = <InputFile {...inputProps} />; break;
           case 'image': inputToRender = <InputImage {...inputProps} />; break;
-          case 'datetime': case 'date': case 'time': inputToRender = <InputDateTime {...inputProps} type={inputProps.type} />; break;
+          case 'datetime': case 'date': case 'time': inputToRender = <InputDateTime {...inputProps} type={description.type} />; break;
           case 'editor':
             inputToRender = (
               <div

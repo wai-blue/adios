@@ -27,7 +27,7 @@ class Get extends \ADIOS\Core\ApiController {
       $record = $this->model->recordGet(
         function($q) use ($id) { $q->where($this->model->table . '.id', $id); },
         $this->app->urlParamAsArray('includeRelations'),
-        $this->app->urlParamAsInteger('maxRelationLevel', 1)
+        $this->app->urlParamAsInteger('maxRelationLevel', 2)
       );
     }
 

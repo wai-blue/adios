@@ -240,7 +240,6 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       id: this.state.id ? this.state.id : 0,
       tag: this.props.tag,
       includeRelations: this.state.description?.includeRelations,
-      maxRelationLevel: 10,
       __IS_AJAX__: '1',
       ...this.state.customEndpointParams
     };
@@ -594,7 +593,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     return this.inputWrapperCustom(
       inputName,
       inputProps,
-      inputProps.description.title,
+      inputProps.description?.title ?? '',
       <>
         {this.input(inputName, customInputProps)}
         {inputProps.description?.info

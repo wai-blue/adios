@@ -39,7 +39,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
   }
 
   renderValueElement() {
-    return '***';
+    return <span>***</span>;
   }
 
   renderInputElement() {

@@ -39,7 +39,7 @@ export default class Mailto extends Varchar<InputProps, MailtoInputState> {
         <span className="icon"><i className="fa-solid fa-at"></i></span>
         <span className="text">{this.state.value}</span>
       </a>
-    </> : null);
+    </> : <></>);
   }
 
 }

@@ -44,8 +44,8 @@ abstract class Column implements \JsonSerializable
   public function getPlaceholder(): bool { return $this->placeholder; }
   public function setPlaceholder(bool $placeholder = true): Column { $this->placeholder = $placeholder; return $this; }
 
-  public function getUnit(): bool { return $this->unit; }
-  public function setUnit(bool $unit = true): Column { $this->unit = $unit; return $this; }
+  public function getUnit(): string { return $this->unit; }
+  public function setUnit(string $unit): Column { $this->unit = $unit; return $this; }
 
   public function getFormat(): bool { return $this->format; }
   public function setFormat(bool $format = true): Column { $this->format = $format; return $this; }

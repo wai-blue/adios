@@ -39,7 +39,7 @@ export default class Tel extends Varchar<InputProps, TelInputState> {
         <span className="icon"><i className="fa-solid fa-phone"></i></span>
         <span className="text">{this.state.value}</span>
       </a>
-    </> : null);
+    </> : <></>);
   }
 
 }

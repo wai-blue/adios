@@ -1017,8 +1017,6 @@ class Model
   {
     $tmpColumns = $this->columnsLegacy();
 
-    if ($maxRelationLevel > 4) $maxRelationLevel = 4;
-
     $selectRaw = [];
     $withs = [];
     $joins = [];
@@ -1072,9 +1070,9 @@ class Model
 
       $relModel = new $relDefinition[1]($this->app);
 
-      if ($maxRelationLevel > 0) {
-        $query->with([$relName => function($q) use($relModel, $maxRelationLevel) {
-          return $relModel->prepareLoadRecordQuery([], $maxRelationLevel - 1, $q);
+      if ($level <= $maxRelationLevel) {
+        $query->with([$relName => function($q) use($relModel, $maxRelationLevel, $level) {
+          return $relModel->prepareLoadRecordQuery([], $maxRelationLevel, $q, $level + 1);
         }]);
       }
 

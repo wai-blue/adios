@@ -305,7 +305,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       stripedRows: true,
       //globalFilter={globalFilter}
       //header={header}
-      emptyMessage: <><div className="p-2">{this.translate('No data.')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}</>,
+      emptyMessage: <>
+        <div className="p-2">{this.translate('No data.')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}
+      </>,
       dragSelection: true,
       selectAll: true,
       metaKeySelection: true,
@@ -470,7 +472,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   showAddButton(): boolean {
-    if (!this.state.readonly && this.state.description?.permissions?.canCreate) {
+    if (!this.state.readonly && this.state.description?.ui?.showHeader && this.state.description?.permissions?.canCreate) {
       return true;
     } else {
       return false;

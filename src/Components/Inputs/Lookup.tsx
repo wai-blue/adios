@@ -132,7 +132,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
         getOptionLabel={(option: any) => { return option._LOOKUP }}
         getOptionValue={(option: any) => { return option.id }}
         onChange={(item: any) => { this.onChange(item?.id ?? 0); }}
-        placeholder={this.props.description?.ui?.placeholder}
+        placeholder={this.props.description?.placeholder}
         className="adios-lookup"
         // allowCreateWhileLoading={false}
         // formatCreateLabel={(inputValue: string) => <span className="create-new">{this.translate('Create') + ': ' + inputValue}</span>}

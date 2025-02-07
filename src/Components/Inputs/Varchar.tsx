@@ -90,7 +90,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
         getOptionLabel: (option: any) => { return option.label },
         getOptionValue: (option: any) => { return option.value },
         onChange: (item: any) => { this.onChange(item?.value ?? ''); },
-        placeholder: this.props.description?.ui?.placeholder,
+        placeholder: this.props.description?.placeholder,
         className: 'adios-lookup',
         styles: { menuPortal: (base) => ({ ...base, zIndex: 9999 }) },
         // menuPosition: 'fixed',
@@ -114,7 +114,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
           }
           disabled={this.state.readonly}
         />
-        {this.props.description?.ui?.predefinedValues ?
+        {this.props.description?.predefinedValues ?
           this.state.showPredefinedValues ?
             <div className="mt-1">
               <select
@@ -123,7 +123,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
                 }}
               >
                 <option value=''></option>
-                {this.props.description?.ui?.predefinedValues.map((item: string) => {
+                {this.props.description?.predefinedValues.map((item: string) => {
                   return <option value={item}>{item}</option>
                 })}
               </select>

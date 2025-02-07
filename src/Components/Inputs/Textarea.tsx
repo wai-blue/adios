@@ -15,7 +15,7 @@ export default class Textarea extends Input<InputProps, InputState> {
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => this.onChange(e.currentTarget.value)}
         aria-describedby="passwordHelpInline"
         rows={5}
-        placeholder={this.props.params?.placeholder}
+        placeholder={this.props.description?.placeholder}
         className={
           (this.props.cssClass ?? "")
           + " " + (this.state.invalid ? 'invalid' : '')

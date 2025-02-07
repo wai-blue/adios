@@ -11,6 +11,7 @@ class Input implements \JsonSerializable
   protected bool $readonly = false;
   protected bool $required = false;
   protected string $placeholder = '';
+  protected int $decimals = 4;
   protected string $unit = '';
   protected string $format = '';
   protected string $description = '';
@@ -39,6 +40,9 @@ class Input implements \JsonSerializable
 
   public function getPlaceholder(): bool { return $this->placeholder; }
   public function setPlaceholder(bool $placeholder = true): Input { $this->placeholder = $placeholder; return $this; }
+
+  public function getDecimals(): int { return $this->decimals; }
+  public function setDecimals(int $decimals): Decimal { $this->decimals = $decimals; return $this; }
 
   public function getUnit(): string { return $this->unit; }
   public function setUnit(string $unit): Input { $this->unit = $unit; return $this; }

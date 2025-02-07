@@ -160,7 +160,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
               + " " + (this.props.cssClass ?? "")
               + " " + (this.state.readonly ? "bg-muted" : "")
             }
-            placeholder={this.props.params?.placeholder ?? defaultPlaceholder}
+            placeholder={this.props.description?.placeholder ?? defaultPlaceholder}
             disabled={this.state.readonly}
             options={this.options}
           />

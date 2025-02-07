@@ -2,6 +2,27 @@ import React, { Component } from 'react'
 import * as uuid from 'uuid';
 import Form from './Form';
 
+export interface InputDescription {
+  type: string,
+  title: string,
+  readonly: boolean,
+  required: boolean,
+  placeholder: string,
+  decimals: number,
+  unit: string,
+  format: string,
+  description: string,
+  reactComponent: string,
+  lookupModel: string,
+  enumValues: Array<any>,
+  enumCssClasses: Array<any>,
+  autocomplete: { endpoint: string, creatable: boolean },
+  predefinedValues: any,
+  endpoint: any,
+  model: any,
+  info: any,
+}
+
 export interface InputProps {
   uid: string,
   inputName?: string,
@@ -20,7 +41,7 @@ export interface InputProps {
   context?: any,
   parentForm?: Form<any, any>,
   children?: any,
-  description?: any,
+  description?: InputDescription,
 }
 
 export interface InputState {
@@ -33,7 +54,7 @@ export interface InputState {
   isInitialized: boolean,
   isInlineEditing: boolean,
   showInlineEditingButtons: boolean,
-  description: any,
+  description: InputDescription,
 }
 
 export class Input<P extends InputProps, S extends InputState> extends Component<P, S> {

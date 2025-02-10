@@ -615,7 +615,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     return <>
       <div
         id={this.props.uid + '_' + inputName}
-        className={"input-wrapper" + (inputProps.required == true ? " required" : "")}
+        className={"input-wrapper" + (inputProps.description.required == true ? " required" : "")}
         key={inputName}
       >
         <label className="input-label" htmlFor={this.props.uid + '_' + inputName}>

@@ -7,11 +7,10 @@ namespace ADIOS\Core;
   * CRUD-like layer for manipulating records (data)
 */
 
-class Record {
+class RecordManager {
 
   protected \ADIOS\Core\Loader $app;
   protected \ADIOS\Core\Model $model;
-  protected $query;
 
   /** What relations to be included in loaded record. If null, default relations will be selected. */
   /** @property array<string> */
@@ -22,7 +21,6 @@ class Record {
   public function __construct(\ADIOS\Core\Model $model) {
     $this->model = $model;
     $this->app = $model->app;
-    $this->query = null;
   }
 
   public function getRelationsToRead(): array
@@ -111,7 +109,7 @@ class Record {
 
       if ($level <= $this->maxReadLevel) {
         $query->with([$relName => function($q) use($relModel, $level) {
-          return $relModel->record->prepareRead($q, $level + 1);
+          return $relModel->recordManager->prepareRead($q, $level + 1);
         }]);
       }
     }
@@ -217,11 +215,11 @@ class Record {
       switch ($relType) {
         case \ADIOS\Core\Model::HAS_MANY:
           foreach ($record[$relName] as $subKey => $subRecord) {
-            $record[$relName][$subKey] = $relModel->record->decryptIds($record[$relName][$subKey]);
+            $record[$relName][$subKey] = $relModel->recordManager->decryptIds($record[$relName][$subKey]);
           }
         break;
         case \ADIOS\Core\Model::HAS_ONE:
-          $record[$relName] = $relModel->record->decryptIds($record[$relName]);
+          $record[$relName] = $relModel->recordManager->decryptIds($record[$relName]);
         break;
       }
     }
@@ -229,20 +227,23 @@ class Record {
     return $record;
   }
 
-  public function create(array $record): int
+  public function create(array $record): array
   {
     unset($record['id']);
-    return $this->model->eloquent->create($record)->id;
+    $record['id'] = $this->model->eloquent->create($record)->id;
+    return $record;
   }
 
-  public function update(array $record): void
+  public function update(array $record): array
   {
     $this->model->eloquent->find((int) ($record['id'] ?? 0))->update($record);
+    return $record;
   }
 
-  public function delete(int|string $id): bool
+  public function delete(int|string $id): int
   {
-    return $this->model->eloquent->where('id', $id)->delete();
+    $this->model->eloquent->where('id', $id)->delete();
+    return 1; // TODO: return $rowsAffected
   }
 
   public function save(array $record, int $idMasterRecord = 0): array
@@ -277,11 +278,11 @@ class Record {
         $savedRecord = [];
       } else if ($isCreate) {
         $savedRecord = $this->model->onBeforeCreate($savedRecord);
-        $savedRecord['id'] = $this->create($savedRecord);
+        $savedRecord = $this->create($savedRecord);
         $savedRecord = $this->model->onAfterCreate($originalRecord, $savedRecord);
       } else {
         $savedRecord = $this->model->onBeforeUpdate($savedRecord);
-        $this->update($savedRecord);
+        $savedRecord = $this->update($savedRecord);
         $savedRecord = $this->model->onAfterUpdate($originalRecord, $savedRecord);
       }
 
@@ -292,13 +293,13 @@ class Record {
           switch ($relType) {
             case \ADIOS\Core\Model::HAS_MANY:
               foreach ($record[$relName] as $subKey => $subRecord) {
-                $subRecord = $relModel->record->save($subRecord, $savedRecord['id']);
-                $savedRecord[$relName][$subKey] = (int) $subRecord['id'];
+                $subRecord = $relModel->recordManager->save($subRecord, $savedRecord['id']);
+                $savedRecord[$relName][$subKey] = $subRecord;
               }
             break;
             case \ADIOS\Core\Model::HAS_ONE:
-              $subRecord = $relModel->record->save($record[$relName], $savedRecord['id']);
-              $savedRecord[$relName] = (int) $subRecord['id'];
+              $subRecord = $relModel->recordManager->save($record[$relName], $savedRecord['id']);
+              $savedRecord[$relName] = $subRecord;
             break;
           }
         }

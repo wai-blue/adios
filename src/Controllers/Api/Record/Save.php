@@ -24,7 +24,7 @@ class Save extends \ADIOS\Core\ApiController {
     $model = $this->app->getModel($modelClass);
     if (!is_object($model)) throw new \Exception("Unable to create model {$model}.");
 
-    $savedRecord = $this->model->record->save($originalRecord);
+    $savedRecord = $this->model->recordManager->save($originalRecord);
 
     return [
       'status' => 'success',

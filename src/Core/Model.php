@@ -48,7 +48,7 @@ class Model
    */
   public Loader $app;
 
-  public \ADIOS\Core\Record $record;
+  public \ADIOS\Core\RecordManager $recordManager;
 
   /**
    * Shorthand for "global table prefix"
@@ -106,13 +106,14 @@ class Model
 
     $this->app = $app;
     $this->columns = $this->columns();
-    $this->record = $this->initRecord();
+    $this->recordManager = $this->initRecordManager();
 
     $eloquentClass = $this->eloquentClass;
-    if (empty($eloquentClass)) throw new Exception(get_class($this). ' - empty eloquentClass');
-    $this->eloquent = new $eloquentClass;
-    $this->eloquent->setTable($this->table);
-    $this->eloquent->fillable = $this->columnNames();
+    if (!empty($eloquentClass)) {
+      $this->eloquent = new $eloquentClass;
+      $this->eloquent->setTable($this->table);
+      $this->eloquent->fillable = $this->columnNames();
+    }
 
     $this->fullName = str_replace("\\", "/", get_class($this));
 
@@ -145,9 +146,9 @@ class Model
     }
   }
 
-  public function initRecord(): Record
+  public function initRecordManager(): RecordManager
   {
-    return new Record($this);
+    return new RecordManager($this);
   }
 
   /**
@@ -574,9 +575,9 @@ class Model
     array $includeRelations = [],
     int $levelDepth = 0
   ): array {
-    $query = $this->record->prepareRead();
+    $query = $this->recordManager->prepareRead();
     if ($queryModifierCallback !== null) $queryModifierCallback($query);
-    $record = $this->record->Read($query, $includeRelations);
+    $record = $this->recordManager->Read($query, $includeRelations);
     $record = $this->onAfterLoadRecord($record);
     return $record;
   }
@@ -592,11 +593,11 @@ class Model
     int $page = 0,
   ): array
   {
-    $query = $this->record->prepareRead();
-    $this->record->addFulltextSearch($query, $fulltextSearch);
-    $this->record->addColumnSearch($query, $columnSearch);
-    $this->record->addOrderBy($query, $orderBy);
-    $paginatedRecords = $this->record->paginate($query, $itemsPerPage, $page);
+    $query = $this->recordManager->prepareRead();
+    $this->recordManager->addFulltextSearch($query, $fulltextSearch);
+    $this->recordManager->addColumnSearch($query, $columnSearch);
+    $this->recordManager->addOrderBy($query, $orderBy);
+    $paginatedRecords = $this->recordManager->paginate($query, $itemsPerPage, $page);
 
     foreach ($paginatedRecords['data'] as $key => $record) {
       $paginatedRecords['data'][$key] = $this->onAfterLoadRecord($record);
@@ -613,7 +614,7 @@ class Model
    */
   public function prepareLoadRecordQuery(): mixed
   {
-    return $this->record->prepareRead();
+    return $this->recordManager->prepareRead();
   }
 
   //////////////////////////////////////////////////////////////////

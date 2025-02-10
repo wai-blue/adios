@@ -1,0 +1,7 @@
+@layer adios {
+
+  /* main table responsiveness */
+  #app-main-content > * > .adios.component.table .table-body thead th:nth-child(n+4) { @apply hidden md:table-cell; }
+  #app-main-content > * > .adios.component.table .table-body tbody tr td:nth-child(n+4) { @apply hidden md:table-cell;}
+
+}

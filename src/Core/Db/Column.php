@@ -20,6 +20,7 @@ abstract class Column implements \JsonSerializable
   protected string $description = '';
   protected mixed $defaultValue = null;
   protected array $enumValues = [];
+  protected string $colorScale = '';
 
   public function __construct(\ADIOS\Core\Model $model, string $title)
   {
@@ -47,6 +48,9 @@ abstract class Column implements \JsonSerializable
 
   public function getUnit(): string { return $this->unit; }
   public function setUnit(string $unit): Column { $this->unit = $unit; return $this; }
+
+  public function getColorScale(): string { return $this->colorScale; }
+  public function setColorScale(string $colorScale): Column { $this->colorScale = $colorScale; return $this; }
 
   public function getFormat(): bool { return $this->format; }
   public function setFormat(bool $format = true): Column { $this->format = $format; return $this; }
@@ -92,6 +96,7 @@ abstract class Column implements \JsonSerializable
       'description' => $this->description,
       'format' => $this->format,
       'placeholder' => $this->placeholder,
+      'colorScale' => $this->colorScale,
     ];
 
     if (count($this->enumValues) > 0) $column['enumValues'] = $this->enumValues;

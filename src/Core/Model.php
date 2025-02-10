@@ -105,7 +105,7 @@ class Model
     }
 
     $this->app = $app;
-    $this->columns = $this->columns();
+    $this->columns = $this->describeColumns();
     $this->recordManager = $this->initRecordManager();
 
     $eloquentClass = $this->eloquentClass;
@@ -441,19 +441,15 @@ class Model
   // definition of columns
 
   /** @return array<string, \ADIOS\Core\Db\Column> */
-  public function columns(array $columns = []): array
+  public function describeColumns(): array
   {
-    $newColumns = [];
+    $columns = [];
 
     if (!$this->isJunctionTable) {
-      $newColumns['id'] = new \ADIOS\Core\Db\Column\PrimaryKey($this, 'ID', 8);
+      $columns['id'] = new \ADIOS\Core\Db\Column\PrimaryKey($this, 'ID', 8);
     }
 
-    foreach ($columns as $colName => $column) {
-      $newColumns[$colName] = $column;
-    }
-
-    return $newColumns;
+    return $columns;
   }
 
   public function getColumns(): array
@@ -570,14 +566,11 @@ class Model
   /**
    * recordGet
    */
-  public function recordGet(
-    callable|null $queryModifierCallback = null,
-    array $includeRelations = [],
-    int $levelDepth = 0
-  ): array {
+  public function recordGet(callable|null $queryModifierCallback = null): array
+  {
     $query = $this->recordManager->prepareRead();
     if ($queryModifierCallback !== null) $queryModifierCallback($query);
-    $record = $this->recordManager->Read($query, $includeRelations);
+    $record = $this->recordManager->read($query);
     $record = $this->onAfterLoadRecord($record);
     return $record;
   }

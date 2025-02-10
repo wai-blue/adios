@@ -27,9 +27,9 @@ class Token extends \ADIOS\Core\Model {
     parent::__construct($app);
   }
 
-  public function columns(array $columns = []): array
+  public function describeColumns(): array
   {
-    return parent::columns([
+    return array_merge(parent::describeColumns(), [
       "type" => [
         "type" => "int",
         "title" => "Token type",

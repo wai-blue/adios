@@ -12,17 +12,17 @@
   .text-green-to-red---step-4 { color: #ffa700 }
   .text-green-to-red---step-5 { color: #ff0000 }
 
-  .text-light-blue-to-dark-blue---step-1 { color: #d6e7ec }
-  .text-light-blue-to-dark-blue---step-2 { color: #c9dce4 }
-  .text-light-blue-to-dark-blue---step-3 { color: #bad5e1 }
-  .text-light-blue-to-dark-blue---step-4 { color: #aacddd }
-  .text-light-blue-to-dark-blue---step-5 { color: #9bc5da }
-
-  .text-dark-blue-to-light-blue---step-1 { color: #9bc5da }
-  .text-dark-blue-to-light-blue---step-2 { color: #aacddd }
+  .text-dark-blue-to-light-blue---step-1 { color: #d6e7ec }
+  .text-dark-blue-to-light-blue---step-2 { color: #c9dce4 }
   .text-dark-blue-to-light-blue---step-3 { color: #bad5e1 }
-  .text-dark-blue-to-light-blue---step-4 { color: #c9dce4 }
-  .text-dark-blue-to-light-blue---step-5 { color: #d6e7ec }
+  .text-dark-blue-to-light-blue---step-4 { color: #aacddd }
+  .text-dark-blue-to-light-blue---step-5 { color: #9bc5da }
+
+  .text-light-blue-to-dark-blue---step-1 { color: #9bc5da }
+  .text-light-blue-to-dark-blue---step-2 { color: #aacddd }
+  .text-light-blue-to-dark-blue---step-3 { color: #bad5e1 }
+  .text-light-blue-to-dark-blue---step-4 { color: #c9dce4 }
+  .text-light-blue-to-dark-blue---step-5 { color: #d6e7ec }
 
 
 

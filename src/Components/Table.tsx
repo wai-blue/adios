@@ -467,9 +467,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     if (column.colorScale) {
       const min: number = this.getMinColumnValue(columnName);
       const max: number = this.getMaxColumnValue(columnName);
-      const val: number = rowData[columnName] ?? 0;
+      const val: number = Number(rowData[columnName] ?? 0);
       const step: number = (max - min) / 5;
-      const colorIndex = Math.floor((val - min) / step) + 1;
+      const colorIndex = Math.min(5, Math.floor((val - min) / step) + 1);
 
       cellClassName += ' bg-' + column.colorScale + '---step-' + colorIndex;
     }
@@ -477,31 +477,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     return cellClassName;
   }
 
-  // getColorScales() {
-  //   return {
-  //     'red-to-green': [ '#ff0000', '#ffa700', '#fff400', '#a3ff00', '#2cba00' ],
-  //     'green-to-red': [ '#2cba00', '#a3ff00', '#fff400', '#ffa700', '#ff0000' ],
-  //     'light-blue-to-dark-blue': [ '#d6e7ec', '#c9dce4', '#bad5e1', '#aacddd', '#9bc5da' ],
-  //     'dark-blue-to-light-blue': [ '#9bc5da', '#aacddd', '#bad5e1', '#c9dce4', '#d6e7ec' ],
-  //   };
-  // }
-
   cellCssStyle(columnName: string, column: any, rowData: any) {
-    let style = column.cssStyle ?? {};
-
-    // const colorsScales = this.getColorScales();
-
-    // if (column.colorScale && colorsScales[column.colorScale]) {
-    //   const min: number = this.getMinColumnValue(columnName);
-    //   const max: number = this.getMaxColumnValue(columnName);
-    //   const val: number = rowData[columnName] ?? 0;
-    //   const step: number = (max - min) / 5;
-    //   const colorIndex = Math.floor((val - min) / step);
-
-    //   style.background = colorsScales[column.colorScale][colorIndex];
-    // }
-
-    return style;
+    return column.cssStyle ?? {};
   }
 
   getMinColumnValue(columnName: string): number {
@@ -510,7 +487,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     if (this.state.data?.data) {
       for (let i in this.state.data.data) {
         let val = Number(this.state.data.data[i][columnName] ?? 0);
-        if (!assigned || min < val) min = val;
+        if (!assigned || val < min) min = val;
         assigned = true;
       }
     }
@@ -523,7 +500,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     if (this.state.data?.data) {
       for (let i in this.state.data.data) {
         let val = Number(this.state.data.data[i][columnName] ?? 0);
-        if (!assigned || max > val) max = val;
+        if (!assigned || val > max) max = val;
         assigned = true;
       }
     }

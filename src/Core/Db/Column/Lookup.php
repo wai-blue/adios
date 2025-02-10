@@ -59,7 +59,7 @@ class Lookup extends \ADIOS\Core\Db\Column
     } if (is_numeric($value)) {
       return ((int) $value) <= 0 ? 0 : (int) $value;
     } else if ($value['_isNew_'] ?? false) {
-      $lookupModel = $this->model->app->getModel($this->model->columnsLegacy()[$colName]['model']);
+      $lookupModel = $this->model->app->getModel($this->model->getColumns()[$colName]->getLookupModel());
       return $lookupModel->eloquent->create($lookupModel->getNewRecordDataFromString($value['_LOOKUP'] ?? ''))->id;
     } else if (empty($value)) {
       return null;

@@ -19,6 +19,7 @@ abstract class Column implements \JsonSerializable
   protected string $format = '';
   protected string $description = '';
   protected mixed $defaultValue = null;
+  protected array $enumValues = [];
 
   public function __construct(\ADIOS\Core\Model $model, string $title)
   {
@@ -52,6 +53,9 @@ abstract class Column implements \JsonSerializable
 
   public function getDescription(): string { return $this->description; }
   public function setDescription(string $description): Column { $this->description = $description; return $this; }
+
+  public function getEnumValues(): array { return $this->enumValues; }
+  public function setEnumValues(array $enumValues): Column { $this->enumValues = $enumValues; return $this; }
 
   public function getHidden(): bool { return $this->hidden; }
   public function setHidden(bool $hidden = true): Column { $this->hidden = $hidden; return $this; }
@@ -89,6 +93,8 @@ abstract class Column implements \JsonSerializable
       'format' => $this->format,
       'placeholder' => $this->placeholder,
     ];
+
+    if (count($this->enumValues) > 0) $column['enumValues'] = $this->enumValues;
 
     return $column;
   }

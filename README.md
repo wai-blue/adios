@@ -21,16 +21,16 @@ A light-weight framework combining different lower-levels libraries to simply we
 ## Features
 
   * Small footprint
-  * In-built configuration management
-  * In-built models for user management, permissions and ACL
-  * In-built routing
+  * Powerful record-management (data-management) features
+  * Strong form-templating features
+  * Flexible and yet simple to configure routing
+  * Full-featured set of in-built UI components (tables, forms, tabs, inputs, charts, dashboard, ...)
+  * In-built database relationships (1:N and M:N) management
+  * In-built configuration management (DB-based or file-based)
   * Multi-language support
   * Skinnable
-  * Full-featured set of in-built UI components (tables, forms, tabs, inputs, charts, dashboard, ...)
-  * Strong form-templating features
-  * In-built database relationships (1:N and M:N) management
 
-## Who is using ADIOS
+## Where is ADIOS used
 
   * Hubleto opensource CRM/ERP (https://www.hubleto.com).
 

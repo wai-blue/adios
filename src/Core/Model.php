@@ -48,6 +48,8 @@ class Model
    */
   public Loader $app;
 
+  public \ADIOS\Core\Record $record;
+
   /**
    * Shorthand for "global table prefix"
    */
@@ -73,15 +75,11 @@ class Model
 
   public string $sqlEngine = 'InnoDB';
 
-  var $pdo;
-
   /**
    * Property used to store original data when recordSave() method is calledmodel
    *
    * @var mixed
    */
-  // var $recordSaveOriginalData = NULL;
-  // protected string $fullTableSqlName = "";
   public string $table = '';
   public string $eloquentClass = '';
   public array $relations = [];
@@ -106,54 +104,26 @@ class Model
       $this->table = (empty($this->gtp) ? '' : $this->gtp . '_') . $this->sqlName; // toto je kvoli Eloquentu
     }
 
+    $this->app = $app;
+    $this->columns = $this->columns();
+    $this->record = $this->initRecord();
+
     $eloquentClass = $this->eloquentClass;
     if (empty($eloquentClass)) throw new Exception(get_class($this). ' - empty eloquentClass');
     $this->eloquent = new $eloquentClass;
     $this->eloquent->setTable($this->table);
+    $this->eloquent->fillable = $this->columnNames();
 
     $this->fullName = str_replace("\\", "/", get_class($this));
 
     $tmp = explode("/", $this->fullName);
     $this->shortName = end($tmp);
 
-    $this->app = $app;
-
-    $this->columns = $this->columns();
-
-
-
     $reflection = new \ReflectionClass($this);
     $this->translationContext = strtolower(str_replace('\\', '.', $reflection->getName()));;
 
-    try {
-      $this->pdo = $this->eloquent->getConnection()->getPdo();
-    } catch (\Throwable $e) {
-      $this->pdo = null;
-    }
-
-    // During the installation no SQL tables exist. If child's init()
-    // method uses data from DB, $this->init() call would fail.
-    // Therefore the 'try ... catch'.
-    try {
-      $this->init();
-    } catch (Exception $e) {
-      //
-    }
-
-    // if ($this->app->db) {
-    //   $this->app->db->addTable(
-    //     $this->table,
-    //     $this->columnsLegacy(),
-    //     $this->isJunctionTable
-    //   );
-    // }
-
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();
-
-    // if ($lastVersion == 0) {
-    //   $this->saveConfig('installed-version', $lastVersion);
-    // }
 
     if ($this->hasAvailableUpgrades()) {
 
@@ -164,14 +134,6 @@ class Model
           onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
         >Install upgrades</a>
       ");
-    // } else if (!$this->hasSqlTable()) {
-    //   $this->app->userNotifications->addHtml("
-    //     Model <b>{$this->fullName}</b> has no SQL table.
-    //     <a
-    //       href='javascript:void(0)'
-    //       onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
-    //     >Create table</a>
-    //   ");
     } else if (!$this->isInstalled()) {
       $this->app->userNotifications->addHtml("
         Model <b>{$this->fullName}</b> is not installed.
@@ -183,13 +145,9 @@ class Model
     }
   }
 
-  /**
-   * Empty placeholder for callback called after the instance has been created in constructor.
-   *
-   * @return void
-   */
-  public function init()
-  { /* to be overriden */
+  public function initRecord(): Record
+  {
+    return new Record($this);
   }
 
   /**
@@ -256,12 +214,12 @@ class Model
    *
    * @return void
    */
-  public function getCurrentInstalledVersion(): int
+  private function getCurrentInstalledVersion(): int
   {
     return (int)($this->getConfig('installed-version') ?? 0);
   }
 
-  public function getLastAvailableVersion(): int
+  private function getLastAvailableVersion(): int
   {
     return max(array_keys($this->upgrades()));
   }
@@ -427,8 +385,8 @@ class Model
   {
 
     $sql = '';
-    foreach ($this->columnsLegacy() as $column => $columnDefinition) {
-      if (!empty($onlyColumn) && $onlyColumn != $column) continue;
+    foreach ($this->getColumns() as $colName => $column) {
+      $columnDefinition = $column->toArray();
 
       if (
         !($columnDefinition['disableForeignKey'] ?? false)
@@ -441,8 +399,8 @@ class Model
 
         $sql .= "
           ALTER TABLE `{$this->table}`
-          ADD CONSTRAINT `fk_" . md5($this->table . '_' . $column) . "`
-          FOREIGN KEY (`{$column}`)
+          ADD CONSTRAINT `fk_" . md5($this->table . '_' . $colName) . "`
+          FOREIGN KEY (`{$colName}`)
           REFERENCES `" . $lookupModel->getFullTableSqlName() . "` (`{$foreignKeyColumn}`)
           ON DELETE {$foreignKeyOnDelete}
           ON UPDATE {$foreignKeyOnUpdate};;
@@ -456,9 +414,6 @@ class Model
       }
     }
 
-    // if (!empty($this->table)) {
-    //   $this->app->db->createSqlForeignKeys($this->table);
-    // }
   }
 
   /**
@@ -471,59 +426,15 @@ class Model
     return $this->table;
   }
 
-  //////////////////////////////////////////////////////////////////
-  // misc helper methods
-
-  public function getEnumValues()
-  {
-    $tmp = $this->eloquent
-      ->selectRaw("{$this->table}.id")
-      ->selectRaw("(" . str_replace("{%TABLE%}", $this->table, $this->lookupSqlValue()) . ") as ___lookupSqlValue")
-      ->orderBy("___lookupSqlValue", "asc")
-      ->get()
-      ->toArray();
-
-    $enumValues = [];
-    foreach ($tmp as $key => $value) {
-      $enumValues[$value['id']] = $value['___lookupSqlValue'];
-    }
-
-    return $enumValues;
-  }
-
-  public function lookupSqlValue($tableAlias = NULL): string
+  public function getLookupSqlValue(string $tableAlias = ''): string
   {
     $value = $this->lookupSqlValue ?? "concat('{$this->fullName}, id = ', {%TABLE%}.id)";
 
-    return ($tableAlias !== NULL
+    return ($tableAlias !== ''
       ? str_replace('{%TABLE%}', "`{$tableAlias}`", $value)
       : $value
     );
   }
-
-  /**
-   * Check if the lookup table needs the id of the inserted record from this model
-   */
-  private function ___getInsertedIdForLookupColumn(array $lookupColumns, array $lookupData, int $insertedRecordId): array
-  {
-    foreach ($lookupColumns as $lookupColumnName => $lookupColumnData) {
-      if ($lookupColumnData['type'] != 'lookup') continue;
-
-      if ($lookupColumnData['model'] == $this->fullName) {
-        $lookupData[$lookupColumnName] = $insertedRecordId;
-        break;
-      }
-    }
-
-    return $lookupData;
-  }
-
-  private function ___validateBase64Image(string $base64String)
-  {
-    $pattern = '/^data:image\/[^;]+;base64,/';
-    return preg_match($pattern, $base64String);
-  }
-
 
   //////////////////////////////////////////////////////////////////
   // definition of columns
@@ -541,46 +452,17 @@ class Model
       $newColumns[$colName] = $column;
     }
 
-    $this->eloquent->fillable = array_keys($newColumns);
-
     return $newColumns;
+  }
+
+  public function getColumns(): array
+  {
+    return $this->columns;
   }
 
   public function getColumn(string $column): Db\Column
   {
     return $this->columns[$column];
-  }
-
-  /** @deprecated Use new definition of columns instead. */
-  public function columnsLegacy(array $columns = []): array
-  {
-    $columns = $this->columns($columns);
-
-    $columnsLegacy = [];
-    foreach ($columns as $colName => $column) {
-      if ($column instanceof \ADIOS\Core\Db\Column) {
-        $columnsLegacy[$colName] = $column->toArray();
-      } else if (is_array($column)) {
-        $columnsLegacy[$colName] = $column;
-      }
-    }
-
-    if (!$this->isJunctionTable) {
-      $columnsLegacy['id'] = [
-        'type' => 'int',
-        'byteSize' => '8',
-        'rawSqlDefinitions' => 'primary key auto_increment',
-        'title' => 'ID',
-        'readonly' => 'yes',
-        'viewParams' => [
-          'Table' => ['show' => TRUE],
-          'Form' => ['show' => TRUE]
-        ],
-      ];
-    }
-
-
-    return $columnsLegacy;
   }
 
   /**
@@ -620,10 +502,6 @@ class Model
     return $item;
   }
 
-  public function search($q)
-  {
-  }
-
   //////////////////////////////////////////////////////////////////
   // Description API
 
@@ -645,7 +523,6 @@ class Model
       if ($columnName == 'id') continue;
       $description->inputs[$columnName] = $this->describeInput($columnName);
     }
-
 
     $description->permissions = [
       'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
@@ -679,468 +556,64 @@ class Model
       'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
       'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
     ];
-    $description->defaultValues = $this->recordDefaultValues();
+    // $description->defaultValues = $this->recordDefaultValues();
 
     $description->includeRelations = array_keys($this->relations);
 
     return $description;
   }
 
-
-  //////////////////////////////////////////////////////////////////
-  // Column-related methods
-
-  public function columnValidate(string $column, mixed $value): bool
-  {
-    return $this->columns[$column]->validate($value);
-  }
-
-  public function columnNormalize(string $column, mixed $value)
-  {
-    return $this->columns[$column]->normalize($value);
-  }
-
-  public function columnGetNullValue(string $column)
-  {
-    return $this->columns[$column]->getNullValue();
-  }
-
   //////////////////////////////////////////////////////////////////
   // Record-related methods
 
   /**
-   * recordValidate
-   * @param array<string, mixed> $record
-   * @return array<string, mixed>
+   * recordGet
    */
-  public function recordValidate(array $record): array
-  {
-    $invalidInputs = [];
-
-    foreach ($this->columnsLegacy() as $column => $colDefinition) {
-      if (
-        (bool) ($colDefinition['required'] ?? false)
-        && (!isset($record[$column]) || $record[$column] === null || $record[$column] === '')
-      ) {
-        $invalidInputs[] = $this->app->translate(
-          "`{{ colTitle }}` is required.",
-          ['colTitle' => $colDefinition['title']]
-        );
-      } else if (
-        isset($record[$column])
-        && !$this->columnValidate($column, $record[$column])
-      ) {
-        $invalidInputs[] = $this->app->translate(
-          "`{{ colTitle }}` contains invalid value.",
-          ['colTitle' => $colDefinition['title']]
-        );
-      }
-    }
-
-    if (!empty($invalidInputs)) {
-      throw new RecordSaveException(json_encode($invalidInputs), 87335);
-    }
-
-    return $record;
-  }
-
-  public function recordNormalize(array $record): array {
-    $columns = $this->columnsLegacy();
-
-    foreach ($record as $colName => $colValue) {
-      if (!isset($columns[$colName])) {
-        unset($record[$colName]);
-      } else {
-        $record[$colName] = $this->columnNormalize($colName, $record[$colName]);
-        if ($record[$colName] === null) unset($record[$colName]);
-      }
-    }
-
-    foreach ($columns as $colName => $colDef) {
-      if (!isset($record[$colName])) $record[$colName] = $this->columnGetNullValue($colName);
-    }
-
-    return $record;
-  }
-
-  public function recordCreate(array $record): int {
-    $savedRecord = $this->recordSave($record);
-    return (int) ($savedRecord['id'] ?? 0);
-  }
-
-  public function recordUpdate(int $id, array $record): int {
-    $record['id'] = $id;
-    $savedRecord = $this->recordSave($record);
-    return (int) ($savedRecord['id'] ?? 0);
-  }
-
-  /** @return array<string, mixed> */
-  public function recordSave(array $record): array
-  {
-    $id = (int) ($record['id'] ?? 0);
-    $isCreate = ($id <= 0);
-
-    $originalRecord = $record;
-
-    if ($isCreate) {
-      $this->app->permissions->check($this->fullName . ':Create');
-    } else {
-      $this->app->permissions->check($this->fullName . ':Update');
-    }
-
-    $recordForThisModel = $record;
-
-    $this->recordValidate($recordForThisModel);
-
-    if ($isCreate) {
-      $recordForThisModel = $this->onBeforeCreate($recordForThisModel);
-    } else {
-      $recordForThisModel = $this->onBeforeUpdate($recordForThisModel);
-    }
-
-    $recordForThisModel = $this->recordNormalize($recordForThisModel);
-
-    $savedRecord = $record;
-
-    if ($isCreate) {
-      unset($recordForThisModel['id']);
-      $savedRecord['id'] = $this->eloquent->create($recordForThisModel)->id;
-    } else {
-      $this->eloquent->find($id)->update($recordForThisModel);
-    }
-
-    // save cross-table-alignments
-    foreach ($this->junctions as $jName => $jParams) {
-      if (!isset($savedRecord[$jName])) continue;
-
-      $junctions = $savedRecord[$jName] ?? NULL;
-      if (!is_array($junctions)) {
-        $junctions = @json_decode($savedRecord[$jName], TRUE);
-      }
-
-      if (is_array($junctions)) {
-        $junctionModel = $this->app->getModel($jParams["junctionModel"]);
-
-        $this->app->pdo->execute("
-          delete from `{$junctionModel->getFullTableSqlName()}`
-          where `{$jParams['masterKeyColumn']}` = ?
-        ", [$savedRecord['id']]);
-
-        foreach ($junctions as $junction) {
-          $idOption = (int) $junction;
-          if ($idOption > 0) {
-            $this->app->pdo->execute("
-              insert into `{$junctionModel->getFullTableSqlName()}` (
-                `{$jParams['masterKeyColumn']}`,
-                `{$jParams['optionKeyColumn']}`
-              ) values (?, ?)
-            ", [$savedRecord['id'], $idOption]);
-          }
-        }
-      }
-    }
-
-    if ($isCreate) {
-      $savedRecord = $this->onAfterCreate($originalRecord, $savedRecord);
-    } else {
-      $savedRecord = $this->onAfterUpdate($originalRecord, $savedRecord);
-    }
-
-    return $savedRecord;
-  }
-
-  public function recordDelete(int|string $id): bool
-  {
-    return $this->eloquent->where('id', $id)->delete();
-  }
-
-  /** @return array<string, mixed> */
-  public function recordDefaultValues(): array
-  {
-    return [];
-  }
-
-  public function recordRelations(): array
-  {
-    $relations = [];
-
-    foreach ($this->relations as $relName => $relDefinition) {
-      $relations[$relName]['type'] = $relDefinition[0];
-      $relations[$relName]['template'] = [$relDefinition[2] => ['_useMasterRecordId_' => true]];
-    }
-
-    return $relations;
-  }
-
-  public function loadRecords(callable|null $queryModifierCallback = null, array $includeRelations = [], int $maxRelationLevel = 0): array
-  {
-    $query = $this->prepareLoadRecordQuery($includeRelations, $maxRelationLevel);
-    if ($queryModifierCallback !== null) $queryModifierCallback($query);
-
-    $records = $query->get()?->toArray();
-
-    if (!is_array($records)) $records = [];
-
-    foreach ($records as $key => $record) {
-      $records[$key] = $this->recordEncryptIds($records[$key]);
-      // $records[$key] = $this->recordAddCustomData($records[$key]);
-      $records[$key] = $this->onAfterLoadRecord($records[$key]);
-      $records[$key]['_RELATIONS'] = array_keys($this->relations);
-      if (count($includeRelations) > 0) $records[$key]['_RELATIONS'] = array_values(array_intersect($records[$key]['_RELATIONS'], $includeRelations));
-    }
-
-    $records = $this->onAfterLoadRecords($records);
-
-    return $records;
-  }
-
-  public function recordEncryptIds(array $record) {
-
-    foreach ($this->columnsLegacy() as $colName => $colDefinition) {
-      if ($colName == 'id' || $colDefinition['type'] == 'lookup') {
-        if ($record[$colName] !== null) {
-          $record[$colName] = \ADIOS\Core\Helper::encrypt($record[$colName]);
-        }
-      }
-    }
-
-    $record['_idHash_'] =  \ADIOS\Core\Helper::encrypt($record['id'] ?? '', '', true);
-
-    // foreach ($this->rela
-    return $record;
-  }
-
-  public function recordDecryptIds(array $record) {
-    foreach ($this->columnsLegacy() as $colName => $colDefinition) {
-      if ($colName == 'id' || $colDefinition['type'] == 'lookup') {
-        if (isset($record[$colName]) && $record[$colName] !== null && is_string($record[$colName])) {
-          $record[$colName] = \ADIOS\Core\Helper::decrypt($record[$colName]);
-        }
-      }
-    }
-
-    foreach ($this->relations as $relName => $relDefinition) {
-      if (!isset($record[$relName]) || !is_array($record[$relName])) continue;
-
-      list($relType, $relModelClass) = $relDefinition;
-      $relModel = new $relModelClass($this->app);
-
-      switch ($relType) {
-        case \ADIOS\Core\Model::HAS_MANY:
-          foreach ($record[$relName] as $subKey => $subRecord) {
-            $record[$relName][$subKey] = $relModel->recordDecryptIds($record[$relName][$subKey]);
-          }
-        break;
-        case \ADIOS\Core\Model::HAS_ONE:
-          $record[$relName] = $relModel->recordDecryptIds($record[$relName]);
-        break;
-      }
-    }
-
-    return $record;
-  }
-
   public function recordGet(
     callable|null $queryModifierCallback = null,
     array $includeRelations = [],
-    int $maxRelationLevel = 0
+    int $levelDepth = 0
   ): array {
-    $allRecords = $this->loadRecords($queryModifierCallback, $includeRelations, $maxRelationLevel);
-    $record = reset($allRecords);
-    if (!is_array($record)) $record = [];
+    $query = $this->record->prepareRead();
+    if ($queryModifierCallback !== null) $queryModifierCallback($query);
+    $record = $this->record->Read($query, $includeRelations);
+    $record = $this->onAfterLoadRecord($record);
     return $record;
   }
 
-  public function recordGetWithRelations(
-    callable|null $queryModifierCallback = null,
-    int $maxRelationLevel = 4
-  ): array {
-    $allRecords = $this->loadRecords($queryModifierCallback, [], $maxRelationLevel);
-    $record = reset($allRecords);
-    if (!is_array($record)) $record = [];
-    return $record;
-  }
-
+  /**
+   * recordGetList
+   */
   public function recordGetList(
-    array $includeRelations = [],
-    int $maxRelationLevel = 0,
-    string $search = '',
-    array $filterBy = [],
-    array $where = [],
+    string $fulltextSearch = '',
+    array $columnSearch = [],
     array $orderBy = [],
     int $itemsPerPage = 15,
     int $page = 0,
   ): array
   {
-    $query = $this->prepareLoadRecordsQuery(
-      $includeRelations,
-      $maxRelationLevel,
-      $search,
-      $filterBy,
-      $where,
-      $orderBy,
-      $itemsPerPage,
-      $page
-    );
+    $query = $this->record->prepareRead();
+    $this->record->addFulltextSearch($query, $fulltextSearch);
+    $this->record->addColumnSearch($query, $columnSearch);
+    $this->record->addOrderBy($query, $orderBy);
+    $paginatedRecords = $this->record->paginate($query, $itemsPerPage, $page);
 
-    // Laravel pagination
-    $data = $query->paginate(
-      $itemsPerPage,
-      ['*'],
-      'page',
-      $page
-    )->toArray();
-
-    if (!is_array($data)) $data = [];
-    if (!is_array($data['data'])) $data['data'] = [];
-
-    foreach ($data['data'] as $key => $record) {
-      $data['data'][$key] = $this->recordEncryptIds($record);
-      $data['data'][$key] = $this->recordAddCustomData($record);
-      $data['data'][$key] = $this->onAfterLoadRecord($record);
-      $data['data'][$key]['_RELATIONS'] = array_keys($this->relations);
+    foreach ($paginatedRecords['data'] as $key => $record) {
+      $paginatedRecords['data'][$key] = $this->onAfterLoadRecord($record);
     }
 
-    return $data;
-  }
+    $paginatedRecords = $this->onAfterLoadRecords($paginatedRecords);
 
+    return $paginatedRecords;
+  }
 
   /**
    * prepareLoadRecordQuery
-   * @param array $includeRelations Leave empty for default behaviour. What relations to be included in loaded record. If null, default relations will be selected.
-   * @param int $maxRelationLevel Leave empty for default behaviour. Level of recursion in loading relations of relations.
-   * @param mixed $query Leave empty for default behaviour.
-   * @param int $level Leave empty for default behaviour.
    * @return mixed Eloquent query used to load record.
    */
-  public function prepareLoadRecordQuery(array $includeRelations = [], int $maxRelationLevel = 0, mixed $query = null, int $level = 0): mixed
+  public function prepareLoadRecordQuery(): mixed
   {
-    $tmpColumns = $this->columnsLegacy();
-
-    $selectRaw = [];
-    $withs = [];
-    $joins = [];
-
-    foreach ($this->columnsLegacy() as $colName => $colDefinition) {
-      if ((bool) ($colDefinition['hidden'] ?? false)) continue;
-      $selectRaw[] = $this->table . '.' . $colName;
-
-      if (isset($colDefinition['enumValues']) && is_array($colDefinition['enumValues'])) {
-        $tmpSelect = "CASE";
-        foreach ($colDefinition['enumValues'] as $eKey => $eVal) {
-          $tmpSelect .= " WHEN `{$this->table}`.`{$colName}` = '{$eKey}' THEN '{$eVal}'";
-        }
-        $tmpSelect .= " ELSE '' END AS `_ENUM[{$colName}]`";
-
-        $selectRaw[] = $tmpSelect;
-      }
-    }
-
-    $selectRaw[] = $level . ' as _LEVEL';
-    $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->lookupSqlValue()) . ') as _LOOKUP';
-
-    // LOOKUPS and RELATIONSHIPS
-    foreach ($tmpColumns as $columnName => $column) {
-      if ($column['type'] == 'lookup') {
-        $lookupModel = $this->app->getModel($column['model']);
-        $lookupConnection = $lookupModel->eloquent->getConnectionName();
-        $lookupDatabase = $lookupModel->eloquent->getConnection()->getDatabaseName();
-        $lookupTableName = $lookupModel->getFullTableSqlName();
-        $joinAlias = 'join_' . $columnName;
-
-        $selectRaw[] = "(" .
-          str_replace("{%TABLE%}", $joinAlias, $lookupModel->lookupSqlValue())
-          . ") as `_LOOKUP[{$columnName}]`"
-        ;
-
-        $joins[] = [
-          $lookupDatabase . '.' . $lookupTableName . ' as ' . $joinAlias,
-          $joinAlias.'.id',
-          '=',
-          $this->table.'.'.$columnName
-        ];
-      }
-    }
-
-    // TODO: Toto je pravdepodobne potencialna SQL injection diera. Opravit.
-    if ($query === null) $query = $this->eloquent;
-    $query = $query->selectRaw(join(',', $selectRaw)); //->with($withs);
-    foreach ($this->relations as $relName => $relDefinition) {
-      if (count($includeRelations) > 0 && !in_array($relName, $includeRelations)) continue;
-
-      $relModel = new $relDefinition[1]($this->app);
-
-      if ($level <= $maxRelationLevel) {
-        $query->with([$relName => function($q) use($relModel, $maxRelationLevel, $level) {
-          return $relModel->prepareLoadRecordQuery([], $maxRelationLevel, $q, $level + 1);
-        }]);
-      }
-
-    }
-    foreach ($joins as $join) {
-      $query->leftJoin($join[0], $join[1], $join[2], $join[3]);
-    }
-
-    return $query;
-  }
-
-  // prepare load query for MULTIPLE records
-  public function prepareLoadRecordsQuery(
-    array $includeRelations = [],
-    int $maxRelationLevel = 0,
-    string $search = '',
-    array $filterBy = [],
-    array $where = [],
-    array $orderBy = []
-  ): \Illuminate\Database\Eloquent\Builder
-  {
-
-    $columns = $this->columnsLegacy();
-    $relations = $this->relations;
-
-    $query = $this->prepareLoadRecordQuery(
-      $includeRelations,
-      $maxRelationLevel
-    );
-
-    // FILTER BY
-    if (count($filterBy) > 0) {
-      // TODO
-    }
-
-    // WHERE
-    foreach ($where as $whereItem) {
-      $query->where($whereItem[0], $whereItem[1], $whereItem[2]);
-    }
-
-    // Search
-    if (!empty($search)) {
-      foreach ($columns as $columnName => $column) {
-        if (isset($column['enumValues'])) {
-          $query->orHaving('_ENUM[' . $columnName . ']', 'like', "%{$search}%");
-        }
-
-        if ($column['type'] == 'lookup') {
-          $query->orHaving('_LOOKUP[' . $columnName . ']', 'like', "%{$search}%");
-        } else {
-          $query->orHaving($columnName, 'like', "%{$search}%");
-        }
-      }
-    }
-
-    // orderBy
-    $orderBy = $this->app->urlParamAsArray('orderBy');
-    if (isset($orderBy['field']) && isset($orderBy['direction'])) {
-      $query->orderBy( $orderBy['field'], $orderBy['direction']);
-    }
-
-    return $query;
-  }
-
-  /** @deprecated */
-  public function getNewRecordDataFromString(string $text): array
-  {
-    return [];
+    return $this->record->prepareRead();
   }
 
   //////////////////////////////////////////////////////////////////
@@ -1188,12 +661,21 @@ class Model
     return $savedRecord;
   }
 
-
+  /**
+   * onBeforeDelete
+   * @param int $id
+   * @return int
+   */
   public function onBeforeDelete(int $id): int
   {
     return $id;
   }
 
+  /**
+   * onAfterDelete
+   * @param int $id
+   * @return int
+   */
   public function onAfterDelete(int $id): int
   {
     return $id;
@@ -1205,11 +687,6 @@ class Model
    * @return array<string, mixed>
    */
   public function onAfterLoadRecord(array $record): array
-  {
-    return $record;
-  }
-
-  public function recordAddCustomData(array $record): array
   {
     return $record;
   }

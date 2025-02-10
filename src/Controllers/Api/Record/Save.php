@@ -63,12 +63,12 @@ class Save extends \ADIOS\Core\ApiController {
             case \ADIOS\Core\Model::HAS_MANY:
               foreach ($data[$relName] as $subKey => $subRecord) {
                 $subRecord = $this->recordSave($relModel, $subRecord, $idMasterRecord);
-                $savedRecord[$relName][$subKey] = (int) $subRecord['id'];
+                $savedRecord[$relName][$subKey] = $subRecord;
               }
             break;
             case \ADIOS\Core\Model::HAS_ONE:
               $subRecord = $this->recordSave($relModel, $data[$relName], $idMasterRecord);
-              $savedRecord[$relName] = (int) $subRecord['id'];
+              $savedRecord[$relName] = $subRecord;
             break;
           }
         }

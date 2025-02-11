@@ -444,27 +444,67 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   cellClassName(columnName: string, column: any, rowData: any) {
-    let cellClassName = '';
+    let cellClassName = 'table-cell-content ' + (column.cssClass ?? '');
 
     if (column.enumValues) {
-      cellClassName = 'badge ' + (column.enumCssClasses ? (column.enumCssClasses[rowData[columnName]] ?? '') : '');
+      cellClassName += ' badge ' + (column.enumCssClasses ? (column.enumCssClasses[rowData[columnName]] ?? '') : '');
     } else {
       switch (column.type) {
         case 'int':
         case 'float':
-          cellClassName = 'text-right font-semibold';
+          cellClassName += ' text-right font-semibold';
         break;
         case 'date':
         case 'datetime':
-          cellClassName = 'text-left';
+          cellClassName += ' text-left';
         break;
         case 'lookup':
-          cellClassName = 'text-primary';
+          cellClassName += ' text-primary';
         break;
       }
     }
 
+    if (column.colorScale) {
+      const min: number = this.getMinColumnValue(columnName);
+      const max: number = this.getMaxColumnValue(columnName);
+      const val: number = Number(rowData[columnName] ?? 0);
+      const step: number = (max - min) / 5;
+      const colorIndex = Math.min(5, Math.floor((val - min) / step) + 1);
+
+      cellClassName += ' bg-' + column.colorScale + '---step-' + colorIndex;
+    }
+
     return cellClassName;
+  }
+
+  cellCssStyle(columnName: string, column: any, rowData: any) {
+    return column.cssStyle ?? {};
+  }
+
+  getMinColumnValue(columnName: string): number {
+    let min: number = 0;
+    let assigned: boolean = false;
+    if (this.state.data?.data) {
+      for (let i in this.state.data.data) {
+        let val = Number(this.state.data.data[i][columnName] ?? 0);
+        if (!assigned || val < min) min = val;
+        assigned = true;
+      }
+    }
+    return min;
+  }
+
+  getMaxColumnValue(columnName: string): number {
+    let max: number = 0;
+    let assigned: boolean = false;
+    if (this.state.data?.data) {
+      for (let i in this.state.data.data) {
+        let val = Number(this.state.data.data[i][columnName] ?? 0);
+        if (!assigned || val > max) max = val;
+        assigned = true;
+      }
+    }
+    return max;
   }
 
   rowClassName(rowData: any): string {
@@ -690,14 +730,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }
   }
 
-  // getColumnValue(columnName: string, column: any, data: any) {
-  //   if (column['type'] == 'lookup') {
-  //     return data['_LOOKUP[' + columnName + ']'] ?? '';
-  //   } else {
-  //     return data[columnName];
-  //   }
-  // }
-
   /*
    * Render body for Column (PrimeReact column)
    */
@@ -837,12 +869,10 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             <div
               key={'column-' + columnName}
               className={
-                (column.cssClass ?? '')
+                this.cellClassName(columnName, column, data)
                 + (data._toBeDeleted_ ? ' to-be-deleted' : '')
-                + ' '
-                + this.cellClassName(columnName, column, data)
               }
-              style={column.cssStyle}
+              style={this.cellCssStyle(columnName, column, data)}
             >
               {this.renderCell(columnName, column, data, options)}
             </div>

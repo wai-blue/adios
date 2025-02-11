@@ -15,8 +15,8 @@ class Lookup extends \ADIOS\Core\ApiController {
     $this->model = $this->app->getModel($model);
   }
 
-  public function prepareLoadRecordQuery(): \Illuminate\Database\Eloquent\Builder {
-
+  public function response(): array
+  {
     $query = $this->model->prepareLoadRecordQuery();
 
     $search = $this->app->urlParamAsString('search');
@@ -28,12 +28,7 @@ class Lookup extends \ADIOS\Core\ApiController {
       });
     }
 
-    return $query;
-  }
-
-  public function response(): array
-  {
-    $data = $this->prepareLoadRecordQuery()->get()->toArray();
+    $data = $query->get()->toArray();
 
     if (is_array($data)) {
       foreach ($data as $key => $value) {

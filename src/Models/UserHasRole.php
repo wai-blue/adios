@@ -13,9 +13,9 @@ class UserHasRole extends \ADIOS\Core\Model {
     parent::__construct($app);
   }
 
-  public function columns(array $columns = []): array
+  public function describeColumns(): array
   {
-    return parent::columns([
+    return array_merge(parent::describeColumns(), [
       'id_user' => new \ADIOS\Core\Db\Column\Lookup($this, 'User', User::class),
       'id_role' => new \ADIOS\Core\Db\Column\Lookup($this, 'Role', UserRole::class),
     ]);

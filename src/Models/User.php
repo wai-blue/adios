@@ -40,9 +40,9 @@ class User extends \ADIOS\Core\Model {
     }
   }
 
-  public function columns(array $columns = []): array
+  public function describeColumns(): array
   {
-    return parent::columns(array_merge($columns, [
+    return array_merge(parent::describeColumns(), [
       'login' => new \ADIOS\Core\Db\Column\Varchar($this, 'Login'),
       'password' => new \ADIOS\Core\Db\Column\Password($this, 'Password'),
       'is_active' => new \ADIOS\Core\Db\Column\Boolean($this, 'Active'),
@@ -50,7 +50,7 @@ class User extends \ADIOS\Core\Model {
       'last_login_ip' => new \ADIOS\Core\Db\Column\Varchar($this, 'Last login IP'),
       'last_access_time' => new \ADIOS\Core\Db\Column\DateTime($this, 'Time of last access'),
       'last_access_ip' => new \ADIOS\Core\Db\Column\Varchar($this, 'Last access IP'),
-    ]));
+    ]);
   }
 
   public function describeTable(): \ADIOS\Core\Description\Table

@@ -19,6 +19,7 @@ class Input implements \JsonSerializable
   protected string $lookupModel = '';
   protected array $enumValues = [];
   protected array $enumCssClasses = [];
+  protected array $predefinedValues = [];
 
   /** @var array<string, \ADIOS\Core\Description\InputProperty> */
   protected array $properties = [];
@@ -62,6 +63,9 @@ class Input implements \JsonSerializable
   public function getEnumCssClasses(): array { return $this->enumCssClasses; }
   public function setEnumCssClasses(array $enumCssClasses): Input { $this->enumCssClasses = $enumCssClasses; return $this; }
 
+  public function getPredefinedValues(): array { return $this->predefinedValues; }
+  public function setPredefinedValues(array $predefinedValues): Input { $this->predefinedValues = $predefinedValues; return $this; }
+
   public function getProperty(string $name): InputProperty { return $this->properties[$name]; }
   public function setProperty(string $propertyName, InputProperty $property): Input { $this->properties[$propertyName] = $property; return $this; }
 
@@ -79,6 +83,7 @@ class Input implements \JsonSerializable
     if (!empty($this->lookupModel)) $json['model'] = $this->lookupModel;
     if (!empty($this->enumValues)) $json['enumValues'] = $this->enumValues;
     if (!empty($this->enumCssClasses)) $json['enumCssClasses'] = $this->enumCssClasses;
+    if (!empty($this->predefinedValues)) $json['predefinedValues'] = $this->predefinedValues;
 
     foreach ($this->properties as $name => $property) {
       $json[$name] = $property->jsonSerialize();

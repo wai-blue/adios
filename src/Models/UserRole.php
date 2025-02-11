@@ -26,9 +26,9 @@ class UserRole extends \ADIOS\Core\Model {
   public string $table = 'user_roles';
   public ?string $lookupSqlValue = "{%TABLE%}.name";
 
-  public function columns(array $columns = []): array
+  public function describeColumns(): array
   {
-    return parent::columns([
+    return array_merge(parent::describeColumns(), [
       'name' => new \ADIOS\Core\Db\Column\Varchar($this, 'Role name'),
     ]);
   }

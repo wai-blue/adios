@@ -634,6 +634,10 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     </>;
   }
 
+  divider(content: any): JSX.Element {
+    return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
+  }
+
   renderSaveButton(): JSX.Element {
     let id = this.state.id ? this.state.id : 0;
 

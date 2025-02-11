@@ -1,0 +1,54 @@
+@layer adios {
+
+  .text-red-to-green---step-1 { color: #ff0000 }
+  .text-red-to-green---step-2 { color: #ffa700 }
+  .text-red-to-green---step-3 { color: #fff400 }
+  .text-red-to-green---step-4 { color: #a3ff00 }
+  .text-red-to-green---step-5 { color: #2cba00 }
+
+  .text-green-to-red---step-1 { color: #2cba00 }
+  .text-green-to-red---step-2 { color: #a3ff00 }
+  .text-green-to-red---step-3 { color: #fff400 }
+  .text-green-to-red---step-4 { color: #ffa700 }
+  .text-green-to-red---step-5 { color: #ff0000 }
+
+  .text-dark-blue-to-light-blue---step-1 { color: #d6e7ec }
+  .text-dark-blue-to-light-blue---step-2 { color: #c9dce4 }
+  .text-dark-blue-to-light-blue---step-3 { color: #bad5e1 }
+  .text-dark-blue-to-light-blue---step-4 { color: #aacddd }
+  .text-dark-blue-to-light-blue---step-5 { color: #9bc5da }
+
+  .text-light-blue-to-dark-blue---step-1 { color: #9bc5da }
+  .text-light-blue-to-dark-blue---step-2 { color: #aacddd }
+  .text-light-blue-to-dark-blue---step-3 { color: #bad5e1 }
+  .text-light-blue-to-dark-blue---step-4 { color: #c9dce4 }
+  .text-light-blue-to-dark-blue---step-5 { color: #d6e7ec }
+
+
+
+  .bg-red-to-green---step-1 { background: #ff0000; color: white; }
+  .bg-red-to-green---step-2 { background: #ffa700 }
+  .bg-red-to-green---step-3 { background: #fff400 }
+  .bg-red-to-green---step-4 { background: #a3ff00 }
+  .bg-red-to-green---step-5 { background: #2cba00; color: white; }
+
+  .bg-green-to-red---step-1 { background: #2cba00; color: white; }
+  .bg-green-to-red---step-2 { background: #a3ff00 }
+  .bg-green-to-red---step-3 { background: #fff400 }
+  .bg-green-to-red---step-4 { background: #ffa700 }
+  .bg-green-to-red---step-5 { background: #ff0000; color: white; }
+
+  .bg-light-blue-to-dark-blue---step-1 { background: #d6e7ec }
+  .bg-light-blue-to-dark-blue---step-2 { background: #c9dce4 }
+  .bg-light-blue-to-dark-blue---step-3 { background: #bad5e1 }
+  .bg-light-blue-to-dark-blue---step-4 { background: #aacddd }
+  .bg-light-blue-to-dark-blue---step-5 { background: #9bc5da }
+
+  .bg-dark-blue-to-light-blue---step-1 { background: #9bc5da }
+  .bg-dark-blue-to-light-blue---step-2 { background: #aacddd }
+  .bg-dark-blue-to-light-blue---step-3 { background: #bad5e1 }
+  .bg-dark-blue-to-light-blue---step-4 { background: #c9dce4 }
+  .bg-dark-blue-to-light-blue---step-5 { background: #d6e7ec }
+
+
+}

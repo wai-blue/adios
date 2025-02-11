@@ -1236,7 +1236,7 @@ class Loader
 
         $html = "
           <div class='adios exception message'>
-            ".$this->translate($errorMessage, [], $this)."<br/>
+            ".$this->translate($errorMessage)."<br/>
             <br/>
             <b>".join(", ", $invalidColumns)."</b>
           </div>

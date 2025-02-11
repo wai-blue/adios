@@ -41,7 +41,7 @@ class Delete extends \ADIOS\Core\Controller {
       }
 
       $junctionModel = $this->app->getModel($junctionData['junctionModel']);
-      $junctionOptionKeyColumn = $junctionModel->columnsLegacy()[$junctionData['optionKeyColumn']];
+      $junctionOptionKeyColumn = $junctionModel->getColumns()[$junctionData['optionKeyColumn']]->toArray();
       $junctionOptionKeyModel = $this->app->getModel($junctionOptionKeyColumn['model']);
 
       $junctionItemsToDelete = $junctionModel->eloquent->where($junctionData['optionKeyColumn'], $id)

@@ -586,7 +586,7 @@ class Model
     int $page = 0,
   ): array
   {
-    $query = $this->recordManager->prepareRead();
+    $query = $this->prepareLoadRecordQuery();
     $this->recordManager->addFulltextSearch($query, $fulltextSearch);
     $this->recordManager->addColumnSearch($query, $columnSearch);
     $this->recordManager->addOrderBy($query, $orderBy);

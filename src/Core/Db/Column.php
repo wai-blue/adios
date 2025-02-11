@@ -20,6 +20,7 @@ abstract class Column implements \JsonSerializable
   protected string $description = '';
   protected mixed $defaultValue = null;
   protected array $enumValues = [];
+  protected array $predefinedValues = [];
   protected string $colorScale = '';
 
   public function __construct(\ADIOS\Core\Model $model, string $title)
@@ -61,6 +62,9 @@ abstract class Column implements \JsonSerializable
   public function getEnumValues(): array { return $this->enumValues; }
   public function setEnumValues(array $enumValues): Column { $this->enumValues = $enumValues; return $this; }
 
+  public function getPredefinedValues(): array { return $this->predefinedValues; }
+  public function setPredefinedValues(array $predefinedValues): Column { $this->predefinedValues = $predefinedValues; return $this; }
+
   public function getHidden(): bool { return $this->hidden; }
   public function setHidden(bool $hidden = true): Column { $this->hidden = $hidden; return $this; }
 
@@ -81,6 +85,8 @@ abstract class Column implements \JsonSerializable
     if (!empty($this->getDescription())) $description->setDescription($this->getDescription());
     if (!empty($this->getUnit())) $description->setUnit($this->getUnit());
     if (!empty($this->getFormat())) $description->setFormat($this->getFormat());
+    $description->setEnumValues($this->enumValues);
+    $description->setPredefinedValues($this->predefinedValues);
     return $description;
   }
 
@@ -100,6 +106,7 @@ abstract class Column implements \JsonSerializable
     ];
 
     if (count($this->enumValues) > 0) $column['enumValues'] = $this->enumValues;
+    if (count($this->predefinedValues) > 0) $column['predefinedValues'] = $this->predefinedValues;
 
     return $column;
   }

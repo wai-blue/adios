@@ -1364,45 +1364,33 @@ class Loader
   }
 
   public function saveConfigByPath(string $path, string $value) {
-    try {
-      if (!empty($path)) {
-        $this->pdo->execute("
-          insert into `config` set `path` = '?', `value` = '?'
-          on duplicate key update `path` = '?', `value` = '?'
-        ", [$path, $value, $path, $value]);
-      }
-    } catch (\Exception $e) {
-      // do nothing
+    if (!empty($path)) {
+      $this->pdo->execute("
+        insert into `config` set `path` = :path, `value` = :value
+        on duplicate key update `path` = :path, `value` = :value
+      ", ['path' => $path, 'value' => $value]);
     }
   }
 
   public function deleteConfig($path) {
-    try {
-      if (!empty($path)) {
-        $this->pdo->execute("delete from `config` where `path` like '?%'", [$path]);
-      }
-    } catch (\Exception $e) {
-      // do nothing
+    if (!empty($path)) {
+      $this->pdo->execute("delete from `config` where `path` like ?", [$path . '%']);
     }
   }
 
   public function loadConfigFromDB() {
-    try {
-      $mConfig = \ADIOS\Core\Factory::create('Models/Config', [$this]);
-      $cfgs = $mConfig->eloquent->get()->toArray();
+    $mConfig = \ADIOS\Core\Factory::create('Models/Config', [$this]);
+    $cfgs = $mConfig->eloquent->get()->toArray();
 
-      foreach ($cfgs as $cfg) {
-        $tmp = &$this->config;
-        foreach (explode("/", $cfg['path']) as $tmp_path) {
-          if (!isset($tmp[$tmp_path])) {
-            $tmp[$tmp_path] = [];
-          }
-          $tmp = &$tmp[$tmp_path];
+    foreach ($cfgs as $cfg) {
+      $tmp = &$this->config;
+      foreach (explode("/", $cfg['path']) as $tmp_path) {
+        if (!isset($tmp[$tmp_path])) {
+          $tmp[$tmp_path] = [];
         }
-        $tmp = $cfg['value'];
+        $tmp = &$tmp[$tmp_path];
       }
-    } catch (\Exception $e) {
-      // do nothing
+      $tmp = $cfg['value'];
     }
   }
 

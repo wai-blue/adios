@@ -19,6 +19,7 @@ class Delete extends \ADIOS\Core\ApiController {
   public function response(): array
   {
     $ok = false;
+    $rowsAffected = 0;
 
     if ($this->app->configAsBool('encryptRecordIds')) {
       $hash = $this->app->urlParamAsString('hash');

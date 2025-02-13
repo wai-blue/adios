@@ -1216,7 +1216,7 @@ class Loader
           }
         } else {
           preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $dbError, $m);
-          $invalidColumns = [$m[2]];
+          if (!empty($m[2])) $invalidColumns = [$m[2]];
         }
 
         switch ($errorNo) {

@@ -59,7 +59,7 @@
   .btn.btn-violet-outline { @apply text-violet-800 bg-transparent border border-violet-100 hover:bg-violet-200; }
   .btn.btn-violet-outline .text { @apply !border-violet-800; }
 
-  .btn-list-item { @apply flex rounded-none shadow-none; }
+  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none hover:bg-slate-50; }
   .btn-list-item .text { @apply flex-1; }
   .btn-list-item .icon { @apply self-stretch flex items-center; }
 

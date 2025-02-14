@@ -370,7 +370,7 @@ class RecordManager {
     }
 
     if (!empty($invalidInputs)) {
-      throw new RecordSaveException(json_encode($invalidInputs), 87335);
+      throw new \ADIOS\Core\Exceptions\RecordSaveException(json_encode($invalidInputs), 87335);
     }
 
     return $record;

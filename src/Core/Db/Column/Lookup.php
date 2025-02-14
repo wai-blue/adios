@@ -10,7 +10,7 @@ class Lookup extends \ADIOS\Core\Db\Column
   protected string $type = 'lookup';
   protected string $sqlDataType = 'int(8)';
   protected string $lookupModel = '';
-  protected string $rawSqlDefinition = 'NULL default 0';
+  protected string $rawSqlDefinition = 'NULL default NULL';
 
   protected bool $disableForeignKey = false;
   protected string $foreignKeyColumn = 'id';

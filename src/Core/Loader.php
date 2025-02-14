@@ -1379,8 +1379,9 @@ class Loader
   }
 
   public function loadConfigFromDB() {
-    $mConfig = \ADIOS\Core\Factory::create('Models/Config', [$this]);
-    $cfgs = $mConfig->eloquent->get()->toArray();
+    if (!$this->pdo->isConnected) return;
+
+    $cfgs = $this->pdo->fetchAll("select * from `config`");
 
     foreach ($cfgs as $cfg) {
       $tmp = &$this->config;

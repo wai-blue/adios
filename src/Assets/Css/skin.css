@@ -1,24 +1,24 @@
 @layer adios {
 
-  .alert-info { @apply p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50; }
-  .alert-danger { @apply p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50; }
-  .alert-success { @apply p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50; }
-  .alert-warning { @apply p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50; }
-  .alert-danger { @apply p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50; }
+  .alert-info { @apply p-4 mb-4 text-blue-800 rounded-lg bg-blue-50; }
+  .alert-danger { @apply p-4 mb-4 text-red-800 rounded-lg bg-red-50; }
+  .alert-success { @apply p-4 mb-4 text-green-800 rounded-lg bg-green-50; }
+  .alert-warning { @apply p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50; }
+  .alert-danger { @apply p-4 mb-4 text-red-800 rounded-lg bg-red-50; }
 
-  .badge { @apply text-xs p-1 text-white bg-slate-300 rounded inline m-0.5; }
+  .badge { @apply text-sm p-1 text-white bg-slate-300 rounded inline m-0.5; }
 
   .btn { @apply rounded inline-flex text-left p-0 m-0 items-center bg-primary text-white cursor-pointer hover:bg-secondary hover:text-white hover:no-underline; box-sizing: border-box; }
   .btn.btn-small { @apply h-auto md:h-[1.25rem]; }
-  .btn .icon { @apply flex h-full items-center px-2 py-1 text-sm justify-center border-slate-200; }
-  .btn .text { @apply flex h-full items-center px-2 py-1 text-sm break-words border-slate-200; max-height: 3.5rem; overflow: hidden; }
+  .btn .icon { @apply flex h-full items-center px-2 py-1 justify-center border-slate-200; }
+  .btn .text { @apply flex h-full items-center px-2 py-1 break-words border-slate-200; max-height: 3.5rem; overflow: hidden; }
 
   .btn.btn-no-border { @apply !border-none; }
 
   .btn.btn-extra-small .icon { @apply px-1 py-0.5; font-size: 0.3rem; }
   .btn.btn-extra-small .text { @apply px-1 py-0.5; font-size: 0.3rem; }
-  .btn.btn-small .icon { @apply text-xs py-0 h-auto md:h-[1.25rem]; }
-  .btn.btn-small .text { @apply text-xs py-0 h-auto md:h-[1.25rem]; }
+  .btn.btn-small .icon { @apply text-sm py-0 h-auto md:h-[1.25rem]; }
+  .btn.btn-small .text { @apply text-sm py-0 h-auto md:h-[1.25rem]; }
   .btn.btn-large .icon { @apply text-lg px-2.5 py-1.5; }
   .btn.btn-large .text { @apply text-lg px-2.5 py-1.5; }
   .btn.btn-extra-large .icon { @apply text-2xl px-3.5 py-2; }
@@ -26,7 +26,7 @@
 
   .btn.btn-transparent { @apply text-gray-800 bg-transparent border border-gray-100 hover:border-gray-200 hover:bg-gray-100; }
   .btn.btn-transparent:hover .icon { @apply bg-gray-100; }
-  .btn.btn-white { @apply text-gray-800 bg-white border border-gray-100; }
+  .btn.btn-white { @apply text-gray-800 bg-white border border-gray-100 hover:bg-gray-100; }
   .btn.btn-light { @apply text-gray-800 bg-gray-200 hover:bg-gray-400; }
   .btn.btn-danger { @apply text-red-600 bg-red-200 hover:bg-red-400 hover:text-white; }
   .btn.btn-success { @apply text-white bg-green-700 hover:bg-green-900 hover:text-white; }
@@ -59,7 +59,7 @@
   .btn.btn-violet-outline { @apply text-violet-800 bg-transparent border border-violet-100 hover:bg-violet-200; }
   .btn.btn-violet-outline .text { @apply !border-violet-800; }
 
-  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none hover:bg-slate-50; }
+  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none; }
   .btn-list-item .text { @apply flex-1; }
   .btn-list-item .icon { @apply self-stretch flex items-center; }
 
@@ -104,6 +104,8 @@
   .divider > div > div:nth-child(2) > span { @apply flex justify-between items-center text-gray-600 font-semibold leading-6 ml-3 px-3 bg-white; }
 
   .list { @apply list-none border border-slate-200 rounded divide-y; }
+  .list .list-item { @apply border-none; }
+  .list.bordered .list-item { @apply border-b-slate-100; }
 
   .form { @apply shadow-sm rounded-sm border border-slate-200; }
   .form .form-header { @apply flex border-b border-b-slate-200 text-primary items-baseline w-full justify-between shadow-sm p-2 bg-gray-50; }
@@ -114,14 +116,14 @@
   .form .form-footer { @apply p-2 border-t border-t-slate-200 bg-gray-50; }
 
   .input-wrapper { @apply relative justify-between items-center border border-transparent py-1 hover:bg-gray-50; box-sizing: border-box; }
-  .input-wrapper .input-label { @apply flex-1 block text-xs text-gray-400; }
+  .input-wrapper .input-label { @apply flex-1 block text-sm text-gray-400; }
   .input-wrapper.required { @apply before:absolute before:content-['*'] before:text-red-600; }
   .input-wrapper.required .input-label { @apply pl-3; }
   .input-wrapper .input-body { @apply flex items-center flex-[2]; overflow-wrap: anywhere; }
-  .input-wrapper .input-info { @apply text-xs text-gray-500 pr-1; }
-  .input-wrapper .input-description { @apply text-xs text-primary pr-1; }
+  .input-wrapper .input-info { @apply text-sm text-gray-500 pr-1; }
+  .input-wrapper .input-description { @apply text-sm text-primary pr-1; }
 
-  .key-value-table { @apply leading-8 divide-y text-sm border border-slate-200; }
+  .key-value-table { @apply leading-8 divide-y border border-slate-200; }
   .key-value-table.dense { @apply leading-4 border border-slate-200; }
   .key-value-table > div { @apply flex justify-between p-1 hover:bg-gray-100; }
   .key-value-table > div div:nth-child(2) { @apply font-bold; }
@@ -145,7 +147,7 @@
   .adios-lookup[class*='-container'] { width: 100%; }
   .adios-lookup *[class*='-indicator'] { padding: 0px !important; }
   .adios-lookup *[class*='-control'] { @apply !w-full rounded-sm; min-height: auto !important; }
-  .adios-lookup *[class*='-input-container'] { @apply !text-sm !p-0.5 !m-0; min-width: 2em; }
+  .adios-lookup *[class*='-input-container'] { @apply !p-0.5 !m-0; min-width: 2em; }
   .adios-lookup *[class*='-ValueContainer'] { @apply !p-0; }
   .adios-lookup *[class*='-Input'] { @apply !text-sm; }
   .adios-lookup *[class*='-menu'] * { @apply !text-sm; }

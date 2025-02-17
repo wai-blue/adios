@@ -42,7 +42,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
 
     if (
       this.props.description?.autocomplete
-      && this.props.description?.autocomplete.endpoint != prevProps.description?.autocomplete.endpoint
+      && this.props.description?.autocomplete.endpoint != prevProps.description?.autocomplete?.endpoint
     ) {
       this.loadData();
     }
@@ -50,7 +50,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
 
   getEndpointUrl(): string
   {
-    return this.state.description?.autocomplete.endpoint ?? '';
+    return this.state.description?.autocomplete?.endpoint ?? '';
   }
 
   loadData(inputValue: string|null = null, callback: ((option: Array<any>) => void)|null = null) {

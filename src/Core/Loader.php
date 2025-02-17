@@ -1216,7 +1216,7 @@ class Loader
           }
         } else {
           preg_match("/Duplicate entry '(.*?)' for key '(.*?)'/", $dbError, $m);
-          $invalidColumns = [$m[2]];
+          if (!empty($m[2])) $invalidColumns = [$m[2]];
         }
 
         switch ($errorNo) {
@@ -1379,8 +1379,9 @@ class Loader
   }
 
   public function loadConfigFromDB() {
-    $mConfig = \ADIOS\Core\Factory::create('Models/Config', [$this]);
-    $cfgs = $mConfig->eloquent->get()->toArray();
+    if (!$this->pdo->isConnected) return;
+
+    $cfgs = $this->pdo->fetchAll("select * from `config`");
 
     foreach ($cfgs as $cfg) {
       $tmp = &$this->config;

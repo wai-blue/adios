@@ -13,6 +13,7 @@ namespace ADIOS\Core;
 class PDO {
   public ?\ADIOS\Core\Loader $app = null;
   public ?\PDO $connection = null;
+  public bool $isConnected = false;
   
   public function __construct($app) {
     $this->app = $app;
@@ -33,12 +34,16 @@ class PDO {
           $dbUser,
           $dbPassword
         );
+
+        $this->isConnected = true;
       } else {
         $this->connection = new \PDO(
           "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset={$dbCodepage}",
           $dbUser,
           $dbPassword
         );
+
+        $this->isConnected = true;
       }
     }
 

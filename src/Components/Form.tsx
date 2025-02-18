@@ -547,16 +547,23 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   getInputProps(inputName: string, customInputProps?: any): InputProps {
     const record = this.state.record ?? {};
     const inputs = this.state.description?.inputs ?? {};
-    const description = inputs[inputName] ?? {};
+    const inputDescription = inputs[inputName] ?? {};
+    const formDescription = this.state.description;
 
     // let customInputPropsWithoutOnchange = customInputProps;
     // delete customInputPropsWithoutOnchange.onChange;
 
+    let value = null;
+    if (record[inputName]) value = record[inputName];
+    else value = formDescription.defaultValues ? formDescription.defaultValues[inputName] : null;
+
+    console.log(inputName, record, formDescription, value);
+
     return {
       inputName: inputName,
       record: record,
-      description: description,
-      value: record[inputName],
+      description: inputDescription,
+      value: value,
       invalid: this.state.invalidInputs[inputName] ?? false,
       readonly: this.props.readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
       uid: this.props.uid + '_' + uuid.v4(),
@@ -571,6 +578,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       onChange: (value: any) => {
         let record = {...this.state.record};
         record[inputName] = value;
+    console.log(value, record);
         this.setState({record: record, recordChanged: true}, () => {
           if (this.props.onChange) this.props.onChange();
           if (customInputProps && customInputProps.onChange) customInputProps.onChange();

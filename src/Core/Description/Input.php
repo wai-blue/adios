@@ -20,6 +20,7 @@ class Input implements \JsonSerializable
   protected array $enumValues = [];
   protected array $enumCssClasses = [];
   protected array $predefinedValues = [];
+  protected mixed $defaultValue = null;
 
   /** @var array<string, \ADIOS\Core\Description\InputProperty> */
   protected array $properties = [];
@@ -68,6 +69,9 @@ class Input implements \JsonSerializable
 
   public function getProperty(string $name): InputProperty { return $this->properties[$name]; }
   public function setProperty(string $propertyName, InputProperty $property): Input { $this->properties[$propertyName] = $property; return $this; }
+
+  public function getDefaultValue(): mixed { return $this->defaultValue; }
+  public function setDefaultValue(mixed $defaultValue): Input { $this->defaultValue = $defaultValue; return $this; }
 
   public function jsonSerialize(): array
   {

@@ -273,7 +273,7 @@ class RecordManager {
         }
       }
 
-      if ((bool) ($savedRecord['_toBeDeleted_'] ?? false)) {
+      if ((bool) ($record['_toBeDeleted_'] ?? false)) {
         $this->delete((int) $savedRecord['id']);
         $savedRecord = [];
       } else if ($isCreate) {

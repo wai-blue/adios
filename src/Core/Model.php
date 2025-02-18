@@ -98,6 +98,8 @@ class Model
    */
   public function __construct(\ADIOS\Core\Loader $app)
   {
+    $reflection = new \ReflectionClass($this);
+
     $this->gtp = $app->configAsString('gtp');
 
     if (empty($this->table)) {
@@ -115,13 +117,15 @@ class Model
       $this->eloquent->fillable = $this->columnNames();
     }
 
-    $this->fullName = str_replace("\\", "/", get_class($this));
+    $this->fullName = str_replace("\\", "/", $reflection->getName());
+
+    if (empty($this->translationContext)) {
+      $this->translationContext = trim(str_replace('\\', '/', $this->fullName), '/');
+    }
 
     $tmp = explode("/", $this->fullName);
     $this->shortName = end($tmp);
 
-    $reflection = new \ReflectionClass($this);
-    $this->translationContext = strtolower(str_replace('\\', '.', $reflection->getName()));;
 
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();

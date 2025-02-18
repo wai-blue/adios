@@ -55,6 +55,7 @@ class Controller implements \ADIOS\Core\Testable {
 
   public string $name = "";
   public string $shortName = "";
+  public string $fullName = "";
   public string $permission = "";
   public null|string $view = null;
 
@@ -74,7 +75,11 @@ class Controller implements \ADIOS\Core\Testable {
 
     $this->permission = $this->shortName;
 
-    $this->translationContext = strtolower(str_replace('\\', '.', $reflection->getName()));;
+    $this->fullName = str_replace("\\", "/", $reflection->getName());
+
+    if (empty($this->translationContext)) {
+      $this->translationContext = trim(str_replace('\\', '/', $this->fullName), '/');
+    }
   }
 
   public function prepareParams(): array

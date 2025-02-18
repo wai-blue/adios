@@ -7,6 +7,7 @@
   * description API is now able to describe inputs
   * new `Form.tsx->renderSubtitle()` method
   * started to use `value objects` (see why: https://stevegrunwell.com/blog/php-value-objects)
+  * more consistent error reporting thanks to `Request.alertOnError()`
 
 ## Release v1.7
 

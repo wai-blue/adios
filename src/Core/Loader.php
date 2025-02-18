@@ -105,7 +105,7 @@ class Loader
 
     \ADIOS\Core\Helper::addSpeedLogTag("#1");
 
-    $this->test = $this->getTestProvider();
+    $this->test = $this->createTestProvider();
 
     $this->widgetsDir = $config['widgetsDir'] ?? "";
 
@@ -239,13 +239,13 @@ class Loader
 
 
       // translator
-      $this->translator = $this->getTranslator();
+      $this->translator = $this->createTranslator();
 
       // inicializacia routera
-      $this->router = $this->getRouter();
+      $this->router = $this->createRouter();
 
       // inicializacia locale objektu
-      $this->locale = $this->getLocale();
+      $this->locale = $this->createLocale();
 
       // inicializacia objektu notifikacii
       $this->userNotifications = \ADIOS\Core\Factory::create('Core/UserNotifications', [$this]);
@@ -275,7 +275,7 @@ class Loader
       $this->permissions = \ADIOS\Core\Factory::create('Core/Permissions', [$this]);
 
       // auth provider
-      $this->auth = $this->getAuthProvider();
+      $this->auth = $this->createAuthProvider();
 
       // inicializacia web renderera (byvala CASCADA)
       if (isset($this->config['web']) && is_array($this->config['web'])) {
@@ -981,7 +981,7 @@ class Loader
 
         // ... But in most cases it will be "encapsulated" in the desktop.
         } else {
-          $desktopControllerObject = $this->getDesktopController();
+          $desktopControllerObject = $this->createDesktopController();
           $desktopControllerObject->prepareViewParams();
 
           $desktopParams = $contentParams;
@@ -1064,7 +1064,7 @@ class Loader
     }
   }
 
-  public function getDesktopController(): \ADIOS\Core\Controller
+  public function createDesktopController(): \ADIOS\Core\Controller
   {
     try {
       return \ADIOS\Core\Factory::create('Controllers/Desktop', [$this]);
@@ -1073,12 +1073,12 @@ class Loader
     }
   }
 
-  public function getTestProvider(): \ADIOS\Core\Test
+  public function createTestProvider(): \ADIOS\Core\Test
   {
     return new \ADIOS\Core\Test($this);
   }
 
-  public function getAuthProvider(): \ADIOS\Core\Auth
+  public function createAuthProvider(): \ADIOS\Core\Auth
   {
     if (!isset($this->config['auth'])) return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
 
@@ -1090,17 +1090,17 @@ class Loader
     }
   }
 
-  public function getRouter(): \ADIOS\Core\Router
+  public function createRouter(): \ADIOS\Core\Router
   {
     return \ADIOS\Core\Factory::create('Core/Router', [$this]);
   }
 
-  public function getLocale(): \ADIOS\Core\Locale
+  public function createLocale(): \ADIOS\Core\Locale
   {
     return \ADIOS\Core\Factory::create('Core/Locale', [$this]);
   }
 
-  public function getTranslator(): \ADIOS\Core\Translator
+  public function createTranslator(): \ADIOS\Core\Translator
   {
     return new Translator($this);
   }
@@ -1655,6 +1655,13 @@ class Loader
   {
     if (isset($this->params[$paramName])) return (array) $this->params[$paramName];
     else return $defaultValue;
+  }
+
+  public function getLanguage(): string
+  {
+    $language = $this->configAsString('language', 'en');
+    if (strlen($language) !== 2) $language = 'en';
+    return $language;
   }
 
 }

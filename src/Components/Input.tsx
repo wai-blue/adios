@@ -66,8 +66,16 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   state: S;
   translationContext: string = 'input';
 
+  inputWrapperHtmlRef: any;
+  inputElementHtmlRef: any;
+  valueElementHtmlRef: any;
+
   constructor(props: P) {
     super(props);
+
+    this.inputWrapperHtmlRef = React.createRef();
+    this.inputElementHtmlRef = React.createRef();
+    this.valueElementHtmlRef = React.createRef();
 
     globalThis.app.reactElements[this.props.uid] = this;
 
@@ -227,7 +235,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
       globalThis.app.setTranslationContext(this.translationContext);
 
       return (
-        <div className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
+        <div ref={this.inputWrapperHtmlRef} className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
           {this.state.isInlineEditing
             ? <>
               <input
@@ -239,7 +247,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
                 className="value bg-light"
                 readOnly={true}
               ></input>
-              <div className="input-element">
+              <div ref={this.inputElementHtmlRef} className="input-element">
                 {this.renderInputElement()}
                 {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
               </div>
@@ -266,7 +274,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
               }
             </>
             : <>
-              <div className="value-element" onClick={() => { this.inlineEditEnable(); }}>
+              <div ref={this.valueElementHtmlRef} className="value-element" onClick={() => { this.inlineEditEnable(); }}>
                 {this.renderValueElement()}
                 {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
               </div>

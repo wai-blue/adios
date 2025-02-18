@@ -248,8 +248,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }
   }
 
-  translate(orig: string): string {
-    return globalThis.app.translate(orig, 'table');
+  translate(orig: string, context?: string): string {
+    return globalThis.app.translate(orig, context ?? this.translationContext);
   }
 
   onAfterLoadTableDescription(params: any): any {
@@ -551,7 +551,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       <input
         className="table-header-search"
         type="search"
-        placeholder={this.translate("Start typing to search...")}
+        placeholder={this.translate('Start typing to search...')}
         value={this.state.search}
         onChange={(event: ChangeEvent<HTMLInputElement>) => this.onSearchChange(event.target.value)}
       />
@@ -638,20 +638,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             hash: recordToDelete._idHash_ ?? '',
           },
           (response: any) => {
-            if (response.errorHtml) {
-              Swal.fire({
-                title: '<div style="text-align:left">🥴 Ooops</div>',
-                html: response.errorHtml,
-                width: '80vw',
-                padding: '1em',
-                color: "#ad372a",
-                background: "white",
-                backdrop: `rgba(123,12,0,0.2)`
-              });
-              // Notification.error(response.error);
-            } else {
-              this.loadData();
-            }
+            this.loadData();
           }
         );
       }

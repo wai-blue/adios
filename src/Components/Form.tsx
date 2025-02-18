@@ -226,8 +226,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     this.loadFormDescription();
   }
 
-  translate(orig: string): string {
-    return globalThis.app.translate(orig, 'form');
+  translate(orig: string, context?: string): string {
+    return globalThis.app.translate(orig, context ?? this.translationContext);
   }
 
   getEndpointUrl(action: string) {
@@ -557,8 +557,6 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     if (record[inputName]) value = record[inputName];
     else value = formDescription.defaultValues ? formDescription.defaultValues[inputName] : null;
 
-    console.log(inputName, record, formDescription, value);
-
     return {
       inputName: inputName,
       record: record,
@@ -578,7 +576,6 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       onChange: (value: any) => {
         let record = {...this.state.record};
         record[inputName] = value;
-    console.log(value, record);
         this.setState({record: record, recordChanged: true}, () => {
           if (this.props.onChange) this.props.onChange();
           if (customInputProps && customInputProps.onChange) customInputProps.onChange();

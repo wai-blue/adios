@@ -624,7 +624,7 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // TRANSLATIONS
 
-  public function translate(string $string, array $vars = [], string $context = "app", $toLanguage = ""): string
+  public function translate(string $string, array $vars = [], string $context = "ADIOS\Core\Loader::root", $toLanguage = ""): string
   {
     return $this->translator->translate($string, $vars, $context, $toLanguage);
   }
@@ -1242,7 +1242,10 @@ class Loader
             <br/>
             <b>".join(", ", $invalidColumns)."</b>
           </div>
-          <pre style='font-size:9px;text-align:left'>{$errorDebugInfoHtml}</pre>
+          <a class='btn btn-small btn-transparent' onclick='$(this).next(\"pre\").slideToggle();'>
+            <span class='text'>" . $this->translate('Show error details') . "</span>
+          </a>
+          <pre style='font-size:9px;text-align:left;display:none;padding-top:1em'>{$errorDebugInfoHtml}</pre>
         ";
       break;
       default:

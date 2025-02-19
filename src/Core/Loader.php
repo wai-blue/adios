@@ -34,6 +34,8 @@ class Loader
   const ADIOS_MODE_FULL = 1;
   const ADIOS_MODE_LITE = 2;
 
+  const RELATIVE_DICTIONARY_PATH = '../Lang';
+
   public string $gtp = "";
   public string $requestedUri = "";
   public string $controller = "";
@@ -1663,5 +1665,44 @@ class Loader
     if (strlen($language) !== 2) $language = 'en';
     return $language;
   }
+
+
+
+  public static function getDictionaryFilename(string $language): string
+  {
+    if (strlen($language) == 2) {
+      $appClass = get_called_class();
+      $reflection = new \ReflectionClass(get_called_class());
+      $rootFolder = pathinfo((string) $reflection->getFilename(), PATHINFO_DIRNAME);
+      return $rootFolder . '/' . static::RELATIVE_DICTIONARY_PATH . '/' . $language . '.json';
+    } else {
+      return '';
+    }
+  }
+
+  /**
+  * @return array|array<string, array<string, string>>
+  */
+  public static function loadDictionary(string $language): array
+  {
+    $dict = [];
+    $dictFilename = static::getDictionaryFilename($language);
+    if (is_file($dictFilename)) $dict = (array) @json_decode((string) file_get_contents($dictFilename), true);
+    return $dict;
+  }
+
+  /**
+  * @return array|array<string, array<string, string>>
+  */
+  public static function addToDictionary(string $language, string $contextInner, string $string): void
+  {
+    $dictFilename = static::getDictionaryFilename($language);
+    if (is_file($dictFilename)) {
+      $dict = static::loadDictionary($language);
+      $dict[$contextInner][$string] = '';
+      file_put_contents($dictFilename, json_encode($dict, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+  }
+
 
 }

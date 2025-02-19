@@ -659,7 +659,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
             <>
               <span className="icon"><i className="fas fa-save"></i></span>
               <span className="text">
-                {this.state.description?.ui?.saveButtonText ?? this.translate("Save")}
+                {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'ADIOS\\Core\\Loader::Components\\Form')}
                 {this.state.recordChanged ? ' *' : ''}
               </span>
             </>
@@ -667,7 +667,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
           : (
             <>
               <span className="icon"><i className="fas fa-plus"></i></span>
-              <span className="text">{this.state.description?.ui?.addButtonText ?? this.translate("Add")}</span>
+              <span className="text">{this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}</span>
             </>
           )
         }
@@ -684,7 +684,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         className={"btn btn-transparent"}
       >
         <span className="icon"><i className="fas fa-save"></i></span>
-        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy")}</span>
+        <span className="text"> {this.state.description?.ui?.copyButtonText ?? this.translate("Copy", 'ADIOS\\Core\\Loader::Components\\Form')}</span>
       </button> : null}
     </>;
   }
@@ -707,7 +707,10 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       >
         <span className="icon"><i className="fas fa-trash-alt"></i></span>
         <span className="text">
-          {this.state.deletingRecord ? this.translate("Confirm delete") : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete")}
+          {this.state.deletingRecord ?
+            this.translate("Confirm delete", 'ADIOS\\Core\\Loader::Components\\Form')
+            : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete", 'ADIOS\\Core\\Loader::Components\\Form')
+          }
         </span>
       </button> : null}
     </>;
@@ -754,7 +757,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         className="btn btn-transparent"
       >
         <span className="icon"><i className="fas fa-pencil-alt"></i></span>
-        <span className="text">{this.translate('Edit')}</span>
+        <span className="text">{this.translate('Edit', 'ADIOS\\Core\\Loader::Components\\Form')}</span>
       </button> : null}
     </>;
   }
@@ -802,8 +805,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   renderTitle(): JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
-          ? this.translate('Record') + ' #' + (this.state.record?.id ?? '-')
-          : this.translate('New record')
+          ? this.translate('Record', 'ADIOS\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
+          : this.translate('New record', 'ADIOS\\Core\\Loader::Components\\Form')
       )
     ;
 

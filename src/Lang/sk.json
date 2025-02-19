@@ -1,0 +1,21 @@
+{
+  "Components\\Table": {
+    "Start typing to search...": "Vyhľadať...",
+    "Delete": "Zmazať",
+    "Delete record": "Zmazať záznam",
+    "You are about to delete the record. Press OK to confirm.": "Určite chcete zmazať záznam? Stlačte OK pre potvrdenie.",
+    "No, do not delete": "Nie, nemazať",
+    "Yes, delete": "Áno, zmazať",
+    "No data.": "Žiadne záznamy."
+  },
+  "Components\\Form": {
+    "Edit": "Upraviť",
+    "Save": "Uložiť",
+    "Add": "Pridať",
+    "Delete": "Zmazať",
+    "Record": "Záznam",
+    "New record": "Nový záznam",
+    "Copy": "Duplikovať",
+    "Confirm delete": "Potvrďte zmazanie"
+  }
+}

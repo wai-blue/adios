@@ -547,17 +547,12 @@ class Model
       $description->inputs[$columnName] = $this->describeInput($columnName);
     }
 
-    $description->ui['addButtonText'] = $this->translate('Add');
-    $description->ui['saveButtonText'] = $this->translate('Save');
-    $description->ui['copyButtonText'] = $this->translate('Copy');
-    $description->ui['deleteButtonText'] = $this->translate('Delete');
     $description->permissions = [
       'canRead' => $this->app->permissions->granted($this->fullName . ':Read'),
       'canCreate' => $this->app->permissions->granted($this->fullName . ':Create'),
       'canUpdate' => $this->app->permissions->granted($this->fullName . ':Update'),
       'canDelete' => $this->app->permissions->granted($this->fullName . ':Delete'),
     ];
-    // $description->defaultValues = $this->recordDefaultValues();
 
     $description->includeRelations = array_keys($this->relations);
 

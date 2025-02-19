@@ -53,7 +53,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
           value={password1}
           ref={this.refInput1}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange()}
-          placeholder={this.translate("New password")}
+          placeholder={this.translate("New password", 'ADIOS\\Core\\Loader::Components\\Inputs\\Password')}
           className={
             (this.state.invalid ? 'is-invalid' : '')
             + " " + (this.props.cssClass ?? "")
@@ -67,7 +67,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
           value={password2}
           ref={this.refInput2}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange()}
-          placeholder={this.translate("Confirm new password")}
+          placeholder={this.translate("Confirm new password", 'ADIOS\\Core\\Loader::Components\\Inputs\\Password')}
           className={
             (this.state.invalid ? 'is-invalid' : '')
             + " " + (this.props.cssClass ?? "")

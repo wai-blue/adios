@@ -17,5 +17,18 @@
     "New record": "Nový záznam",
     "Copy": "Duplikovať",
     "Confirm delete": "Potvrďte zmazanie"
+  },
+  "Components\\Inputs\\File": {
+    "Upload file": "Nahrať súbor"
+  },
+  "Components\\Inputs\\Hyperlink": {
+    "Paste URL link here": "Vložte URL adresu"
+  },
+  "Components\\Inputs\\Image": {
+    "Choose image": "Vybrať obrázok"
+  },
+  "Components\\Inputs\\Password": {
+    "New password": "Nové heslo",
+    "Confirm new password": "Potvrdiť nové heslo"
   }
 }

@@ -798,8 +798,12 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   renderFooter(): JSX.Element|null { return null; }
 
   renderSubTitle(): JSX.Element {
-    let subTitle = this.state.description?.ui?.subTitle ?? this.props.model;
-    return <small>{subTitle}</small>;
+    let subTitle = this.state.description?.ui?.subTitle;
+    if (subTitle) {
+      return <small>{subTitle}</small>;
+    } else {
+      return <></>;
+    }
   }
 
   renderTitle(): JSX.Element {

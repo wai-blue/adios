@@ -1364,39 +1364,67 @@ class Loader
         }
       }
     } catch (\Exception $e) {
-      // do nothing
+      if ($e->getCode() == '42S02') { // Base table not found
+        // do nothing
+      } else {
+        throw $e; // forward exception to be processed by ADIOS
+      }
     }
   }
 
   public function saveConfigByPath(string $path, string $value) {
-    if (!empty($path)) {
-      $this->pdo->execute("
-        insert into `config` set `path` = :path, `value` = :value
-        on duplicate key update `path` = :path, `value` = :value
-      ", ['path' => $path, 'value' => $value]);
+    try {
+      if (!empty($path)) {
+        $this->pdo->execute("
+          insert into `config` set `path` = :path, `value` = :value
+          on duplicate key update `path` = :path, `value` = :value
+        ", ['path' => $path, 'value' => $value]);
+      }
+    } catch (\Exception $e) {
+      if ($e->getCode() == '42S02') { // Base table not found
+        // do nothing
+      } else {
+        throw $e; // forward exception to be processed by ADIOS
+      }
     }
   }
 
   public function deleteConfig($path) {
-    if (!empty($path)) {
-      $this->pdo->execute("delete from `config` where `path` like ?", [$path . '%']);
+    try {
+      if (!empty($path)) {
+        $this->pdo->execute("delete from `config` where `path` like ?", [$path . '%']);
+      }
+    } catch (\Exception $e) {
+      if ($e->getCode() == '42S02') { // Base table not found
+        // do nothing
+      } else {
+        throw $e; // forward exception to be processed by ADIOS
+      }
     }
   }
 
   public function loadConfigFromDB() {
     if (!$this->pdo->isConnected) return;
 
-    $cfgs = $this->pdo->fetchAll("select * from `config`");
+    try {
+      $cfgs = $this->pdo->fetchAll("select * from `config`");
 
-    foreach ($cfgs as $cfg) {
-      $tmp = &$this->config;
-      foreach (explode("/", $cfg['path']) as $tmp_path) {
-        if (!isset($tmp[$tmp_path])) {
-          $tmp[$tmp_path] = [];
+      foreach ($cfgs as $cfg) {
+        $tmp = &$this->config;
+        foreach (explode("/", $cfg['path']) as $tmp_path) {
+          if (!isset($tmp[$tmp_path])) {
+            $tmp[$tmp_path] = [];
+          }
+          $tmp = &$tmp[$tmp_path];
         }
-        $tmp = &$tmp[$tmp_path];
+        $tmp = $cfg['value'];
       }
-      $tmp = $cfg['value'];
+    } catch (\Exception $e) {
+      if ($e->getCode() == '42S02') { // Base table not found
+        // do nothing
+      } else {
+        throw $e; // forward exception to be processed by ADIOS
+      }
     }
   }
 

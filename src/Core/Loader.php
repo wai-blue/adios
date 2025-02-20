@@ -34,6 +34,8 @@ class Loader
   const ADIOS_MODE_FULL = 1;
   const ADIOS_MODE_LITE = 2;
 
+  const RELATIVE_DICTIONARY_PATH = '../Lang';
+
   public string $gtp = "";
   public string $requestedUri = "";
   public string $controller = "";
@@ -105,7 +107,7 @@ class Loader
 
     \ADIOS\Core\Helper::addSpeedLogTag("#1");
 
-    $this->test = $this->getTestProvider();
+    $this->test = $this->createTestProvider();
 
     $this->widgetsDir = $config['widgetsDir'] ?? "";
 
@@ -239,13 +241,13 @@ class Loader
 
 
       // translator
-      $this->translator = $this->getTranslator();
+      $this->translator = $this->createTranslator();
 
       // inicializacia routera
-      $this->router = $this->getRouter();
+      $this->router = $this->createRouter();
 
       // inicializacia locale objektu
-      $this->locale = $this->getLocale();
+      $this->locale = $this->createLocale();
 
       // inicializacia objektu notifikacii
       $this->userNotifications = \ADIOS\Core\Factory::create('Core/UserNotifications', [$this]);
@@ -275,7 +277,7 @@ class Loader
       $this->permissions = \ADIOS\Core\Factory::create('Core/Permissions', [$this]);
 
       // auth provider
-      $this->auth = $this->getAuthProvider();
+      $this->auth = $this->createAuthProvider();
 
       // inicializacia web renderera (byvala CASCADA)
       if (isset($this->config['web']) && is_array($this->config['web'])) {
@@ -622,7 +624,7 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // TRANSLATIONS
 
-  public function translate(string $string, array $vars = [], string $context = "app", $toLanguage = ""): string
+  public function translate(string $string, array $vars = [], string $context = "ADIOS\Core\Loader::root", $toLanguage = ""): string
   {
     return $this->translator->translate($string, $vars, $context, $toLanguage);
   }
@@ -981,7 +983,7 @@ class Loader
 
         // ... But in most cases it will be "encapsulated" in the desktop.
         } else {
-          $desktopControllerObject = $this->getDesktopController();
+          $desktopControllerObject = $this->createDesktopController();
           $desktopControllerObject->prepareViewParams();
 
           $desktopParams = $contentParams;
@@ -1064,7 +1066,7 @@ class Loader
     }
   }
 
-  public function getDesktopController(): \ADIOS\Core\Controller
+  public function createDesktopController(): \ADIOS\Core\Controller
   {
     try {
       return \ADIOS\Core\Factory::create('Controllers/Desktop', [$this]);
@@ -1073,12 +1075,12 @@ class Loader
     }
   }
 
-  public function getTestProvider(): \ADIOS\Core\Test
+  public function createTestProvider(): \ADIOS\Core\Test
   {
     return new \ADIOS\Core\Test($this);
   }
 
-  public function getAuthProvider(): \ADIOS\Core\Auth
+  public function createAuthProvider(): \ADIOS\Core\Auth
   {
     if (!isset($this->config['auth'])) return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
 
@@ -1090,17 +1092,17 @@ class Loader
     }
   }
 
-  public function getRouter(): \ADIOS\Core\Router
+  public function createRouter(): \ADIOS\Core\Router
   {
     return \ADIOS\Core\Factory::create('Core/Router', [$this]);
   }
 
-  public function getLocale(): \ADIOS\Core\Locale
+  public function createLocale(): \ADIOS\Core\Locale
   {
     return \ADIOS\Core\Factory::create('Core/Locale', [$this]);
   }
 
-  public function getTranslator(): \ADIOS\Core\Translator
+  public function createTranslator(): \ADIOS\Core\Translator
   {
     return new Translator($this);
   }
@@ -1240,7 +1242,10 @@ class Loader
             <br/>
             <b>".join(", ", $invalidColumns)."</b>
           </div>
-          <pre style='font-size:9px;text-align:left'>{$errorDebugInfoHtml}</pre>
+          <a class='btn btn-small btn-transparent' onclick='$(this).next(\"pre\").slideToggle();'>
+            <span class='text'>" . $this->translate('Show error details') . "</span>
+          </a>
+          <pre style='font-size:9px;text-align:left;display:none;padding-top:1em'>{$errorDebugInfoHtml}</pre>
         ";
       break;
       default:
@@ -1656,5 +1661,51 @@ class Loader
     if (isset($this->params[$paramName])) return (array) $this->params[$paramName];
     else return $defaultValue;
   }
+
+  public function getLanguage(): string
+  {
+    $language = $this->configAsString('language', 'en');
+    if (strlen($language) !== 2) $language = 'en';
+    return $language;
+  }
+
+
+
+  public static function getDictionaryFilename(string $language): string
+  {
+    if (strlen($language) == 2) {
+      $appClass = get_called_class();
+      $reflection = new \ReflectionClass(get_called_class());
+      $rootFolder = pathinfo((string) $reflection->getFilename(), PATHINFO_DIRNAME);
+      return $rootFolder . '/' . static::RELATIVE_DICTIONARY_PATH . '/' . $language . '.json';
+    } else {
+      return '';
+    }
+  }
+
+  /**
+  * @return array|array<string, array<string, string>>
+  */
+  public static function loadDictionary(string $language): array
+  {
+    $dict = [];
+    $dictFilename = static::getDictionaryFilename($language);
+    if (is_file($dictFilename)) $dict = (array) @json_decode((string) file_get_contents($dictFilename), true);
+    return $dict;
+  }
+
+  /**
+  * @return array|array<string, array<string, string>>
+  */
+  public static function addToDictionary(string $language, string $contextInner, string $string): void
+  {
+    $dictFilename = static::getDictionaryFilename($language);
+    if (is_file($dictFilename)) {
+      $dict = static::loadDictionary($language);
+      $dict[$contextInner][$string] = '';
+      file_put_contents($dictFilename, json_encode($dict, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+  }
+
 
 }

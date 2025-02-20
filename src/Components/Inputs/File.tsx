@@ -110,7 +110,7 @@ export default class File extends Input<FileInputProps, FileInputState> {
                 {...dragProps}
               >
                 <span className="icon"><i className="fas fa-cloud-arrow-up"></i></span>
-                <span className="text">{this.translate("Upload file")}</span>
+                <span className="text">{this.translate("Upload file", 'ADIOS\\Core\\Loader::Components\\Inputs\\File')}</span>
               </button>
             </div>
           )}

@@ -108,7 +108,7 @@ export default class Image extends Input<InputProps, ImageInputState> {
                     {...dragProps}
                   >
                     <span className="icon"><i className="fas fa-image"></i></span>
-                    <span className="text">{this.translate("Choose image")}</span>
+                    <span className="text">{this.translate("Choose image", 'ADIOS\\Core\\Loader::Components\\Inputs\\Image')}</span>
                   </button>
                 {/* )
               } */}

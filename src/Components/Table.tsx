@@ -248,8 +248,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }
   }
 
-  translate(orig: string): string {
-    return globalThis.app.translate(orig, 'table');
+  translate(orig: string, context?: string): string {
+    return globalThis.app.translate(orig, context ?? this.translationContext);
   }
 
   onAfterLoadTableDescription(params: any): any {
@@ -306,7 +306,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       //globalFilter={globalFilter}
       //header={header}
       emptyMessage: <>
-        <div className="p-2">{this.translate('No data.')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}
+        <div className="p-2">{this.translate('No data.', 'ADIOS\\Core\\Loader::Components\\Table')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}
       </>,
       dragSelection: true,
       selectAll: true,
@@ -551,7 +551,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       <input
         className="table-header-search"
         type="search"
-        placeholder={this.translate("Start typing to search...")}
+        placeholder={this.translate('Start typing to search...', 'ADIOS\\Core\\Loader::Components\\Table')}
         value={this.state.search}
         onChange={(event: ChangeEvent<HTMLInputElement>) => this.onSearchChange(event.target.value)}
       />
@@ -638,20 +638,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             hash: recordToDelete._idHash_ ?? '',
           },
           (response: any) => {
-            if (response.errorHtml) {
-              Swal.fire({
-                title: '<div style="text-align:left">🥴 Ooops</div>',
-                html: response.errorHtml,
-                width: '80vw',
-                padding: '1em',
-                color: "#ad372a",
-                background: "white",
-                backdrop: `rgba(123,12,0,0.2)`
-              });
-              // Notification.error(response.error);
-            } else {
-              this.loadData();
-            }
+            this.loadData();
           }
         );
       }
@@ -675,11 +662,11 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         >
           <div className='modal-header'>
             <div>
-              <div>{this.translate('Delete record')}</div>
+              <div>{this.translate('Delete record', 'ADIOS\\Core\\Loader::Components\\Table')}</div>
             </div>
           </div>
           <div className='modal-body'>
-            {this.translate('You are about to delete the record. Press OK to confirm.')}
+            {this.translate('You are about to delete the record. Press OK to confirm.', 'ADIOS\\Core\\Loader::Components\\Table')}
           </div>
           <div className='modal-footer'>
             <div className='flex justify-between'>
@@ -690,7 +677,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
                 }}
               >
                 <span className='icon'><i className='fas fa-check'></i></span>
-                <span className='text'>{this.translate('Yes, delete')}</span>
+                <span className='text'>{this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
               </button>
               <button
                 className='btn btn-cancel'
@@ -703,7 +690,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
                 }}
               >
                 <span className='icon'><i className='fas fa-times'></i></span>
-                <span className='text'>{this.translate('No, do not delete')}</span>
+                <span className='text'>{this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
               </button>
             </div>
           </div>
@@ -907,7 +894,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             </button>
             : <button
               className="btn btn-small btn-danger"
-              title={this.translate('Delete')}
+              title={this.translate('Delete', 'ADIOS\\Core\\Loader::Components\\Table')}
               onClick={(e) => {
                 e.preventDefault();
 

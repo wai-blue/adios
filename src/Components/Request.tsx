@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios, { AxiosError, AxiosResponse } from "axios";
+import Swal, {SweetAlertOptions} from "sweetalert2";
 
 interface ApiResponse<T> {
   data: T;
@@ -21,6 +22,19 @@ class Request {
     return globalThis.app.config.accountUrl + '/';
   }
 
+  alertOnError(responseData: any) {
+    Swal.fire({
+      title: '<div style="text-align:left">🥴 Ooops</div>',
+      html: responseData.errorHtml,
+      width: '80vw',
+      padding: '1em',
+      color: "#ad372a",
+      background: "white",
+      backdrop: `rgba(123,12,0,0.2)`
+    });
+    // Notification.error(response.error);
+  }
+
   public get<T>(
     url: string,
     queryParams: Record<string, any>,
@@ -31,9 +45,10 @@ class Request {
     axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getAccountUrl() + url, {
       params: queryParams
     }).then(res => {
-      const responseData: ApiResponse<T> = res.data;
+      const responseData: any = res.data;
       document.body.classList.remove("ajax-loading");
-      if (successCallback) successCallback(responseData);
+      if (responseData.errorHtml) this.alertOnError(responseData);
+      else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -48,9 +63,10 @@ class Request {
     axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getAccountUrl() + url, postData, {
       params: queryParams
     }).then(res => {
-      const responseData: ApiResponse<T> = res.data;
+      const responseData: any = res.data;
       document.body.classList.remove("ajax-loading");
-      if (successCallback) successCallback(responseData);
+      if (responseData.errorHtml) this.alertOnError(responseData);
+      else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -64,8 +80,9 @@ class Request {
     axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getAccountUrl() + url, putData, {
       params: queryParams
     }).then(res => {
-      const responseData: ApiResponse<T> = res.data;
-      if (successCallback) successCallback(responseData);
+      const responseData: any = res.data;
+      if (responseData.errorHtml) this.alertOnError(responseData);
+      else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -79,8 +96,9 @@ class Request {
     axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getAccountUrl() + url, patchData, {
       params: queryParams
     }).then(res => {
-      const responseData: ApiResponse<T> = res.data;
-      if (successCallback) successCallback(responseData);
+      const responseData: any = res.data;
+      if (responseData.errorHtml) this.alertOnError(responseData);
+      else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -93,8 +111,9 @@ class Request {
     axios.delete<T, AxiosResponse<ApiResponse<T>>>(this.getAccountUrl() + url, {
       params: queryParams
     }).then(res => {
-      const responseData: ApiResponse<T> = res.data;
-      if (successCallback) successCallback(responseData);
+      const responseData: any = res.data;
+      if (responseData.errorHtml) this.alertOnError(responseData);
+      else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 

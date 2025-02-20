@@ -11,6 +11,7 @@ class Translator {
   public function __construct(\ADIOS\Core\Loader $app)
   {
     $this->app = $app;
+    $this->dictionary = $this->loadDictionary();
   }
 
   public function getDictionaryFilename(string $context, string $language = ''): string
@@ -27,10 +28,10 @@ class Translator {
     return $dictionaryFile;
   }
 
-  public function loadDictionary(string $language = ""): array
+  public function loadDictionary(): array
   {
     $dictionary = [];
-    $dictionaryFile = $this->getDictionaryFilename($language);
+    $dictionaryFile = $this->getDictionaryFilename($this->app->getLanguage());
 
     if (!empty($dictionaryFile) && file_exists($dictionaryFile)) {
       $dictionary = @json_decode(file_get_contents($dictionaryFile), true);
@@ -63,10 +64,6 @@ class Translator {
     if ($toLanguage == "en") {
       $translated = $string;
     } else {
-      if (empty($this->dictionary[$toLanguage])) {
-        $this->dictionary[$toLanguage] = $this->loadDictionary($toLanguage);
-      }
-
       $dictionary = $this->dictionary[$toLanguage] ?? [];
 
       if (empty($dictionary[$context][$string]) && $toLanguage != 'en') {

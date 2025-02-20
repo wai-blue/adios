@@ -37,7 +37,7 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
         className="btn btn-transparent btn-small"
       >
         <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
-        <span className="text">{this.state.value ? this.state.value : globalThis.app.translate('Paste URL link here')}</span>
+        <span className="text">{this.state.value ? this.state.value : globalThis.app.translate('Paste URL link here', 'ADIOS\\Core\\Loader::Components\\Inputs\\Hyperlink')}</span>
       </a>
     );
   }

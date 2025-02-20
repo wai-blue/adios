@@ -65,7 +65,7 @@
 
   .btn.btn-disabled { @apply text-gray-200 border border-gray-200 hover:border-gray-200 hover:text-gray-200; }
   .btn.btn-disabled .icon { @apply text-gray-200 hover:text-gray-200; }
-  .btn.btn-disabled .text { @apply text-gray-200 hover:text-gray-200; }
+  .btn.btn-disabled .text { @apply text-gray-400 hover:text-gray-200; }
 
   .btn.btn-dropdown { @apply items-baseline; }
   .btn.btn-dropdown > .menu { @apply cursor-default relative; left: -100%; top: 0.5em; }

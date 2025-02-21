@@ -34,5 +34,12 @@
     "root": {
         "You cannot delete record that is linked with another records. Delete the linked records first.": "Nie je možné zmazať záznam, ktorý je prepojený s inými záznamami. Vymažte najprv prepojené záznamy.",
         "Show error details": "Zobraziť podrobnosti chyby"
+    },
+    "Controllers\\SignIn": {
+        "Keep signed in": "Zostať prihlásený",
+        "Sign in": "Prihlásiť sa",
+        "Your email": "Email",
+        "Password": "Heslo",
+        "Invalid email or password.": "Neplatné meno alebo heslo."
     }
 }

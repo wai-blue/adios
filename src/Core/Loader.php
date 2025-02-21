@@ -1682,9 +1682,16 @@ class Loader
 
   public function getLanguage(): string
   {
-    $language = $this->configAsString('language', 'en');
-    if (strlen($language) !== 2) $language = 'en';
-    return $language;
+    $user = (isset($this->auth) ? $this->auth->getUserFromSession() : []);
+    if (isset($user['language']) && strlen($user['language']) == 2) {
+      return $user['language'];
+    } else if (isset($_COOKIE['language']) && strlen($_COOKIE['language']) == 2) {
+      return $_COOKIE['language'];
+    } else {
+      $language = $this->configAsString('language', 'en');
+      if (strlen($language) !== 2) $language = 'en';
+      return $language;
+    }
   }
 
 

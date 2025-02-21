@@ -78,7 +78,7 @@ class Controller implements \ADIOS\Core\Testable {
     $this->fullName = str_replace("\\", "/", $reflection->getName());
 
     if (empty($this->translationContext)) {
-      $this->translationContext = trim(str_replace('\\', '/', $this->fullName), '/');
+      $this->translationContext = trim(str_replace('/', '\\', $this->fullName), '\\');
     }
   }
 

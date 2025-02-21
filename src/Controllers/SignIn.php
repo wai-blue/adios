@@ -19,6 +19,8 @@ class SignIn extends \ADIOS\Core\Controller {
   public bool $requiresUserAuthentication = FALSE;
   public bool $hideDefaultDesktop = TRUE;
 
+  public string $translationContext = 'ADIOS\\Core\\Loader::Controllers\\SignIn';
+
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
 

@@ -1,0 +1,45 @@
+{
+    "Components\\Table": {
+        "Start typing to search...": "Suchen...",
+        "Delete": "Löschen",
+        "Delete record": "Eintrag löschen",
+        "You are about to delete the record. Press OK to confirm.": "Möchten Sie den Eintrag wirklich löschen? Drücken Sie zur Bestätigung die OK-Taste..",
+        "No, do not delete": "Nein, nicht löschen",
+        "Yes, delete": "Ja, löschen",
+        "No data.": "Keine Einträge."
+    },
+    "Components\\Form": {
+        "Edit": "Upraviť",
+        "Save": "Speichern",
+        "Add": "Hinzufügen",
+        "Delete": "Löschen",
+        "Record": "Eintrag",
+        "New record": "Neuer Eintrag",
+        "Copy": "Duplikovať",
+        "Confirm delete": "Löschen bestätigen"
+    },
+    "Components\\Inputs\\File": {
+        "Upload file": "Datei hochladen"
+    },
+    "Components\\Inputs\\Hyperlink": {
+        "Paste URL link here": "Geben Sie die URL-Adresse ein"
+    },
+    "Components\\Inputs\\Image": {
+        "Choose image": "Bild auswählen"
+    },
+    "Components\\Inputs\\Password": {
+        "New password": "Neues Passwort",
+        "Confirm new password": "Neues Passwort bestätigen"
+    },
+    "root": {
+        "You cannot delete record that is linked with another records. Delete the linked records first.": "Sie können keine Einträge löschen, die mit anderen Eintrag verknüpft sind. Löschen Sie zuerst die verknüpften Einträge.",
+        "Show error details": "Fehlerdetails anzeigen"
+    },
+    "Controllers\\SignIn": {
+        "Keep signed in": "Angemeldet bleiben",
+        "Sign in": "Anmelden",
+        "Your email": "Email",
+        "Password": "Passwort",
+        "Invalid email or password.": "Ungültige E-Mail oder ungültiges Passwort."
+    }
+}

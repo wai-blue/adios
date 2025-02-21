@@ -120,7 +120,7 @@ class Model
     $this->fullName = str_replace("\\", "/", $reflection->getName());
 
     if (empty($this->translationContext)) {
-      $this->translationContext = trim(str_replace('\\', '/', $this->fullName), '/');
+      $this->translationContext = trim(str_replace('/', '\\', $this->fullName), '\\');
     }
 
     $tmp = explode("/", $this->fullName);

@@ -848,7 +848,8 @@ class Loader
         $this->view = '';
         $this->permission = '';
 
-        $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
+        $routeVars = $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
+        $this->router->setRouteVars($routeVars);
 
         foreach ($this->router->getRouteVars() as $varName => $varValue) {
           $this->params[$varName] = $varValue;

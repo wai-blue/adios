@@ -139,7 +139,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   jsxContentRendered: boolean = false;
   jsxContent: JSX.Element;
 
-  inputs: Array<any> = [];
+  inputs: {};
 
   constructor(props: FormProps) {
     super(props);

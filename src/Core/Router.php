@@ -209,4 +209,14 @@ class Router {
     exit;
   }
 
+  public function createSignInController(): \ADIOS\Core\Controller
+  {
+    return new \ADIOS\Controllers\SignIn($this->app);
+  }
+
+  public function createDesktopController(): \ADIOS\Core\Controller
+  {
+    return new \ADIOS\Controllers\Desktop($this->app);
+  }
+
 }

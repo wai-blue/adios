@@ -36,7 +36,6 @@ class Loader
 
   const RELATIVE_DICTIONARY_PATH = '../Lang';
 
-  public string $gtp = "";
   public string $requestedUri = "";
   public string $controller = "";
   public string $permission = "";
@@ -71,7 +70,6 @@ class Loader
   public \ADIOS\Core\Locale $locale;
   public \ADIOS\Core\Router $router;
   public \ADIOS\Core\Email $email;
-  public \ADIOS\Core\UserNotifications $userNotifications;
   public \ADIOS\Core\Permissions $permissions;
   public \ADIOS\Core\Test $test;
   public \ADIOS\Core\Web\Loader $web;
@@ -105,14 +103,8 @@ class Loader
 
     $this->config = $config;
 
-    \ADIOS\Core\Helper::addSpeedLogTag("#1");
-
     $this->test = $this->createTestProvider();
-
-    $this->widgetsDir = $config['widgetsDir'] ?? "";
-
-    $this->gtp = $this->config['global_table_prefix'] ?? "";
-    // $this->requestedController = $_REQUEST['controller'] ?? "";
+    // $this->widgetsDir = $config['widgetsDir'] ?? "";
     $this->params = $this->extractParamsFromRequest();
 
     if (empty($this->config['dir'])) $this->config['dir'] = "";
@@ -149,15 +141,15 @@ class Loader
     $this->assetsUrlMap["adios/assets/js/"] = __DIR__."/../Assets/Js/";
     $this->assetsUrlMap["adios/assets/images/"] = __DIR__."/../Assets/Images/";
     $this->assetsUrlMap["adios/assets/webfonts/"] = __DIR__."/../Assets/Webfonts/";
-    $this->assetsUrlMap["adios/assets/widgets/"] = function ($app, $url) {
-      $url = str_replace("adios/assets/widgets/", "", $url);
-      preg_match('/(.*?)\/(.+)/', $url, $m);
+    // $this->assetsUrlMap["adios/assets/widgets/"] = function ($app, $url) {
+    //   $url = str_replace("adios/assets/widgets/", "", $url);
+    //   preg_match('/(.*?)\/(.+)/', $url, $m);
 
-      $widget = $m[1];
-      $asset = $m[2];
+    //   $widget = $m[1];
+    //   $asset = $m[2];
 
-      return $app->widgetsDir."/{$widget}/Assets/{$asset}";
-    };
+    //   return $app->widgetsDir."/{$widget}/Assets/{$asset}";
+    // };
     $this->assetsUrlMap["adios/plugins/"] = function ($app, $url) {
       $url = str_replace("adios/plugins/", "", $url);
       preg_match('/(.+?)\/~\/(.+)/', $url, $m);
@@ -179,20 +171,28 @@ class Loader
     try {
 
       // inicializacia session managementu
-      $this->session = new \ADIOS\Core\Session($this);
+      $this->session = $this->createSessionManager();
 
       // inicializacia debug konzoly
-      $this->console = \ADIOS\Core\Factory::create('Core/Console', [$this]);
-      $this->console->clearLog("timestamps", "info");
+      $this->console = $this->createConsole();
 
-      // global $gtp; - pouziva sa v basic_functions.php
+      // translator
+      $this->translator = $this->createTranslator();
 
-      $gtp = $this->gtp;
+      // inicializacia routera
+      $this->router = $this->createRouter();
+
+      // inicializacia locale objektu
+      $this->locale = $this->createLocale();
+
+      // object pre kontrolu permissions
+      $this->permissions = $this->createPermissionsManager();
+
+      // auth provider
+      $this->auth = $this->createAuthProvider();
 
       // nacitanie zakladnych ADIOS lib suborov
       require_once dirname(__FILE__)."/Lib/basic_functions.php";
-
-      \ADIOS\Core\Helper::addSpeedLogTag("#2");
 
       $this->eloquent = new \Illuminate\Database\Capsule\Manager;
 
@@ -211,8 +211,6 @@ class Loader
         $this->initDatabaseConnections();
 
       }
-
-      \ADIOS\Core\Helper::addSpeedLogTag("#2.1");
 
       // inicializacia pluginov - aj pre FULL aj pre LITE mod
 
@@ -237,24 +235,10 @@ class Loader
         define('_SESSION_ID', session_id());
       }
 
-      \ADIOS\Core\Helper::addSpeedLogTag("#2.2");
-
-
-      // translator
-      $this->translator = $this->createTranslator();
-
-      // inicializacia routera
-      $this->router = $this->createRouter();
-
-      // inicializacia locale objektu
-      $this->locale = $this->createLocale();
-
-      // inicializacia objektu notifikacii
-      $this->userNotifications = \ADIOS\Core\Factory::create('Core/UserNotifications', [$this]);
-
-      $this->registerModel(get_class(\ADIOS\Core\Factory::create('Models/User', [$this])));
-      $this->registerModel(get_class(\ADIOS\Core\Factory::create('Models/UserRole', [$this])));
-      $this->registerModel(get_class(\ADIOS\Core\Factory::create('Models/UserHasRole', [$this])));
+      // inicializacia web renderera (byvala CASCADA)
+      if (isset($this->config['web']) && is_array($this->config['web'])) {
+        $this->web = \ADIOS\Core\Factory::create('Core/Web/Loader', [$this, $this->config['web']]);
+      }
 
       // inicializacia DB - aj pre FULL aj pre LITE mod
 
@@ -264,42 +248,21 @@ class Loader
         $this->loadConfigFromDB();
       }
 
-      \ADIOS\Core\Helper::addSpeedLogTag("#3");
-
       // finalizacia konfiguracie - aj pre FULL aj pre LITE mode
       $this->finalizeConfig();
-      \ADIOS\Core\Helper::addSpeedLogTag("#3.1");
 
       $this->onAfterConfigLoaded();
-      \ADIOS\Core\Helper::addSpeedLogTag("#3.2");
 
-      // object pre kontrolu permissions
-      $this->permissions = \ADIOS\Core\Factory::create('Core/Permissions', [$this]);
-
-      // auth provider
-      $this->auth = $this->createAuthProvider();
-
-      // inicializacia web renderera (byvala CASCADA)
-      if (isset($this->config['web']) && is_array($this->config['web'])) {
-        $this->web = \ADIOS\Core\Factory::create('Core/Web/Loader', [$this, $this->config['web']]);
-      }
-
-      // timezone
-      date_default_timezone_set($this->config['timezone']);
+      $this->permissions->init();
 
       if ($mode == self::ADIOS_MODE_FULL) {
-        \ADIOS\Core\Helper::addSpeedLogTag("#4");
 
 
         // inicializacia widgetov
 
-        $this->onBeforeWidgetsLoaded();
-
-        $this->addAllWidgets($this->config['widgets']);
-
-        $this->onAfterWidgetsLoaded();
-
-        \ADIOS\Core\Helper::addSpeedLogTag("#5");
+        // $this->onBeforeWidgetsLoaded();
+        // $this->addAllWidgets($this->config['widgets']);
+        // $this->onAfterWidgetsLoaded();
 
         // vytvorim definiciu tables podla nacitanych modelov
 
@@ -318,9 +281,6 @@ class Loader
       echo $e->getTraceAsString() . "\n";
       exit;
     }
-
-    \ADIOS\Core\Helper::addSpeedLogTag("#6");
-    // \ADIOS\Core\Helper::printSpeedLogTags();
 
     return $this;
   }
@@ -461,83 +421,77 @@ class Loader
         return $this->translate($string, [], $context);
       }
     ));
-    $this->twig->addFunction(new \Twig\TwigFunction(
-      'adiosView',
-      function ($uid, $view, $params) {
-        if (!is_array($params)) {
-          $params = [];
-        }
-        return $this->view->create(
-          $view . (empty($uid) ? '' : '#' . $uid),
-          $params
-        )->render();
-      }
-    ));
-    $this->twig->addFunction(new \Twig\TwigFunction(
-      'adiosRender',
-      function ($controller, $params = []) {
-        return $this->render($controller, $params);
-      }
-    ));
+    // $this->twig->addFunction(new \Twig\TwigFunction(
+    //   'adiosView',
+    //   function ($uid, $view, $params) {
+    //     if (!is_array($params)) {
+    //       $params = [];
+    //     }
+    //     return $this->view->create(
+    //       $view . (empty($uid) ? '' : '#' . $uid),
+    //       $params
+    //     )->render();
+    //   }
+    // ));
+    // $this->twig->addFunction(new \Twig\TwigFunction(
+    //   'adiosRender',
+    //   function ($controller, $params = []) {
+    //     return $this->render($controller, $params);
+    //   }
+    // ));
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  // WIDGETS
+  // //////////////////////////////////////////////////////////////////////////////
+  // // WIDGETS
 
-  public function addWidget($widgetName)
-  {
-    if (!isset($this->widgets[$widgetName])) {
-      try {
-        $widgetClassName = "\\" . $this->config['appNamespace'] . "\\Widgets\\".str_replace("/", "\\", $widgetName);
-        if (!class_exists($widgetClassName)) {
-          throw new \Exception("Widget {$widgetName} not found.");
-        }
-        $this->widgets[$widgetName] = new $widgetClassName($this);
+  // public function addWidget($widgetName)
+  // {
+  //   if (!isset($this->widgets[$widgetName])) {
+  //     try {
+  //       $widgetClassName = "\\" . $this->config['appNamespace'] . "\\Widgets\\".str_replace("/", "\\", $widgetName);
+  //       if (!class_exists($widgetClassName)) {
+  //         throw new \Exception("Widget {$widgetName} not found.");
+  //       }
+  //       $this->widgets[$widgetName] = new $widgetClassName($this);
 
-        $this->router->addRouting($this->widgets[$widgetName]->routing());
-      } catch (\Exception $e) {
-        exit("Failed to load widget {$widgetName}: ".$e->getMessage());
-      }
-    }
-  }
+  //       $this->router->addRouting($this->widgets[$widgetName]->routing());
+  //     } catch (\Exception $e) {
+  //       exit("Failed to load widget {$widgetName}: ".$e->getMessage());
+  //     }
+  //   }
+  // }
 
-  public function addAllWidgets(array $widgets = [], $path = "") {
-    foreach ($widgets as $wName => $w_config) {
-      $fullWidgetName = ($path == "" ? "" : "{$path}/").$wName;
-      if (isset($w_config['enabled']) && $w_config['enabled'] === true) {
-        $this->addWidget($fullWidgetName);
-      } else {
-        // ak nie je enabled, moze to este byt dalej vetvene
-        if (is_array($w_config)) {
-          $this->addAllWidgets($w_config, $fullWidgetName);
-        }
-      }
-    }
-  }
+  // public function addAllWidgets(array $widgets = [], $path = "") {
+  //   foreach ($widgets as $wName => $w_config) {
+  //     $fullWidgetName = ($path == "" ? "" : "{$path}/").$wName;
+  //     if (isset($w_config['enabled']) && $w_config['enabled'] === true) {
+  //       $this->addWidget($fullWidgetName);
+  //     } else {
+  //       // ak nie je enabled, moze to este byt dalej vetvene
+  //       if (is_array($w_config)) {
+  //         $this->addAllWidgets($w_config, $fullWidgetName);
+  //       }
+  //     }
+  //   }
+  // }
 
   //////////////////////////////////////////////////////////////////////////////
   // MODELS
 
-  public function registerModel(string $modelName): void
+  public function registerModel(string $modelClass): void
   {
-    if (!in_array($modelName, $this->registeredModels)) {
-      $this->registeredModels[] = $modelName;
+    if (!in_array($modelClass, $this->registeredModels)) {
+      $this->registeredModels[] = $modelClass;
     }
   }
 
-  // Deprecated
-  public function getModelNames(): array
-  {
-    return $this->registeredModels;
-  }
-
-  /**
-  * @return array<string>
-  */
-  public function getRegisteredModels(): array
-  {
-    return $this->registeredModels;
-  }
+  // /**
+  // * @return array<string>
+  // */
+  // public function getRegisteredModels(): array
+  // {
+  //   return $this->registeredModels;
+  // }
 
   public function getModelClassName($modelName): string
   {
@@ -722,8 +676,6 @@ class Loader
   }
 
   public function install() {
-    $this->console->clear();
-
     $installationStart = microtime(true);
 
     $this->console->info("Dropping existing tables.");
@@ -827,9 +779,6 @@ class Loader
 
     try {
 
-      \ADIOS\Core\Helper::clearSpeedLogTags();
-      \ADIOS\Core\Helper::addSpeedLogTag("render1");
-
       // Find-out which route is used for rendering
 
       if (empty($route)) $route = $this->extractRouteFromRequest();
@@ -884,11 +833,8 @@ class Loader
         $controllerClassName = $this->getControllerClassName($this->controller);
       }
 
-      \ADIOS\Core\Helper::addSpeedLogTag("render2");
-
       // Create the object for the controller
       $this->controllerObject = new $controllerClassName($this);
-
       $this->controllerObject->preInit();
       $this->controllerObject->init();
       $this->controllerObject->postInit();
@@ -908,20 +854,16 @@ class Loader
         }
       }
 
-      \ADIOS\Core\Helper::addSpeedLogTag("render3");
-
       if (!$this->testMode && $this->controllerObject->requiresUserAuthentication) {
         $this->auth->auth();
         if (!$this->auth->isUserInSession()) {
-          $this->controllerObject = \ADIOS\Core\Factory::create('Controllers/SignIn', [$this]);
+          $this->controllerObject = $this->router->createSignInController();
           $this->permission = $this->controllerObject->permission;
         }
         $this->permissions->check($this->permission);
       }
 
       // All OK, rendering content...
-
-      \ADIOS\Core\Helper::addSpeedLogTag("render4");
 
       // vygenerovanie UID tohto behu
       if (empty($this->uid)) {
@@ -942,8 +884,6 @@ class Loader
 
       // Either return JSON string ...
       $json = $this->controllerObject->renderJson();
-
-      \ADIOS\Core\Helper::addSpeedLogTag("render5");
 
       if (is_array($json)) {
         $return = json_encode($json);
@@ -976,15 +916,13 @@ class Loader
           );
         }
 
-        \ADIOS\Core\Helper::addSpeedLogTag("render6");
-
         // In some cases the result of the view will be used as-is ...
         if ($this->urlParamAsBool('__IS_AJAX__') || $this->controllerObject->hideDefaultDesktop) {
           $html = $contentHtml;
 
         // ... But in most cases it will be "encapsulated" in the desktop.
         } else {
-          $desktopControllerObject = $this->createDesktopController();
+          $desktopControllerObject = $this->router->createDesktopController();
           $desktopControllerObject->prepareViewParams();
 
           $desktopParams = $contentParams;
@@ -993,30 +931,18 @@ class Loader
 
           $html = $this->twig->render($this->config['defaultDesktopView'] ?? '@' . $this->twigNamespaceCore . '/Views/Desktop.twig', $desktopParams);
 
-          \ADIOS\Core\Helper::addSpeedLogTag("render7");
-
         }
-
-        \ADIOS\Core\Helper::addSpeedLogTag("render8");
 
         return $html;
       }
 
       $this->onAfterRender();
 
-      \ADIOS\Core\Helper::addSpeedLogTag("render9");
-
-      // \ADIOS\Core\Helper::printSpeedLogTags();
-
       return $return;
 
     } catch (\ADIOS\Core\Exceptions\ControllerNotFound $e) {
       header('HTTP/1.1 400 Bad Request', true, 400);
       return $this->renderFatal('Controller not found: ' . $e->getMessage(), false);
-      // $this->router->redirectTo("");
-    // } catch (\ADIOS\Core\Exceptions\NotEnoughPermissionsException $e) {
-    //   header('HTTP/1.1 401 Unauthorized', true, 401);
-    //   return $this->renderFatal($e->getMessage(), false);
     } catch (\ADIOS\Core\Exceptions\NotEnoughPermissionsException $e) {
       $message = $e->getMessage();
       if ($this->userLogged) {
@@ -1067,18 +993,9 @@ class Loader
     }
   }
 
-  public function createDesktopController(): \ADIOS\Core\Controller
-  {
-    try {
-      return \ADIOS\Core\Factory::create('Controllers/Desktop', [$this]);
-    } catch (\Throwable $e) {
-      exit("Unable to initialize desktop controller. Check your config.");
-    }
-  }
-
   public function createTestProvider(): \ADIOS\Core\Test
   {
-    return new \ADIOS\Core\Test($this);
+    return new Test($this);
   }
 
   public function createAuthProvider(): \ADIOS\Core\Auth
@@ -1086,14 +1003,29 @@ class Loader
     return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
   }
 
+  public function createSessionManager(): \ADIOS\Core\Session
+  {
+    return new Session($this);
+  }
+
+  public function createPermissionsManager(): \ADIOS\Core\Permissions
+  {
+    return new Permissions($this);
+  }
+
   public function createRouter(): \ADIOS\Core\Router
   {
-    return \ADIOS\Core\Factory::create('Core/Router', [$this]);
+    return new Router($this);
+  }
+
+  public function createConsole(): \ADIOS\Core\Console
+  {
+    return new Console($this);
   }
 
   public function createLocale(): \ADIOS\Core\Locale
   {
-    return \ADIOS\Core\Factory::create('Core/Locale', [$this]);
+    return new Locale($this);
   }
 
   public function createTranslator(): \ADIOS\Core\Translator

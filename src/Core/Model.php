@@ -130,24 +130,6 @@ class Model
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();
 
-    if ($this->hasAvailableUpgrades()) {
-
-      $this->app->userNotifications->addHtml("
-        Model <b>{$this->fullName}</b> has new upgrades available (from {$currentVersion} to {$lastVersion}).
-        <a
-          href='javascript:void(0)'
-          onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
-        >Install upgrades</a>
-      ");
-    } else if (!$this->isInstalled()) {
-      $this->app->userNotifications->addHtml("
-        Model <b>{$this->fullName}</b> is not installed.
-        <a
-          href='javascript:void(0)'
-          onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
-        >Install model</a>
-      ");
-    }
   }
 
   public function initRecordManager(): RecordManager

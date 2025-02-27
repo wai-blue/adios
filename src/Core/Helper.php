@@ -15,7 +15,6 @@ namespace ADIOS\Core;
  */
 class Helper {
   static $loadUrlError = '';
-  static array $speedLogTags = [];
 
   public static function setGlobalApp(\ADIOS\Core\Loader $app) {
     global $__APP__;
@@ -235,6 +234,15 @@ class Helper {
     return strtolower(preg_replace("/[A-Z]/", "-$0", $s));
   }
 
+  public static function pluck(string $key, array $data): array
+  {
+    $pluck = [];
+    foreach ($data as $value) {
+      if (isset($value['id'])) $pluck[] = $value['id'];
+    }
+    return $pluck;
+  }
+
   public static function keyBy(string $key, array $data): array {
     $result = [];
     $keys = explode('.', $key);
@@ -261,26 +269,6 @@ class Helper {
 
     return $result;
   }
-  public static function clearSpeedLogTags() {
-    self::$speedLogTags = [];
-  }
-
-  public static function addSpeedLogTag($tag) {
-    list($usec, $sec) = explode(' ', microtime());
-    self::$speedLogTags[] = [(float) $usec + (float) $sec, $tag];
-  }
-
-  public static function printSpeedLogTags() {
-    $lastMicrotime = NULL;
-    $microtimeDiff = 0;
-    $i = 0;
-    foreach (self::$speedLogTags as $data) {
-      list($microtime, $tag) = $data;
-      if ($lastMicrotime !== NULL) $microtimeDiff = ($microtime - $lastMicrotime) * 1000;
-      _var_dump("{$tag} {$microtime} {$microtimeDiff}");
-      $lastMicrotime = $microtime;
-    }
-  }
 
   public static function encrypt(string $value, string $seed = '', $force = false) {
     global $__APP__;
@@ -301,19 +289,5 @@ class Helper {
       return $value;
     }
   }
-
-  // public function _put_default_params_values($params, $default_values) {
-  //   foreach ($default_values as $key => $value) {
-  //     if (!isset($params[$key])) {
-  //       $params[$key] = $value;
-  //     } else {
-  //       if (is_array($value)) {
-  //         $params[$key] = _put_default_params_values($params[$key], $value);
-  //       }
-  //     }
-  //   }
-
-  //   return $params;
-  // }
 
 }

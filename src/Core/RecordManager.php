@@ -44,12 +44,12 @@ class RecordManager {
   }
 
   /**
-   * prepareRead
+   * prepareReadQuery
    * @param mixed $query Leave empty for default behaviour.
    * @param int $level Leave empty for default behaviour.
    * @return mixed Eloquent query used to read record.
    */
-  public function prepareRead(mixed $query = null, int $level = 0): mixed
+  public function prepareReadQuery(mixed $query = null, int $level = 0): mixed
   {
     if ($query === null) $query = $this->model->eloquent;
 
@@ -109,7 +109,7 @@ class RecordManager {
 
       if ($level <= $this->maxReadLevel) {
         $query->with([$relName => function($q) use($relModel, $level) {
-          return $relModel->recordManager->prepareRead($q, $level + 1);
+          return $relModel->recordManager->prepareReadQuery($q, $level + 1);
         }]);
       }
     }
@@ -121,37 +121,43 @@ class RecordManager {
     return $query;
   }
 
-  function addFulltextSearch(mixed $query, string $search): void
+  function addFulltextSearchToQuery(mixed $query, string $fulltextSearch): mixed
   {
-    if (!empty($search)) {
+    if (!empty($fulltextSearch)) {
       foreach ($this->model->getColumns() as $columnName => $column) {
         $enumValues = $column->getEnumValues();
         if (count($enumValues) > 0) {
-          $query->orHaving('_ENUM[' . $columnName . ']', 'like', "%{$search}%");
+          $query->orHaving('_ENUM[' . $columnName . ']', 'like', "%{$fulltextSearch}%");
         } else if ($column->getType() == 'lookup') {
-          $query->orHaving('_LOOKUP[' . $columnName . ']', 'like', "%{$search}%");
+          $query->orHaving('_LOOKUP[' . $columnName . ']', 'like', "%{$fulltextSearch}%");
         } else {
-          $query->orHaving($columnName, 'like', "%{$search}%");
+          $query->orHaving($columnName, 'like', "%{$fulltextSearch}%");
         }
       }
     }
+
+    return $query;
   }
 
-  public function addColumnSearch(mixed $query, array $columnSearch): void
+  public function addColumnSearchToQuery(mixed $query, array $columnSearch): mixed
   {
     if (count($columnSearch) > 0) {
       // TODO
     }
+
+    return $query;
   }
 
-  public function addOrderBy(mixed $query, array $orderBy): void
+  public function addOrderByToQuery(mixed $query, array $orderBy): mixed
   {
     if (isset($orderBy['field']) && isset($orderBy['direction'])) {
       $query->orderBy($orderBy['field'], $orderBy['direction']);
     }
+
+    return $query;
   }
 
-  public function paginate(mixed $query, int $itemsPerPage, int $page): array
+  public function readMany(mixed $query, int $itemsPerPage, int $page): array
   {
     $data = $query->paginate(
       $itemsPerPage,

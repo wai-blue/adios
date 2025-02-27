@@ -6,7 +6,7 @@ For example, following very simple code:
 
 ```php
 $mContact = new \MyApp\Models\Contact($this->app);
-$contact = $mContact->recordManager->read($mContact->recordManager->prepareRead()->where('id', 1));
+$contact = $mContact->recordManager->read($mContact->recordManager->prepareReadQuery()->where('id', 1));
 ```
 
 will produce an array (`$contact`) containing the *record* with contact ID = 1. It will have the following structure (example):
@@ -135,7 +135,7 @@ $mContact->recordManager->create([
 To read a record, simply run:
 
 ```php
-$readQuery = $mContact->recordManager->prepareRead(); // prepare the query for reading
+$readQuery = $mContact->recordManager->prepareReadQuery(); // prepare the query for reading
 $readQuery->where('id', 1); // use Eloquent to modify the query
 $record = $mContact->recordManager->read($readQuery); // read record
 ```

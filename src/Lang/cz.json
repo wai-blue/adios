@@ -1,0 +1,45 @@
+{
+    "Components\\Table": {
+        "Start typing to search...": "Vyhledat...",
+        "Delete": "Smazat",
+        "Delete record": "Smazat záznam",
+        "You are about to delete the record. Press OK to confirm.": "Opravdu chcete smazat záznam? Stiskněte OK pro potvrzení.",
+        "No, do not delete": "Ne, nemazat",
+        "Yes, delete": "Ano, smazat",
+        "No data.": "Žádné záznamy."
+    },
+    "Components\\Form": {
+        "Edit": "Upravit",
+        "Save": "Uložit",
+        "Add": "Přidat",
+        "Delete": "Smazat",
+        "Record": "Záznam",
+        "New record": "Nový záznam",
+        "Copy": "Duplikovat",
+        "Confirm delete": "Potvrďte smazání"
+    },
+    "Components\\Inputs\\File": {
+        "Upload file": "Nahrát soubor"
+    },
+    "Components\\Inputs\\Hyperlink": {
+        "Paste URL link here": "Vložte URL adresu"
+    },
+    "Components\\Inputs\\Image": {
+        "Choose image": "Vybrat obrázek"
+    },
+    "Components\\Inputs\\Password": {
+        "New password": "Nové heslo",
+        "Confirm new password": "Potvrdit nové heslo"
+    },
+    "root": {
+        "You cannot delete record that is linked with another records. Delete the linked records first.": "Nelze smazat záznam, který je propojen s jinými záznamy. Vymažte nejprve propojené záznamy.",
+        "Show error details": "Zobraziť podrobnosti chyby"
+    },
+    "Controllers\\SignIn": {
+        "Keep signed in": "Zůstat přihlášen",
+        "Sign in": "Přihlásit se",
+        "Your email": "Email",
+        "Password": "Heslo",
+        "Invalid email or password.": "Neplatné jméno nebo heslo."
+    }
+}

@@ -21,10 +21,12 @@ class Permissions {
   function __construct(\ADIOS\Core\Loader $app)
   {
     $this->app = $app;
+  }
 
+  public function init(): void
+  {
     $this->permissions = $this->loadPermissions();
     $this->expandPermissionGroups();
-
   }
 
   /**

@@ -1,29 +1,21 @@
 <?php
 
-/*
-  This file is part of ADIOS Framework.
-
-  This file is published under the terms of the license described
-  in the license.md file which is located in the root folder of
-  ADIOS Framework package.
-*/
-
 namespace ADIOS\Auth\Providers;
 
 class KeycloakOAuth2 extends \ADIOS\Core\Auth {
   public $provider;
 
-  function __construct(\ADIOS\Core\Loader $app, array $params = [])
+  function __construct(\ADIOS\Core\Loader $app, array $config = [])
   {
-    parent::__construct($app, $params);
+    parent::__construct($app, $config);
 
     $this->provider = new \League\OAuth2\Client\Provider\GenericProvider([
-      'clientId'                => $this->app->configAsString('auth/clientId'),    // The client ID assigned to you by the provider
-      'clientSecret'            => $this->app->configAsString('auth/clientSecret'),    // The client password assigned to you by the provider
-      'redirectUri'             => $this->app->configAsString('accountUrl') . '/',
-      'urlAuthorize'            => $this->app->configAsString('auth/urlAuthorize'),
-      'urlAccessToken'          => $this->app->configAsString('auth/urlAccessToken'),
-      'urlResourceOwnerDetails' => $this->app->configAsString('auth/urlResourceOwnerDetails'),
+      'clientId'                => $config['clientId'],
+      'clientSecret'            => $config['clientSecret'],
+      'redirectUri'             => $config['redirectUri'],
+      'urlAuthorize'            => $config['urlAuthorize'],
+      'urlAccessToken'          => $config['urlAccessToken'],
+      'urlResourceOwnerDetails' => $config['urlResourceOwnerDetails'],
     ], [
       'httpClient' => new \GuzzleHttp\Client([\GuzzleHttp\RequestOptions::VERIFY => false]),
     ]);

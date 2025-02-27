@@ -47,6 +47,7 @@ export default class Tags extends Input<TagsInputProps, TagsInputState> {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     this.loadData();
 
     if (this.props.enableAdd ?? true) {

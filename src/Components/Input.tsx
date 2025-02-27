@@ -103,6 +103,12 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     } as S;
   }
 
+  componentDidMount() {
+    if (this.props.parentForm && this.props.inputName) {
+      this.props.parentForm.inputs[this.props.inputName.toString()] = this;
+    }
+  }
+
   componentDidUpdate(prevProps: any): void {
     let newState: any = {};
     let setNewState: boolean = false;

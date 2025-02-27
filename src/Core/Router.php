@@ -84,6 +84,11 @@ class Router {
     return $controller;
   }
 
+  public function setRouteVars(array $routeVars): void
+  {
+    $this->routeVars = $routeVars;
+  }
+
   public function getRouteVars(): array
   {
     return $this->routeVars;
@@ -114,16 +119,24 @@ class Router {
     return (bool) ($this->routeVars[$varIndex] ?? false);
   }
 
-  public function extractRouteVariables(string $method, string $route = '')
+  public function extractRouteVariables(string $method, string $route = ''): array
   {
     if (empty($route)) $route = $this->app->route;
 
+    $routeVars = [];
+
     foreach ($this->getRoutes($method) as $routePattern => $tmpRoute) {
       if (preg_match($routePattern.'i', $route, $m)) {
-        $this->routeVars = $m;
+        $routeVars = $m;
         break;
       }
     }
+    
+    foreach ($routeVars as $varName => $varValue) {
+      if (is_numeric($varName)) unset($routeVars[$varName]);
+    }
+
+    return $routeVars;
   }
 
 
@@ -194,6 +207,16 @@ class Router {
   public function redirectTo(string $url, int $code = 302) {
     header("Location: " . $this->app->configAsString('accountUrl') . "/" . trim($url, "/"), true, $code);
     exit;
+  }
+
+  public function createSignInController(): \ADIOS\Core\Controller
+  {
+    return new \ADIOS\Controllers\SignIn($this->app);
+  }
+
+  public function createDesktopController(): \ADIOS\Core\Controller
+  {
+    return new \ADIOS\Controllers\Desktop($this->app);
   }
 
 }

@@ -139,6 +139,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   jsxContentRendered: boolean = false;
   jsxContent: JSX.Element;
 
+  inputs: Array<any> = [];
+
   constructor(props: FormProps) {
     super(props);
 
@@ -667,7 +669,10 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
           : (
             <>
               <span className="icon"><i className="fas fa-plus"></i></span>
-              <span className="text">{this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}</span>
+              <span className="text">
+                {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}
+                {this.state.recordChanged ? ' *' : ''}
+              </span>
             </>
           )
         }

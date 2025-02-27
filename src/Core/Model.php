@@ -120,7 +120,7 @@ class Model
     $this->fullName = str_replace("\\", "/", $reflection->getName());
 
     if (empty($this->translationContext)) {
-      $this->translationContext = trim(str_replace('\\', '/', $this->fullName), '/');
+      $this->translationContext = trim(str_replace('/', '\\', $this->fullName), '\\');
     }
 
     $tmp = explode("/", $this->fullName);
@@ -130,24 +130,6 @@ class Model
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();
 
-    if ($this->hasAvailableUpgrades()) {
-
-      $this->app->userNotifications->addHtml("
-        Model <b>{$this->fullName}</b> has new upgrades available (from {$currentVersion} to {$lastVersion}).
-        <a
-          href='javascript:void(0)'
-          onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
-        >Install upgrades</a>
-      ");
-    } else if (!$this->isInstalled()) {
-      $this->app->userNotifications->addHtml("
-        Model <b>{$this->fullName}</b> is not installed.
-        <a
-          href='javascript:void(0)'
-          onclick='ADIOS.renderDesktop(\"Desktop/InstallUpgrades\");'
-        >Install model</a>
-      ");
-    }
   }
 
   public function initRecordManager(): RecordManager
@@ -567,7 +549,7 @@ class Model
    */
   public function recordGet(callable|null $queryModifierCallback = null): array
   {
-    $query = $this->recordManager->prepareRead();
+    $query = $this->recordManager->prepareReadQuery();
     if ($queryModifierCallback !== null) $queryModifierCallback($query);
     $record = $this->recordManager->read($query);
     $record = $this->onAfterLoadRecord($record);
@@ -585,11 +567,11 @@ class Model
     int $page = 0,
   ): array
   {
-    $query = $this->prepareLoadRecordQuery();
-    $this->recordManager->addFulltextSearch($query, $fulltextSearch);
-    $this->recordManager->addColumnSearch($query, $columnSearch);
-    $this->recordManager->addOrderBy($query, $orderBy);
-    $paginatedRecords = $this->recordManager->paginate($query, $itemsPerPage, $page);
+    $query = $this->recordManager->prepareReadQuery();
+    $query = $this->recordManager->addFulltextSearchToQuery($query, $fulltextSearch);
+    $query = $this->recordManager->addColumnSearchToQuery($query, $columnSearch);
+    $query = $this->recordManager->addOrderByToQuery($query, $orderBy);
+    $paginatedRecords = $this->recordManager->readMany($query, $itemsPerPage, $page);
 
     foreach ($paginatedRecords['data'] as $key => $record) {
       $paginatedRecords['data'][$key] = $this->onAfterLoadRecord($record);
@@ -606,7 +588,7 @@ class Model
    */
   public function prepareLoadRecordQuery(): mixed
   {
-    return $this->recordManager->prepareRead();
+    return $this->recordManager->prepareReadQuery();
   }
 
   //////////////////////////////////////////////////////////////////

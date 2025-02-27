@@ -68,7 +68,7 @@ export interface TableUi {
   //showSearchButton?: boolean,
   //showExportCsvButton?: boolean,
   //showImportCsvButton?: boolean,
-  //showFulltextSearch?: boolean
+  showFulltextSearch?: boolean
 }
 
 export interface TableDescription {
@@ -121,6 +121,7 @@ export interface TableProps {
   readonly?: boolean,
   closeFormAfterSave?: boolean,
   className?: string,
+  fulltextSearch?: string,
 }
 
 // Laravel pagination
@@ -153,7 +154,7 @@ export interface TableState {
   orderBy?: TableOrderBy,
   page: number,
   itemsPerPage: number,
-  search?: string,
+  fulltextSearch?: string,
   inlineEditingEnabled: boolean,
   isInlineEditing: boolean,
   isUsedAsInput: boolean,
@@ -208,6 +209,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       async: props.async ?? true,
       readonly: props.readonly ?? false,
       customEndpointParams: this.props.customEndpointParams ?? {},
+      fulltextSearch: props.fulltextSearch ?? '',
     };
 
     if (props.description) state.description = props.description;
@@ -369,7 +371,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
           itemsPerPage: this.state.itemsPerPage ?? 15,
           parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
           parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
-          search: this.state.search,
+          fulltextSearch: this.state.fulltextSearch,
           tag: this.props.tag,
           context: this.props.context,
           where: this.props.where,
@@ -547,15 +549,17 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderHeaderRight(): Array<JSX.Element> {
     let elements: Array<JSX.Element> = [];
-    elements.push(
-      <input
-        className="table-header-search"
-        type="search"
-        placeholder={this.translate('Start typing to search...', 'ADIOS\\Core\\Loader::Components\\Table')}
-        value={this.state.search}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => this.onSearchChange(event.target.value)}
-      />
-    );
+    if (this.state.description?.ui?.showFulltextSearch) {
+      elements.push(
+        <input
+          className="table-header-search"
+          type="search"
+          placeholder={this.translate('Start typing to search...', 'ADIOS\\Core\\Loader::Components\\Table')}
+          value={this.state.fulltextSearch}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => this.onFulltextSearchChange(event.target.value)}
+        />
+      );
+    }
     return elements;
   }
 
@@ -1073,9 +1077,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }, () => this.loadData());
   }
 
-  onSearchChange(search: string) {
+  onFulltextSearchChange(fulltextSearch: string) {
     this.setState({
-      search: search
+      fulltextSearch: fulltextSearch
     }, () => this.loadData());
   }
 }

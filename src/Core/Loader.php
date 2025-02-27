@@ -1083,14 +1083,7 @@ class Loader
 
   public function createAuthProvider(): \ADIOS\Core\Auth
   {
-    if (!isset($this->config['auth'])) return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
-
-    try {
-      return new ($this->config['auth']['provider'])($this, $this->config['auth']['options'] ?? []);
-    } catch (\Throwable $e) {
-      echo("Unable to initialize auth provider. Check your config.");
-      exit($e->getMessage());
-    }
+    return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
   }
 
   public function createRouter(): \ADIOS\Core\Router

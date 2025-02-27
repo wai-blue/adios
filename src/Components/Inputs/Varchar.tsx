@@ -32,6 +32,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
   }
 
   componentDidMount() {
+    super.componentDidMount();
     if (this.props.description?.autocomplete) {
       this.loadData();
     }

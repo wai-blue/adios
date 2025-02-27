@@ -45,6 +45,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     this.loadData();
   }
 

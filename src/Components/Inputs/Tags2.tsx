@@ -53,6 +53,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     this.loadOptions();
   }
 

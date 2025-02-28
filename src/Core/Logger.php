@@ -11,23 +11,17 @@
 
 namespace ADIOS\Core;
 
-use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 
 /**
  * Debugger console for ADIOS application.
  */
-class Console {
+class Logger {
   public ?\ADIOS\Core\Loader $app = null;
 
   public array $loggers = [];
-  public array $infos = [];
-  public array $warnings = [];
-  public array $errors = [];
-  
-  public bool $cliEchoEnabled = FALSE;
 
-  public int $lastTimestamp = 0;
+  public bool $cliEchoEnabled = FALSE;
 
   public string $logDir = "";
  
@@ -42,14 +36,14 @@ class Console {
     if (!class_exists("\\Monolog\\Logger")) return;
 
     // inicializacia loggerov
-    $this->loggers[$loggerName] = new Logger($loggerName);
-    $infoStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-info.log", 1000, Logger::INFO);
+    $this->loggers[$loggerName] = new \Monolog\Logger($loggerName);
+    $infoStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-info.log", 1000, \Monolog\Logger::INFO);
     $infoStreamHandler->setFilenameFormat('{date}/{filename}', 'Y/m/d');
 
-    $warningStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-warning.log", 1000, Logger::WARNING);
+    $warningStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-warning.log", 1000, \Monolog\Logger::WARNING);
     $warningStreamHandler->setFilenameFormat('{date}/{filename}', 'Y/m/d');
 
-    $errorStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-error.log", 1000, Logger::ERROR);
+    $errorStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-error.log", 1000, \Monolog\Logger::ERROR);
     $errorStreamHandler->setFilenameFormat('{date}/{filename}', 'Y/m/d');
 
     $this->loggers[$loggerName]->pushHandler($infoStreamHandler);
@@ -74,22 +68,16 @@ class Console {
 
   public function info($message, array $context = [], $loggerName = 'core') {
     $this->getLogger($loggerName)->info($message, $context);
-    $this->infos[microtime()] = [$message, $context];
-  
     $this->cliEcho($message, $loggerName, 'INFO');
   }
   
   public function warning($message, array $context = [], $loggerName = 'core') {
     $this->getLogger($loggerName)->warning($message, $context);
-    $this->warnings[microtime()] = [$message, $context];
-
     $this->cliEcho($message, $loggerName, 'WARNING');
   }
   
   public function error($message, array $context = [], $loggerName = 'core') {
     $this->getLogger($loggerName)->error($message, $context);
-    $this->errors[microtime()] = [$message, $context];
-
     $this->cliEcho($message, $loggerName, 'ERROR');
   }
 

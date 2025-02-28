@@ -138,7 +138,7 @@ class Loader
       $this->session = $this->createSessionManager();
 
       // inicializacia debug konzoly
-      $this->console = $this->createConsole();
+      $this->logger = $this->createLogger();
 
       // translator
       $this->translator = $this->createTranslator();
@@ -509,14 +509,14 @@ class Loader
   public function install() {
     $installationStart = microtime(true);
 
-    $this->console->info("Dropping existing tables.");
+    $this->logger->info("Dropping existing tables.");
 
     foreach ($this->registeredModels as $modelName) {
       $model = $this->getModel($modelName);
       $model->dropTableIfExists();
     }
 
-    $this->console->info("Database is empty, installing models.");
+    $this->logger->info("Database is empty, installing models.");
 
     foreach ($this->registeredModels as $modelName) {
       try {
@@ -525,11 +525,11 @@ class Loader
         $start = microtime(true);
 
         $model->install();
-        $this->console->info("Model {$modelName} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
+        $this->logger->info("Model {$modelName} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
       } catch (\ADIOS\Core\Exceptions\ModelInstallationException $e) {
-        $this->console->warning("Model {$modelName} installation skipped.", ["exception" => $e->getMessage()]);
+        $this->logger->warning("Model {$modelName} installation skipped.", ["exception" => $e->getMessage()]);
       } catch (\Exception $e) {
-        $this->console->error("Model {$modelName} installation failed.", ["exception" => $e->getMessage()]);
+        $this->logger->error("Model {$modelName} installation failed.", ["exception" => $e->getMessage()]);
       } catch (\Illuminate\Database\QueryException $e) {
         //
       } catch (\ADIOS\Core\Exceptions\DBException $e) {
@@ -539,7 +539,7 @@ class Loader
       }
     }
 
-    $this->console->info("Core installation done in ".round((microtime(true) - $installationStart), 2)." seconds.");
+    $this->logger->info("Core installation done in ".round((microtime(true) - $installationStart), 2)." seconds.");
   }
 
   public function extractParamsFromRequest(): array {
@@ -615,7 +615,7 @@ class Loader
         }
       } else {
         list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
-        $this->console->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
+        $this->logger->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
 
         $this->controller = $tmpRoute['controller'] ?? '';
         $this->view = $tmpRoute['view'] ?? '';
@@ -831,9 +831,9 @@ class Loader
     return new Router($this);
   }
 
-  public function createConsole(): \ADIOS\Core\Console
+  public function createLogger(): \ADIOS\Core\Logger
   {
-    return new Console($this);
+    return new Logger($this);
   }
 
   public function createLocale(): \ADIOS\Core\Locale
@@ -916,7 +916,7 @@ class Loader
       . "</div>"
     ;
 
-    $this->console->error("{$errorHash}\t{$errorMessage}");
+    $this->logger->error("{$errorHash}\t{$errorMessage}");
 
     switch (get_class($exception)) {
       case 'ADIOS\Core\Exceptions\DBException':

@@ -51,7 +51,7 @@ class RecordManager {
    */
   public function prepareReadQuery(mixed $query = null, int $level = 0): mixed
   {
-    if ($query === null) $query = $this->model->eloquent;
+    if ($query === null) $query = $this->model->eloquent->prepareReadQuery();
 
     $selectRaw = [];
     $withs = [];

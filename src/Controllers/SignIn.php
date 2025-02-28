@@ -26,7 +26,7 @@ class SignIn extends \ADIOS\Core\Controller {
 
     $this->permission = "";
 
-    $this->setView($this->app->configAsString('defaultSignInView', '@' . $app->twigNamespaceCore . '/Views/SignIn.twig'));
+    $this->setView('@' . $app->twigNamespaceCore . '/Views/SignIn.twig');
   }
 
   public function prepareViewParams() {

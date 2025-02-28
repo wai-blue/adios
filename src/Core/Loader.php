@@ -929,7 +929,7 @@ class Loader
           $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
           $desktopParams['contentHtml'] = $contentHtml;
 
-          $html = $this->twig->render($this->config['defaultDesktopView'] ?? '@' . $this->twigNamespaceCore . '/Views/Desktop.twig', $desktopParams);
+          $html = $this->twig->render('@' . $this->twigNamespaceCore . '/Views/Desktop.twig', $desktopParams);
 
         }
 

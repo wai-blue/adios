@@ -12,4 +12,10 @@ class Eloquent extends \Illuminate\Database\Eloquent\Model {
   {
     parent::__construct($attributes);
   }
+
+  public function prepareReadQuery(): mixed
+  {
+    return $this;
+  }
+
 }

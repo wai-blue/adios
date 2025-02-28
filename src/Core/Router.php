@@ -23,16 +23,6 @@ class Router {
   public function __construct(\ADIOS\Core\Loader $app) {
     $this->app = $app;
 
-    // $appControllers = \ADIOS\Core\Helper::scanDirRecursively(__DIR__ . '/../Controllers');
-    // $tmpRouting = [];
-    // foreach ($appControllers as $tmpController) {
-    //   $tmpController = str_replace(".php", "", $tmpController);
-    //   $tmpRouting["/^".str_replace("/", "\\/", $tmpController)."$/"] = [
-    //     "controller" => 'ADIOS\\Controllers\\' . $tmpController,
-    //   ];
-    // }
-    // $this->addRouting($tmpRouting);
-
     $this->httpGet([
       '/^api\/form\/describe\/?$/' => \ADIOS\Controllers\Api\Form\Describe::class,
       '/^api\/table\/describe\/?$/' => \ADIOS\Controllers\Api\Table\Describe::class,
@@ -41,7 +31,6 @@ class Router {
       '/^api\/record\/lookup\/?$/' => \ADIOS\Controllers\Api\Record\Lookup::class,
       '/^api\/record\/save\/?$/' => \ADIOS\Controllers\Api\Record\Save::class,
       '/^api\/record\/delete\/?$/' => \ADIOS\Controllers\Api\Record\Delete::class,
-      '/^api\/config\/set\/?$/' => \ADIOS\Controllers\Api\Config\Set::class,
     ]);
   }
 
@@ -211,12 +200,19 @@ class Router {
 
   public function createSignInController(): \ADIOS\Core\Controller
   {
-    return new \ADIOS\Controllers\SignIn($this->app);
+    $controller = new \ADIOS\Core\Controller($this->app);
+    $controller->requiresUserAuthentication = FALSE;
+    $controller->hideDefaultDesktop = TRUE;
+    $controller->translationContext = 'ADIOS\\Core\\Loader::Controllers\\SignIn';
+    $controller->setView('@app/Views/SignIn.twig');
+    return $controller;
   }
 
   public function createDesktopController(): \ADIOS\Core\Controller
   {
-    return new \ADIOS\Controllers\Desktop($this->app);
+    $controller = new \ADIOS\Core\Controller($this->app);
+    $controller->translationContext = 'ADIOS\\Core\\Loader::Controllers\\Desktop';
+    return $controller;
   }
 
 }

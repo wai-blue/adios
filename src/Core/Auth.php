@@ -41,8 +41,8 @@ class Auth {
     $this->app->session->clear();
     $this->user = null;
 
-    setcookie(_ADIOS_ID.'-user', '', 0);
-    setcookie(_ADIOS_ID.'-language', '', 0);
+    setcookie($this->app->session->getSalt() . '-user', '', 0);
+    setcookie($this->app->session->getSalt() . '-language', '', 0);
   }
 
   public function signIn(array $user)

@@ -106,7 +106,7 @@ class User extends \ADIOS\Core\Model {
   }
 
   public function authCookieGetLogin() {
-    list($tmpHash, $tmpLogin) = explode(",", $_COOKIE[_ADIOS_ID.'-user']);
+    list($tmpHash, $tmpLogin) = explode(",", $_COOKIE[$this->app->session->getSalt() . '-user']);
     return $tmpLogin;
   }
 

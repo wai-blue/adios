@@ -75,11 +75,6 @@ class Model
 
   public string $sqlEngine = 'InnoDB';
 
-  /**
-   * Property used to store original data when recordSave() method is calledmodel
-   *
-   * @var mixed
-   */
   public string $table = '';
   public string $eloquentClass = '';
   public array $relations = [];
@@ -560,6 +555,7 @@ class Model
   }
 
   /**
+   * DEPRECATED
    * prepareLoadRecordQuery
    * @return mixed Eloquent query used to load record.
    */

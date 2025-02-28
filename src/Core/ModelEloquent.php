@@ -1,8 +1,8 @@
 <?php
 
-namespace ADIOS\Core\Model;
+namespace ADIOS\Core;
 
-class Eloquent extends \Illuminate\Database\Eloquent\Model {
+class ModelEloquent extends \Illuminate\Database\Eloquent\Model {
   protected $primaryKey = 'id';
   protected $guarded = [];
   public $timestamps = false;

@@ -8,15 +8,10 @@ class Config
 
   protected array $config = [];
 
-  public function __construct(\ADIOS\Core\Loader $app)
+  public function __construct(\ADIOS\Core\Loader $app, array $config)
   {
     $this->app = $app;
 
-    if (isset($_SESSION) && is_array($_SESSION) && !is_array($_SESSION[_ADIOS_ID])) $_SESSION[_ADIOS_ID] = [];
-  }
-
-  public function init(array $config): void
-  {
     $this->config = $config;
 
     if (empty($this->config['dir'])) $this->config['dir'] = "";
@@ -26,6 +21,9 @@ class Config
     if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
     if (empty($this->config['accountDir'])) $this->config['accountDir'] = $this->config['dir'];
     if (empty($this->config['accountUrl'])) $this->config['accountUrl'] = $this->config['url'];
+    if (empty($this->config['sessionSalt'])) $this->config['sessionSalt'] = rand(100000, 999999);
+
+    $this->set('requestUri', $_SERVER['REQUEST_URI'] ?? "");
 
   }
 
@@ -148,15 +146,15 @@ class Config
     }
   }
 
-  public function finalize() {
-    // various default values
-    $this->config['protocol'] = (strtoupper($_SERVER['HTTPS'] ?? "") == "ON" ? "https" : "http");
-    $this->config['timezone'] = $this->config['timezone'] ?? 'Europe/Bratislava';
+  // public function finalize() {
+  //   // various default values
+  //   $this->config['protocol'] = (strtoupper($_SERVER['HTTPS'] ?? "") == "ON" ? "https" : "http");
+  //   $this->config['timezone'] = $this->config['timezone'] ?? 'Europe/Bratislava';
 
-    $this->config['uploadDir'] = $this->config['uploadDir'] ?? "{$this->config['accountDir']}/upload";
-    $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['accountUrl']}/upload";
+  //   $this->config['uploadDir'] = $this->config['uploadDir'] ?? "{$this->config['accountDir']}/upload";
+  //   $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['accountUrl']}/upload";
 
-    $this->config['uploadDir'] = str_replace("\\", "/", $this->config['uploadDir']);
-  }
+  //   $this->config['uploadDir'] = str_replace("\\", "/", $this->config['uploadDir']);
+  // }
 
 }

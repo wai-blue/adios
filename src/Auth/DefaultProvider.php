@@ -44,7 +44,7 @@ class DefaultProvider extends \ADIOS\Core\Auth {
 
       $login = trim($login);
 
-      if (empty($login) && !empty($_COOKIE[_ADIOS_ID.'-user'])) {
+      if (empty($login) && !empty($_COOKIE[$this->app->session->getSalt() . '-user'])) {
         $login = $userModel->authCookieGetLogin();
       }
 
@@ -73,7 +73,7 @@ class DefaultProvider extends \ADIOS\Core\Auth {
 
             if ($rememberLogin) {
               setcookie(
-                _ADIOS_ID.'-user',
+                $this->app->session->getSalt() . '-user',
                 $userModel->authCookieSerialize($user[$this->loginAttribute], $user[$this->passwordAttribute]),
                 time() + (3600 * 24 * 30)
               );

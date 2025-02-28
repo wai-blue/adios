@@ -54,7 +54,7 @@ class PDO {
     $stmt->execute($data);
     ob_start();
     $stmt->debugDumpParams();
-    _var_dump(ob_get_clean());
+    var_dump(ob_get_clean());
   }
 
   public function execute(string $query, array $data = []): void

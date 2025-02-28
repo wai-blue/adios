@@ -29,13 +29,18 @@ class Permissions {
     $this->expandPermissionGroups();
   }
 
+  public function createUserRoleModel(): \ADIOS\Core\Model
+  {
+    return new \ADIOS\Models\UserRole($this->app);
+  }
+
   /**
   * @return array<int, array<int, string>>
   */
   function loadPermissions(): array
   {
     $permissions = [];
-    foreach ($this->app->configasArray('permissions') as $idUserRole => $permissionsByRole) {
+    foreach ($this->app->config->getAsArray('permissions') as $idUserRole => $permissionsByRole) {
       $permissions[$idUserRole] = [];
       foreach ($permissionsByRole as $permissionPath => $isEnabled) {
         if ((bool) $isEnabled) {
@@ -68,7 +73,7 @@ class Permissions {
 
   public function set(string $permission, int $idUserRole, bool $isEnabled)
   {
-    $this->app->saveConfigByPath(
+    $this->app->config->save(
       "permissions/{$idUserRole}/".str_replace("/", ":", $permission),
       $isEnabled ? "1" : "0"
     );
@@ -76,7 +81,7 @@ class Permissions {
 
   public function hasRole(int|string $role) {
     if (is_string($role)) {
-      $userRoleModel = \ADIOS\Core\Factory::create('Models/UserRole', [$this->app]);
+      $userRoleModel = $this->createUserRoleModel();
       $idUserRoleByRoleName = array_flip($userRoleModel::USER_ROLES);
       $idRole = (int) $idUserRoleByRoleName[$role];
     } else {

@@ -46,14 +46,7 @@ class Loader
 
   public bool $logged = false;
 
-  protected array $config = [];
-  public array $widgets = [];
-
-  public array $widgetsInstalled = [];
-
-  private array $pluginFolders = [];
-  private array $pluginObjects = [];
-  private array $plugins = [];
+  // protected array $config = [];
 
   public array $modelObjects = [];
   public array $registeredModels = [];
@@ -64,6 +57,7 @@ class Loader
 
   public bool $testMode = false; // Set to TRUE only in DEVELOPMENT. Disables authentication.
 
+  public \ADIOS\Core\Config $config;
   public \ADIOS\Core\Session $session;
   public \ADIOS\Core\Db $db;
   public \ADIOS\Core\Console $console;
@@ -72,7 +66,6 @@ class Loader
   public \ADIOS\Core\Email $email;
   public \ADIOS\Core\Permissions $permissions;
   public \ADIOS\Core\Test $test;
-  public \ADIOS\Core\Web\Loader $web;
   public \Illuminate\Database\Capsule\Manager $eloquent;
   public \ADIOS\Core\Auth $auth;
   public \ADIOS\Core\Translator $translator;
@@ -87,8 +80,6 @@ class Loader
 
   public string $desktopContentController = "";
 
-  public string $widgetsDir = "";
-
   public string $translationContext = '';
 
   /** @property array<string, string> */
@@ -101,69 +92,42 @@ class Loader
 
     \ADIOS\Core\Helper::setGlobalApp($this);
 
-    $this->config = $config;
+    // inicializacia config managementu
+    $this->config = $this->createConfigManager();
+
+    $this->config->init($config);
 
     $this->test = $this->createTestProvider();
-    // $this->widgetsDir = $config['widgetsDir'] ?? "";
     $this->params = $this->extractParamsFromRequest();
 
-    if (empty($this->config['dir'])) $this->config['dir'] = "";
-    if (empty($this->config['url'])) $this->config['url'] = "";
-    if (empty($this->config['rewriteBase'])) $this->config['rewriteBase'] = "";
-    if (empty($this->config['appDir'])) $this->config['appDir'] = $this->config['dir'];
-    if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
-    if (empty($this->config['accountDir'])) $this->config['accountDir'] = $this->config['dir'];
-    if (empty($this->config['accountUrl'])) $this->config['accountUrl'] = $this->config['url'];
-
-    if (empty($this->config['sessionSalt'])) {
-      $this->config['sessionSalt'] = rand(100000, 999999);
+    if ($this->config->empty('sessionSalt')) {
+      $this->config->set('sessionSalt', rand(100000, 999999));
     }
 
-    $this->config['requestUri'] = $_SERVER['REQUEST_URI'] ?? "";
+    $this->config->set('requestUri', $_SERVER['REQUEST_URI'] ?? "");
 
     // pouziva sa ako vseobecny prefix niektorych session premennych,
     // novy ADIOS ma zatial natvrdo hodnotu, lebo sa sessions riesia cez session name
     if (!defined('_ADIOS_ID')) {
       define(
         '_ADIOS_ID',
-        $this->config['sessionSalt']."-".substr(md5($this->config['sessionSalt']), 0, 5)
+        $this->config->getAsString('sessionSalt') . "-" . substr(md5($this->config->getAsString('sessionSalt')), 0, 5)
       );
     }
 
     // ak requestuje nejaky Asset (css, js, image, font), tak ho vyplujem a skoncim
-    if ($this->config['rewriteBase'] == "/") {
-      $this->requestedUri = ltrim(parse_url($this->config['requestUri'], PHP_URL_PATH), "/");
+    if ($this->config->getAsString('rewriteBase') == "/") {
+      $this->requestedUri = ltrim(parse_url($this->config->getAsString('requestUri'), PHP_URL_PATH), "/");
     } else {
-      $this->requestedUri = str_replace($this->config['rewriteBase'], "",parse_url($this->config['requestUri'], PHP_URL_PATH));
+      $this->requestedUri = str_replace(
+        $this->config->getAsString('rewriteBase'),
+        "",
+        parse_url($this->config->getAsString('requestUri'), PHP_URL_PATH)
+      );
     }
 
     $this->assetsUrlMap["adios/assets/css/"] = __DIR__."/../Assets/Css/";
     $this->assetsUrlMap["adios/assets/js/"] = __DIR__."/../Assets/Js/";
-    $this->assetsUrlMap["adios/assets/images/"] = __DIR__."/../Assets/Images/";
-    $this->assetsUrlMap["adios/assets/webfonts/"] = __DIR__."/../Assets/Webfonts/";
-    // $this->assetsUrlMap["adios/assets/widgets/"] = function ($app, $url) {
-    //   $url = str_replace("adios/assets/widgets/", "", $url);
-    //   preg_match('/(.*?)\/(.+)/', $url, $m);
-
-    //   $widget = $m[1];
-    //   $asset = $m[2];
-
-    //   return $app->widgetsDir."/{$widget}/Assets/{$asset}";
-    // };
-    $this->assetsUrlMap["adios/plugins/"] = function ($app, $url) {
-      $url = str_replace("adios/plugins/", "", $url);
-      preg_match('/(.+?)\/~\/(.+)/', $url, $m);
-
-      $plugin = $m[1];
-      $resource = $m[2];
-
-      foreach ($app->pluginFolders as $pluginFolder) {
-        $file = "{$pluginFolder}/{$plugin}/{$resource}";
-        if (is_file($file)) {
-          return $file;
-        }
-      }
-    };
 
     //////////////////////////////////////////////////
     // inicializacia
@@ -212,16 +176,6 @@ class Loader
 
       }
 
-      // inicializacia pluginov - aj pre FULL aj pre LITE mod
-
-      $this->onBeforePluginsLoaded();
-
-      foreach ($this->pluginFolders as $pluginFolder) {
-        $this->loadAllPlugins($pluginFolder);
-      }
-
-      $this->onAfterPluginsLoaded();
-
       $this->renderAssets();
 
 
@@ -235,36 +189,22 @@ class Loader
         define('_SESSION_ID', session_id());
       }
 
-      // inicializacia web renderera (byvala CASCADA)
-      if (isset($this->config['web']) && is_array($this->config['web'])) {
-        $this->web = \ADIOS\Core\Factory::create('Core/Web/Loader', [$this, $this->config['web']]);
-      }
-
       // inicializacia DB - aj pre FULL aj pre LITE mod
 
       $this->onBeforeConfigLoaded();
 
       if ($mode == self::ADIOS_MODE_FULL) {
-        $this->loadConfigFromDB();
+        $this->config->loadFromDB();
       }
 
       // finalizacia konfiguracie - aj pre FULL aj pre LITE mode
-      $this->finalizeConfig();
+      $this->config->finalize();
 
       $this->onAfterConfigLoaded();
 
       $this->permissions->init();
 
       if ($mode == self::ADIOS_MODE_FULL) {
-
-
-        // inicializacia widgetov
-
-        // $this->onBeforeWidgetsLoaded();
-        // $this->addAllWidgets($this->config['widgets']);
-        // $this->onAfterWidgetsLoaded();
-
-        // vytvorim definiciu tables podla nacitanych modelov
 
         foreach ($this->registeredModels as $modelName) {
           $this->getModel($modelName);
@@ -275,7 +215,6 @@ class Loader
         $this->configureTwig();
       }
 
-      $this->dispatchEventToPlugins("onADIOSAfterInit", ["app" => $this]);
     } catch (\Exception $e) {
       echo "ADIOS INIT failed: [".get_class($e)."] ".$e->getMessage() . "\n";
       echo $e->getTraceAsString() . "\n";
@@ -297,20 +236,16 @@ class Loader
 
   public function getDefaultConnectionConfig(): ?array
   {
-    if (isset($this->config['db']['defaultConnection']) && is_array($this->config['db']['defaultConnection'])) {
-      return $this->config['db']['defaultConnection'];
-    } else {
-      return [
-        "driver"    => "mysql",
-        "host"      => $this->config['db_host'] ?? '',
-        "port"      => $this->config['db_port'] ?? 3306,
-        "database"  => $this->config['db_name'] ?? '',
-        "username"  => $this->config['db_user'] ?? '',
-        "password"  => $this->config['db_password'] ?? '',
-        "charset"   => 'utf8mb4',
-        "collation" => 'utf8mb4_unicode_ci',
-      ];
-    }
+    return [
+      "driver"    => "mysql",
+      "host"      => $this->config->getAsString('db_host', ''),
+      "port"      => $this->config->getAsInteger('db_port', 3306),
+      "database"  => $this->config->getAsString('db_name', ''),
+      "username"  => $this->config->getAsString('db_user', ''),
+      "password"  => $this->config->getAsString('db_password', ''),
+      "charset"   => 'utf8mb4',
+      "collation" => 'utf8mb4_unicode_ci',
+    ];
   }
 
   public function initDatabaseConnections()
@@ -331,8 +266,8 @@ class Loader
   public function initTwig()
   {
     $this->twigLoader = new \Twig\Loader\FilesystemLoader();
-    $this->twigLoader->addPath($this->config['srcDir']);
-    $this->twigLoader->addPath($this->config['srcDir'], $this->twigNamespaceCore);
+    $this->twigLoader->addPath($this->config->getAsString('srcDir'));
+    $this->twigLoader->addPath($this->config->getAsString('srcDir'), $this->twigNamespaceCore);
 
     $this->twig = new \Twig\Environment($this->twigLoader, array(
       'cache' => false,
@@ -343,7 +278,7 @@ class Loader
   public function configureTwig()
   {
 
-    $this->twig->addGlobal('config', $this->config);
+    $this->twig->addGlobal('config', $this->config->get());
     $this->twig->addExtension(new \Twig\Extension\StringLoaderExtension());
     $this->twig->addExtension(new \Twig\Extension\DebugExtension());
 
@@ -421,59 +356,7 @@ class Loader
         return $this->translate($string, [], $context);
       }
     ));
-    // $this->twig->addFunction(new \Twig\TwigFunction(
-    //   'adiosView',
-    //   function ($uid, $view, $params) {
-    //     if (!is_array($params)) {
-    //       $params = [];
-    //     }
-    //     return $this->view->create(
-    //       $view . (empty($uid) ? '' : '#' . $uid),
-    //       $params
-    //     )->render();
-    //   }
-    // ));
-    // $this->twig->addFunction(new \Twig\TwigFunction(
-    //   'adiosRender',
-    //   function ($controller, $params = []) {
-    //     return $this->render($controller, $params);
-    //   }
-    // ));
   }
-
-  // //////////////////////////////////////////////////////////////////////////////
-  // // WIDGETS
-
-  // public function addWidget($widgetName)
-  // {
-  //   if (!isset($this->widgets[$widgetName])) {
-  //     try {
-  //       $widgetClassName = "\\" . $this->config['appNamespace'] . "\\Widgets\\".str_replace("/", "\\", $widgetName);
-  //       if (!class_exists($widgetClassName)) {
-  //         throw new \Exception("Widget {$widgetName} not found.");
-  //       }
-  //       $this->widgets[$widgetName] = new $widgetClassName($this);
-
-  //       $this->router->addRouting($this->widgets[$widgetName]->routing());
-  //     } catch (\Exception $e) {
-  //       exit("Failed to load widget {$widgetName}: ".$e->getMessage());
-  //     }
-  //   }
-  // }
-
-  // public function addAllWidgets(array $widgets = [], $path = "") {
-  //   foreach ($widgets as $wName => $w_config) {
-  //     $fullWidgetName = ($path == "" ? "" : "{$path}/").$wName;
-  //     if (isset($w_config['enabled']) && $w_config['enabled'] === true) {
-  //       $this->addWidget($fullWidgetName);
-  //     } else {
-  //       // ak nie je enabled, moze to este byt dalej vetvene
-  //       if (is_array($w_config)) {
-  //         $this->addAllWidgets($w_config, $fullWidgetName);
-  //       }
-  //     }
-  //   }
-  // }
 
   //////////////////////////////////////////////////////////////////////////////
   // MODELS
@@ -521,58 +404,6 @@ class Loader
     }
 
     return $this->modelObjects[$modelName];
-  }
-
-  //////////////////////////////////////////////////////////////////////////////
-  // PLUGINS
-
-  public function registerPluginFolder($folder)
-  {
-    if (is_dir($folder) && !in_array($folder, $this->pluginFolders)) {
-      $this->pluginFolders[] = $folder;
-    }
-  }
-
-  public function getPluginClassName($pluginName)
-  {
-    return "\\ADIOS\\Plugins\\".str_replace("/", "\\", $pluginName);
-  }
-
-  public function getPlugin($pluginName)
-  {
-    return $this->pluginObjects[$pluginName] ?? null;
-  }
-
-  public function getPlugins() {
-    return $this->pluginObjects;
-  }
-
-  public function loadAllPlugins($pluginFolder, $subFolder = "") {
-    $folder = $pluginFolder.(empty($subFolder) ? "" : "/{$subFolder}");
-
-    foreach (scandir($folder) as $file) {
-      if (strpos($file, ".") !== false) continue;
-
-      $fullPath = (empty($subFolder) ? "" : "{$subFolder}/").$file;
-
-      if (
-        is_dir("{$folder}/{$file}")
-        && !is_file("{$folder}/{$file}/Main.php")
-      ) {
-        $this->loadAllPlugins($pluginFolder, $fullPath);
-      } else if (is_file("{$folder}/{$file}/Main.php")) {
-        try {
-          $tmpPluginClassName = $this->getPluginClassName($fullPath);
-
-          if (class_exists($tmpPluginClassName)) {
-            $this->plugins[] = $fullPath;
-            $this->pluginObjects[$fullPath] = new $tmpPluginClassName($this);
-          }
-        } catch (\Exception $e) {
-          exit("Failed to load plugin {$fullPath}: ".$e->getMessage());
-        }
-      }
-    }
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -708,27 +539,6 @@ class Loader
       }
     }
 
-    foreach ($this->widgets as $widget) {
-      try {
-        if ($widget->install()) {
-          $this->widgetsInstalled[$widget->name] = true;
-          $this->console->info("Widget {$widget->name} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
-        } else {
-          $this->console->warning("Model {$modelName} installation skipped.");
-        }
-      } catch (\Exception $e) {
-        $this->console->error("Model {$modelName} installation failed.");
-      } catch (\ADIOS\Core\Exceptions\DBException $e) {
-        // Moze sa stat, ze vytvorenie tabulky zlyha napr. kvoli
-        // "Cannot add or update a child row: a foreign key constraint fails".
-        // V takom pripade budem instalaciu opakovat v dalsom kole
-      }
-
-      $this->dispatchEventToPlugins("onWidgetAfterInstall", [
-        "widget" => $widget,
-      ]);
-    }
-
     $this->console->info("Core installation done in ".round((microtime(true) - $installationStart), 2)." seconds.");
   }
 
@@ -860,6 +670,9 @@ class Loader
           $this->controllerObject = $this->router->createSignInController();
           $this->permission = $this->controllerObject->permission;
         }
+      }
+
+      if (!$this->testMode && $this->controllerObject->requiresUserAuthentication) {
         $this->permissions->check($this->permission);
       }
 
@@ -875,8 +688,6 @@ class Loader
       $this->setUid($uid);
 
       $return = '';
-
-      $this->dispatchEventToPlugins("onADIOSBeforeRender", ["app" => $this]);
 
       unset($this->params['__IS_AJAX__']);
 
@@ -900,7 +711,7 @@ class Loader
           'app' => $this,
           'uid' => $this->uid,
           'user' => $this->auth->getUser(),
-          'config' => $this->config,
+          'config' => $this->config->get(),
           'routeUrl' => $this->route,
           'routeParams' => $this->params,
           'route' => $this->route,
@@ -923,13 +734,18 @@ class Loader
         // ... But in most cases it will be "encapsulated" in the desktop.
         } else {
           $desktopControllerObject = $this->router->createDesktopController();
-          $desktopControllerObject->prepareViewParams();
+          $desktopControllerObject->prepareView();
 
           $desktopParams = $contentParams;
           $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
           $desktopParams['contentHtml'] = $contentHtml;
 
-          $html = $this->twig->render('@' . $this->twigNamespaceCore . '/Views/Desktop.twig', $desktopParams);
+          $html = $this->controllerObject->renderer->render(
+            $desktopControllerObject->getView(),
+            $desktopParams
+          );
+
+          // $html = $this->twig->render('@' . $this->twigNamespaceCore . '/Views/Desktop.twig', $desktopParams);
 
         }
 
@@ -946,21 +762,13 @@ class Loader
     } catch (\ADIOS\Core\Exceptions\NotEnoughPermissionsException $e) {
       $message = $e->getMessage();
       if ($this->userLogged) {
-        $message .= " Hint: Sign out and sign in again. {$this->config['accountUrl']}?sign-out";
+        $message .= " Hint: Sign out and sign in again. {$this->config->getAsString('accountUrl')}?sign-out";
       }
       return $this->renderFatal($message, false);
       // header('HTTP/1.1 401 Unauthorized', true, 401);
     } catch (\ADIOS\Core\Exceptions\GeneralException $e) {
-      $lines = [];
-      $lines[] = "ADIOS RUN failed: [".get_class($e)."] ".$e->getMessage();
-      if ($this->config['debug']) {
-        $lines[] = "Requested URI = {$this->requestedUri}";
-        $lines[] = "Rewrite base = {$this->config['rewriteBase']}";
-        $lines[] = "SERVER.REQUEST_URI = {$this->config['requestUri']}";
-      }
-
       header('HTTP/1.1 400 Bad Request', true, 400);
-      return join(" ", $lines);
+      return "ADIOS RUN failed: [".get_class($e)."] ".$e->getMessage();
     } catch (\ArgumentCountError $e) {
       echo $e->getMessage();
       header('HTTP/1.1 400 Bad Request', true, 400);
@@ -1000,12 +808,17 @@ class Loader
 
   public function createAuthProvider(): \ADIOS\Core\Auth
   {
-    return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
+    return new \ADIOS\Auth\DefaultProvider($this, []);
   }
 
   public function createSessionManager(): \ADIOS\Core\Session
   {
     return new Session($this);
+  }
+
+  public function createConfigManager(): \ADIOS\Core\Config
+  {
+    return new Config($this);
   }
 
   public function createPermissionsManager(): \ADIOS\Core\Permissions
@@ -1194,167 +1007,12 @@ class Loader
     return $this->renderWarning($warning, true);
   }
 
-  /**
-   * Propagates an event to all plugins of the application. Each plugin can
-   * implement hook for the event. The hook must return either modified event
-   * data of false. Returning false in the hook terminates the event propagation.
-   *
-   * @param  string $eventName Name of the event to propagate.
-   * @param  array $eventData Data of the event. Each event has its own specific structure of the data.
-   * @throws \ADIOS\Core\Exception When plugin's hook returns invalid value.
-   * @return array<string, mixed> Event data modified by plugins which implement the hook.
-   */
-  public function dispatchEventToPlugins(string $eventName, array $eventData = []): array
-  {
-    foreach ($this->pluginObjects as $plugin) {
-      if (method_exists($plugin, $eventName)) {
-        $eventData = $plugin->$eventName($eventData);
-        if (!is_array($eventData) && $eventData !== false) {
-          throw new \ADIOS\Core\Exceptions\GeneralException("Plugin {$plugin->name}, event {$eventName}: No value returned. Either forward \$event or return FALSE.");
-        }
-
-        if ($eventData === false) {
-          break;
-        }
-      }
-    }
-    return $eventData;
-  }
-
   public function hasPermissionForController($controller, $params) {
     return true;
   }
 
   ////////////////////////////////////////////////
   // metody pre pracu s konfiguraciou
-
-  public function isConfig(string $path): bool
-  {
-    $config = $this->config;
-    foreach (explode('/', $path) as $key => $value) {
-      if (isset($config[$value])) {
-        $config = $config[$value];
-      } else {
-        $config = null;
-      }
-    }
-    return ($config === null ? false : true);
-  }
-
-  public function getConfig(string $path, $default = null): mixed
-  {
-    $config = $this->config;
-    foreach (explode('/', $path) as $key => $value) {
-      if (isset($config[$value])) {
-        $config = $config[$value];
-      } else {
-        $config = null;
-      }
-    }
-    return ($config === null ? $default : $config);
-  }
-
-  public function setConfig(string $path, mixed $value): void
-  {
-    $path_array = explode('/', $path);
-
-    $cfg = &$this->config;
-    foreach ($path_array as $path_level => $path_slice) {
-      if ($path_level == count($path_array) - 1) {
-        $cfg[$path_slice] = $value;
-      } else {
-        if (empty($cfg[$path_slice])) {
-          $cfg[$path_slice] = null;
-        }
-        $cfg = &$cfg[$path_slice];
-      }
-    }
-  }
-
-  public function saveConfig(array $config, string $path = '') {
-    try {
-      if (is_array($config)) {
-        foreach ($config as $key => $value) {
-          $tmpPath = $path.$key;
-
-          if (is_array($value)) {
-            $this->saveConfig($value, $tmpPath.'/');
-          } else if ($value === null) {
-            $this->pdo->execute("delete from `config` where `path` like '?%'", [$tmpPath]);
-          } else {
-            $this->pdo->execute("
-              insert into `config` set `path` = '?', `value` = '?'
-              on duplicate key update `path` = '?', `value` = '?'
-            ", [$tmpPath, $value, $tmpPath, $value]);
-          }
-        }
-      }
-    } catch (\Exception $e) {
-    }
-  }
-
-  public function saveConfigByPath(string $path, string $value) {
-    try {
-      if (!empty($path)) {
-        $this->pdo->execute("
-          insert into `config` set `path` = :path, `value` = :value
-          on duplicate key update `path` = :path, `value` = :value
-        ", ['path' => $path, 'value' => $value]);
-      }
-    } catch (\Exception $e) {
-    }
-  }
-
-  public function deleteConfig($path) {
-    try {
-      if (!empty($path)) {
-        $this->pdo->execute("delete from `config` where `path` like ?", [$path . '%']);
-      }
-    } catch (\Exception $e) {
-      if ($e->getCode() == '42S02') { // Base table not found
-        // do nothing
-      } else {
-        throw $e; // forward exception to be processed by ADIOS
-      }
-    }
-  }
-
-  public function loadConfigFromDB() {
-    if (!$this->pdo->isConnected) return;
-
-    try {
-      $cfgs = $this->pdo->fetchAll("select * from `config`");
-
-      foreach ($cfgs as $cfg) {
-        $tmp = &$this->config;
-        foreach (explode("/", $cfg['path']) as $tmp_path) {
-          if (!isset($tmp[$tmp_path])) {
-            $tmp[$tmp_path] = [];
-          }
-          $tmp = &$tmp[$tmp_path];
-        }
-        $tmp = $cfg['value'];
-      }
-    } catch (\Exception $e) {
-      if ($e->getCode() == '42S02') { // Base table not found
-        // do nothing
-      } else {
-        throw $e; // forward exception to be processed by ADIOS
-      }
-    }
-  }
-
-  public function finalizeConfig() {
-    // various default values
-    $this->config['widgets'] = $this->config['widgets'] ?? [];
-    $this->config['protocol'] = (strtoupper($_SERVER['HTTPS'] ?? "") == "ON" ? "https" : "http");
-    $this->config['timezone'] = $this->config['timezone'] ?? 'Europe/Bratislava';
-
-    $this->config['uploadDir'] = $this->config['uploadDir'] ?? "{$this->config['accountDir']}/upload";
-    $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['accountUrl']}/upload";
-
-    $this->config['uploadDir'] = str_replace("\\", "/", $this->config['uploadDir']);
-  }
 
   public function onUserAuthorised() {
     // to be overriden
@@ -1368,41 +1026,19 @@ class Loader
     // to be overriden
   }
 
-  public function onBeforeWidgetsLoaded() {
-    // to be overriden
-  }
-
-  public function onAfterWidgetsLoaded() {
-    // to be overriden
-  }
-
-  public function onBeforePluginsLoaded() {
-    // to be overriden
-  }
-
-  public function onAfterPluginsLoaded() {
-    // to be overriden
-  }
-
   public function onAfterRouting() {
     // to be overriden
   }
 
   public function onBeforeRender() {
-    foreach ($this->widgets as $widget) {
-      $widget->onBeforeRender();
-    }
+    // to be overriden
   }
 
   public function onAfterRender() {
-    foreach ($this->widgets as $widget) {
-      $widget->onAfterRender();
-    }
+    // to be overriden
   }
 
   ////////////////////////////////////////////////
-
-
 
   public function getUid($uid = '') {
     if (empty($uid)) {
@@ -1481,35 +1117,14 @@ class Loader
     $js = "";
 
     $jsFiles = [
-      dirname(__FILE__)."/../Assets/Js/jquery-3.5.1.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.scrollTo.min.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.window.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.ui.widget.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.ui.mouse.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery-ui-touch-punch.js",
-      dirname(__FILE__)."/../Assets/Js/md5.js",
+      dirname(__FILE__)."/../Assets/Js/adios.js",
+      dirname(__FILE__)."/../Assets/Js/ajax_functions.js",
       dirname(__FILE__)."/../Assets/Js/base64.js",
       dirname(__FILE__)."/../Assets/Js/cookie.js",
-      // dirname(__FILE__)."/../Assets/Js/keyboard_shortcuts.js",
-      dirname(__FILE__)."/../Assets/Js/json.js",
-      dirname(__FILE__)."/../Assets/Js/moment.min.js",
-      dirname(__FILE__)."/../Assets/Js/chart.min.js",
       dirname(__FILE__)."/../Assets/Js/desktop.js",
-      dirname(__FILE__)."/../Assets/Js/ajax_functions.js",
-      dirname(__FILE__)."/../Assets/Js/adios.js",
-      dirname(__FILE__)."/../Assets/Js/quill-1.3.6.min.js",
-      // dirname(__FILE__)."/../Assets/Js/bootstrap.bundle.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.easing.js",
-      dirname(__FILE__)."/../Assets/Js/sb-admin-2.js",
-      // dirname(__FILE__)."/../Assets/Js/jsoneditor.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.tag-editor.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.caret.min.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery-ui.min.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.multi-select.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.quicksearch.js",
-      // dirname(__FILE__)."/../Assets/Js/datatables.js",
-      dirname(__FILE__)."/../Assets/Js/jeditable.js",
-      dirname(__FILE__)."/../Assets/Js/draggable.js"
+      dirname(__FILE__)."/../Assets/Js/jquery-3.5.1.js",
+      dirname(__FILE__)."/../Assets/Js/md5.js",
+      dirname(__FILE__)."/../Assets/Js/moment.min.js",
     ];
 
 
@@ -1520,30 +1135,6 @@ class Loader
     return $js;
   }
 
-  public function configAsString(string $path, string $defaultValue = ''): string
-  {
-    return (string) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsInteger(string $path, int $defaultValue = 0): int
-  {
-    return (int) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsFloat(string $path, float $defaultValue = 0): float
-  {
-    return (float) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsBool(string $path, bool $defaultValue = false): bool
-  {
-    return (bool) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsArray(string $path, array $defaultValue = []): array
-  {
-    return (array) $this->getConfig($path, $defaultValue);
-  }
 
 
 
@@ -1614,7 +1205,7 @@ class Loader
     } else if (isset($_COOKIE['language']) && strlen($_COOKIE['language']) == 2) {
       return $_COOKIE['language'];
     } else {
-      $language = $this->configAsString('language', 'en');
+      $language = $this->config->getAsString('language', 'en');
       if (strlen($language) !== 2) $language = 'en';
       return $language;
     }

@@ -33,7 +33,7 @@ class Console {
  
   public function __construct($app) {
     $this->app = $app;
-    $this->logDir = $this->app->configAsString('logDir');
+    $this->logDir = $this->app->config->getAsString('logDir');
 
     $this->initLogger('core');
   }

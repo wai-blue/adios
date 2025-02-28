@@ -18,7 +18,7 @@ class DeleteFile extends \ADIOS\Core\Controller {
 
   public function render() {
     unlink(
-     realpath($this->app->configAsString('uploadDir'))
+     realpath($this->app->config->getAsString('uploadDir'))
      . "/" . $this->app->urlParamAsString('folderPath')
      . "/". trim($this->app->urlParamAsString('fileName'))
     );

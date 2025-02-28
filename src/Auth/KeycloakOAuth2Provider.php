@@ -1,8 +1,8 @@
 <?php
 
-namespace ADIOS\Auth\Providers;
+namespace ADIOS\Auth;
 
-class KeycloakOAuth2 extends \ADIOS\Core\Auth {
+class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
   public $provider;
 
   function __construct(\ADIOS\Core\Loader $app, array $config = [])
@@ -24,13 +24,13 @@ class KeycloakOAuth2 extends \ADIOS\Core\Auth {
 
   public function signOut() {
     $accessToken = $this->getAccessToken();
-    $accountUrl = $this->app->configAsString('accountUrl');
+    $accountUrl = $this->app->config->getAsString('accountUrl');
     try {
       $idToken = $accessToken->getValues()['id_token'] ?? '';
 
       $this->deleteSession();
       header(
-        "Location: " . $this->app->configAsString('auth/urlLogout') . 
+        "Location: " . $this->app->config->getAsString('auth/urlLogout') . 
         "?id_token_hint=".\urlencode($idToken)."&post_logout_redirect_uri=".\urlencode($accountUrl . "?signed-out")
       );
       exit;

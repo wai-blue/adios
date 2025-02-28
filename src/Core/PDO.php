@@ -20,12 +20,12 @@ class PDO {
   }
 
   public function connect() {
-    $dbHost = $this->app->configAsString('db_host');
-    $dbPort = $this->app->configAsString('db_port');
-    $dbUser = $this->app->configAsString('db_user');
-    $dbPassword = $this->app->configAsString('db_password');
-    $dbName = $this->app->configAsString('db_name');
-    $dbCodepage = $this->app->configAsString('db_codepage', 'utf8mb4');
+    $dbHost = $this->app->config->getAsString('db_host');
+    $dbPort = $this->app->config->getAsString('db_port');
+    $dbUser = $this->app->config->getAsString('db_user');
+    $dbPassword = $this->app->config->getAsString('db_password');
+    $dbName = $this->app->config->getAsString('db_name');
+    $dbCodepage = $this->app->config->getAsString('db_codepage', 'utf8mb4');
 
     if (!empty($dbHost)) {
       if (empty($dbName)) {

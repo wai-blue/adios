@@ -272,7 +272,7 @@ class Helper {
 
   public static function encrypt(string $value, string $seed = '', $force = false) {
     global $__APP__;
-    if ($force || ($__APP__->config['encryptRecordIds'] ?? false)) {
+    if ($force || ($__APP__->config->getAsBool('encryptRecordIds'))) {
       if (empty($seed)) $seed = _ADIOS_ID;
       return base64_encode(@openssl_encrypt($value, 'AES-256-CBC', $seed, 0, $seed));
     } else {
@@ -282,7 +282,7 @@ class Helper {
 
   public static function decrypt(string $value, string $seed = '', $force = false) {
     global $__APP__;
-    if ($force || ($__APP__->config['encryptRecordIds'] ?? false)) {
+    if ($force || ($__APP__->config->getAsBool('encryptRecordIds'))) {
       if (empty($seed)) $seed = _ADIOS_ID;
       return @openssl_decrypt(base64_decode($value), 'AES-256-CBC', $seed, 0, $seed);
     } else {

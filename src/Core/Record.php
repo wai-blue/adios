@@ -7,7 +7,7 @@ namespace ADIOS\Core;
   * CRUD-like layer for manipulating records (data)
 */
 
-class RecordManager {
+class Record {
 
   protected \ADIOS\Core\Loader $app;
   protected \ADIOS\Core\Model $model;
@@ -109,7 +109,7 @@ class RecordManager {
 
       if ($level <= $this->maxReadLevel) {
         $query->with([$relName => function($q) use($relModel, $level) {
-          return $relModel->recordManager->prepareReadQuery($q, $level + 1);
+          return $relModel->record->prepareReadQuery($q, $level + 1);
         }]);
       }
     }
@@ -221,11 +221,11 @@ class RecordManager {
       switch ($relType) {
         case \ADIOS\Core\Model::HAS_MANY:
           foreach ($record[$relName] as $subKey => $subRecord) {
-            $record[$relName][$subKey] = $relModel->recordManager->decryptIds($record[$relName][$subKey]);
+            $record[$relName][$subKey] = $relModel->record->decryptIds($record[$relName][$subKey]);
           }
         break;
         case \ADIOS\Core\Model::HAS_ONE:
-          $record[$relName] = $relModel->recordManager->decryptIds($record[$relName]);
+          $record[$relName] = $relModel->record->decryptIds($record[$relName]);
         break;
       }
     }
@@ -299,12 +299,12 @@ class RecordManager {
           switch ($relType) {
             case \ADIOS\Core\Model::HAS_MANY:
               foreach ($record[$relName] as $subKey => $subRecord) {
-                $subRecord = $relModel->recordManager->save($subRecord, $savedRecord['id']);
+                $subRecord = $relModel->record->save($subRecord, $savedRecord['id']);
                 $savedRecord[$relName][$subKey] = $subRecord;
               }
             break;
             case \ADIOS\Core\Model::HAS_ONE:
-              $subRecord = $relModel->recordManager->save($record[$relName], $savedRecord['id']);
+              $subRecord = $relModel->record->save($record[$relName], $savedRecord['id']);
               $savedRecord[$relName] = $subRecord;
             break;
           }

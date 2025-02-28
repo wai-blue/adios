@@ -6,7 +6,7 @@ For example, following very simple code:
 
 ```php
 $mContact = new \MyApp\Models\Contact($this->app);
-$contact = $mContact->recordManager->read($mContact->recordManager->prepareReadQuery()->where('id', 1));
+$contact = $mContact->record->read($mContact->record->prepareReadQuery()->where('id', 1));
 ```
 
 will produce an array (`$contact`) containing the *record* with contact ID = 1. It will have the following structure (example):
@@ -75,7 +75,7 @@ public array $relations = [
 ];
 ```
 
-With this setup, the `read()` method of the `RecordManager` will include the `CATEGORY` relation in the resulting record.
+With this setup, the `read()` method of the `Record` will include the `CATEGORY` relation in the resulting record.
 
 There are, basically, two types of relations:
 
@@ -108,7 +108,7 @@ public function describeColumns(): array
 }
 ```
 
-Then the values in the SQL would be either `1` or `2` or `3` and will be visually represented (in *tables*, *forms* or *inputs*) as `Phone number` or `Email` or `Other`, respectively. And, the record returned by `read()` method of the RecordManager would contain:
+Then the values in the SQL would be either `1` or `2` or `3` and will be visually represented (in *tables*, *forms* or *inputs*) as `Phone number` or `Email` or `Other`, respectively. And, the record returned by `read()` method of the Record would contain:
 
 ```
 [
@@ -123,7 +123,7 @@ Then the values in the SQL would be either `1` or `2` or `3` and will be visuall
 To create a record, simply run:
 
 ```php
-$mContact->recordManager->create([
+$mContact->record->create([
   "first_name" => "John",
   "last_name" => "Smith",
   "id_category" => 1,
@@ -135,9 +135,9 @@ $mContact->recordManager->create([
 To read a record, simply run:
 
 ```php
-$readQuery = $mContact->recordManager->prepareReadQuery(); // prepare the query for reading
+$readQuery = $mContact->record->prepareReadQuery(); // prepare the query for reading
 $readQuery->where('id', 1); // use Eloquent to modify the query
-$record = $mContact->recordManager->read($readQuery); // read record
+$record = $mContact->record->read($readQuery); // read record
 ```
 
 ### Updating records
@@ -145,7 +145,7 @@ $record = $mContact->recordManager->read($readQuery); // read record
 To update a record, simply run:
 
 ```php
-$mContact->recordManager->update([
+$mContact->record->update([
   "id" => 1,
   "first_name" => "John",
   "last_name" => "Smith",

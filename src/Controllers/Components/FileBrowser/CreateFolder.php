@@ -21,7 +21,7 @@ class CreateFolder extends \ADIOS\Core\Controller {
       if ($tmp == "..") return "Invalid folder path.";
     }
 
-    $dir = $this->app->configAsString('uploadDir');
+    $dir = $this->app->config->getAsString('uploadDir');
 
     if (!empty($dir) && mkdir("{$dir}/{$folder}", 0775)) {
       return "1";

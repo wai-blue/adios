@@ -22,7 +22,7 @@ class RenameFolder extends \ADIOS\Core\Controller {
       if ($tmp == "..") return "Invalid folder path. {$folder}";
     }
 
-    $dir = realpath($this->app->configAsString('uploadDir'));
+    $dir = realpath($this->app->config->getAsString('uploadDir'));
 
     if (!empty($dir) && rename("{$dir}/{$folder}", "{$dir}/".dirname($folder)."/{$newFolderName}")) {
       return "1"; // "1 = {$dir}/{$folder}, {$dir}/".dirname($folder)."/{$newFolderName}";

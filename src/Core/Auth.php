@@ -82,7 +82,7 @@ class Auth {
 
   public function getUserLanguage(): string
   {
-    $language = (string) ($this->user['language'] ?? $this->app->configAsString('language'));
+    $language = (string) ($this->user['language'] ?? $this->app->config->getAsString('language'));
     return (strlen($language) == 2 ? $language : 'en');
   }
 }

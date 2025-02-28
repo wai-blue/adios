@@ -53,7 +53,7 @@ class DB
     $this->app = $app;
     $this->tables = [];
 
-    $dbName = $this->app->getConfig('db_name', '');
+    $dbName = $this->app->config->get('db_name', '');
 
     $h = opendir(dirname(__FILE__) . '/Db/DataTypes');
     while (false !== ($file = readdir($h))) {

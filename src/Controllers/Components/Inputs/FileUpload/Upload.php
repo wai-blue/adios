@@ -71,7 +71,7 @@ class Upload extends \ADIOS\Core\Controller {
 
     if (empty($folderPath)) $folderPath = ".";
 
-    $uploadDir = $this->app->configAsString('uploadDir');
+    $uploadDir = $this->app->config->getAsString('uploadDir');
 
     if (!is_dir("{$uploadDir}/{$folderPath}")) {
       mkdir("{$uploadDir}/{$folderPath}", 0775, TRUE);

@@ -47,7 +47,7 @@ class Upload extends \ADIOS\Core\Controller {
 
       if (empty($folderPath)) $folderPath = ".";
 
-      $uploadDir = $this->app->configAsString('uploadDir');
+      $uploadDir = $this->app->config->getAsString('uploadDir');
 
       if (!is_dir("{$uploadDir}/{$folderPath}")) {
         mkdir("{$uploadDir}/{$folderPath}", 0775, TRUE);
@@ -77,7 +77,7 @@ class Upload extends \ADIOS\Core\Controller {
           'folderPath' => $folderPath,
           'fileName' => $uploadedFilename,
           'fileSize' => filesize($destinationFile),
-          'url' => $this->app->configAsString('uploadDir') . "/{$folderPath}/{$uploadedFilename}",
+          'url' => $this->app->config->getAsString('uploadDir') . "/{$folderPath}/{$uploadedFilename}",
         ]);
       } else {
         echo json_encode([

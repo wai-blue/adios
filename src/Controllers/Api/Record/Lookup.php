@@ -17,7 +17,7 @@ class Lookup extends \ADIOS\Core\ApiController {
 
   public function response(): array
   {
-    $query = $this->model->recordManager->prepareReadQuery();
+    $query = $this->model->record->prepareReadQuery();
 
     $search = $this->app->urlParamAsString('search');
     if (!empty($search)) {

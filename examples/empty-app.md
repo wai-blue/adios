@@ -21,7 +21,7 @@ class MyApp extends \ADIOS\Core\Loader { }
 
 ## Create configuration file
 
-You'll need at least two configuration parameters: `...` and `...`.
+You'll need at least two configuration parameters: `appNamespace` and `dir`.
 
 ```php
 ## ./scr/env.php

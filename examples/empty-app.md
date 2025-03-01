@@ -61,13 +61,13 @@ This is Adios application.
 
 ### What happened?
 
-When running `php index.php about` in terminal or opening `http://localhost/my-app/about` in your browser, route `about` has been called, parsed by the router and a default controller [About.php](https://github.com/wai-blue/adios/blob/main/src/Controllers/About.php) was executed. This controller rendered string containg information about your app.
+When running `php index.php about` in terminal or opening `http://localhost/my-app/about` in your browser, route `about` has been called, parsed by the router and a default controller [About.php](../src/Controllers/About.php) was executed. This controller rendered string containg information about your app.
 
-> TIP | There are some other default routes, check [Router.php](https://github.com/wai-blue/adios/blob/main/src/Core/Router.php).
+> **TIP** There are some other default routes, check [Router.php](../src/Core/Router.php).
 
-## Add functionality
+## Add more functionality
 
-You have empty Adios app ready. Now you can:
+You have your empty Adios app ready. Now you can:
 
   * configure **routing**
   * create **models, controllers or views**

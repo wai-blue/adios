@@ -69,6 +69,8 @@ When running `php index.php about` in terminal or opening `http://localhost/my-a
 
 You have empty Adios app ready. Now you can:
 
-  * create models, controllers or views
-  * configure routing
-  * add a database layer (deafult layer is Eloquent)
+  * configure **routing**
+  * create **models, controllers or views**
+  * add a **rendering engine** (default rendering engine is [Symfony's Twig](https://twig.symfony.com))
+  * add a **database layer** (default database layer is [Laravel's Eloquent](https://laravel.com/docs/11.x/eloquent)) and connect to database
+  * use built-in **React components** ([Table.tsx](../src/Components/Table.tsx), [Form.tsx](../src/Components/Input.tsx) or various [inputs](../src/Components/Inputs))

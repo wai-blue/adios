@@ -17,15 +17,10 @@ namespace ADIOS\Models;
  */
 class Token extends \ADIOS\Core\Model {
 
+  public string $table = "tokens";
   public ?string $lookupSqlValue = "{%TABLE%}.token";
-
   public $tokenTypes = [];
   public string $eloquentClass = \ADIOS\Models\Eloquent\Token::class;
-
-  public function __construct(\ADIOS\Core\Loader $app) {
-    $this->sqlName = "tokens";
-    parent::__construct($app);
-  }
 
   public function describeColumns(): array
   {

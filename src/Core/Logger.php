@@ -21,13 +21,14 @@ class Logger {
 
   public array $loggers = [];
 
-  public bool $cliEchoEnabled = FALSE;
-
+  public bool $cliEchoEnabled = false;
   public string $logDir = "";
+  public bool $enabled = false;
  
   public function __construct($app) {
     $this->app = $app;
     $this->logDir = $this->app->config->getAsString('logDir');
+    $this->enabled = !empty($this->logDir) && is_dir($this->logDir);
 
     $this->initLogger('core');
   }
@@ -67,16 +68,19 @@ class Logger {
   }
 
   public function info($message, array $context = [], $loggerName = 'core') {
+    if (!$this->enabled) return;
     $this->getLogger($loggerName)->info($message, $context);
     $this->cliEcho($message, $loggerName, 'INFO');
   }
   
   public function warning($message, array $context = [], $loggerName = 'core') {
+    if (!$this->enabled) return;
     $this->getLogger($loggerName)->warning($message, $context);
     $this->cliEcho($message, $loggerName, 'WARNING');
   }
   
   public function error($message, array $context = [], $loggerName = 'core') {
+    if (!$this->enabled) return;
     $this->getLogger($loggerName)->error($message, $context);
     $this->cliEcho($message, $loggerName, 'ERROR');
   }

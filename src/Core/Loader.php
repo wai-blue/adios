@@ -14,10 +14,17 @@ namespace ADIOS\Core;
 
 spl_autoload_register(function ($class) {
   $class = trim(str_replace("\\", "/", $class), "/");
+  $app = \ADIOS\Core\Helper::getGlobalApp();
+  $appNamespace = $app->config->getAsString('appNamespace');
 
   if (preg_match('/ADIOS\/([\w\/]+)/', $class, $m)) {
-    require_once(__DIR__ . "/../{$m[1]}.php");
+    @include(__DIR__ . "/../{$m[1]}.php");
   }
+
+  if (str_starts_with($class, $appNamespace . '/')) {
+    @include($app->config->getAsString('srcDir') . '/' . str_replace($appNamespace . '/', '', $class) . '.php');
+  }
+
 });
 
 register_shutdown_function(function() {
@@ -173,26 +180,29 @@ class Loader
 
   public function initDatabaseConnections()
   {
-    $this->eloquent = new \Illuminate\Database\Capsule\Manager;
+    $dbHost = $this->config->getAsString('db_host', '');
+    $dbPort = $this->config->getAsInteger('db_port', 3306);
+    $dbName = $this->config->getAsString('db_name', '');
+    $dbUser = $this->config->getAsString('db_user', '');
+    $dbPassword = $this->config->getAsString('db_password', '');
 
-    $dbConnectionConfig = [
-      "driver"    => "mysql",
-      "host"      => $this->config->getAsString('db_host', ''),
-      "port"      => $this->config->getAsInteger('db_port', 3306),
-      "database"  => $this->config->getAsString('db_name', ''),
-      "username"  => $this->config->getAsString('db_user', ''),
-      "password"  => $this->config->getAsString('db_password', ''),
-      "charset"   => 'utf8mb4',
-      "collation" => 'utf8mb4_unicode_ci',
-    ];
-
-    if ($dbConnectionConfig !== null) {
+    if (!empty($dbHost) && !empty($dbPort) && !empty($dbName) && !empty($dbUser)) {
+      $this->eloquent = new \Illuminate\Database\Capsule\Manager;
       $this->eloquent->setAsGlobal();
       $this->eloquent->bootEloquent();
-      $this->eloquent->addConnection($dbConnectionConfig, 'default');
-    }
+      $this->eloquent->addConnection([
+        "driver"    => "mysql",
+        "host"      => $dbHost,
+        "port"      => $dbPort,
+        "database"  => $dbName,
+        "username"  => $dbUser,
+        "password"  => $dbPassword,
+        "charset"   => 'utf8mb4',
+        "collation" => 'utf8mb4_unicode_ci',
+      ], 'default');
 
-    $this->pdo->connect();
+      $this->pdo->connect();
+    }
   }
 
 
@@ -243,16 +253,18 @@ class Loader
   
   public function createTwig()
   {
-    $twigLoader = new \Twig\Loader\FilesystemLoader();
-    $twigLoader->addPath($this->config->getAsString('srcDir'));
-    $twigLoader->addPath($this->config->getAsString('srcDir'), 'app');
+    if (class_exists('\\Twig\\Environment')) {
+      $twigLoader = new \Twig\Loader\FilesystemLoader();
+      $twigLoader->addPath($this->config->getAsString('srcDir'));
+      $twigLoader->addPath($this->config->getAsString('srcDir'), 'app');
 
-    $this->twig = new \Twig\Environment($twigLoader, array(
-      'cache' => false,
-      'debug' => true,
-    ));
+      $this->twig = new \Twig\Environment($twigLoader, array(
+        'cache' => false,
+        'debug' => true,
+      ));
 
-    $this->configureTwig();
+      $this->configureTwig();
+    }
   }
 
   public function configureTwig()
@@ -456,7 +468,8 @@ class Loader
    * @throws \ADIOS\Core\Exception When running in SAPI and requested controller is blocked for the SAPI.
    * @return string Rendered content.
    */
-  public function render(string $route = '', array $params = []) {
+  public function render(string $route = '', array $params = []): string
+  {
 
     try {
 
@@ -471,26 +484,27 @@ class Loader
 
       // Apply routing and find-out which controller, permision and rendering params will be used
       // First, try the new routing principle with httpGet
-      $tmpController = $this->router->findController(\ADIOS\Core\Router::HTTP_GET, $this->route);
+      $routeData = $this->router->parseRoute(\ADIOS\Core\Router::HTTP_GET, $this->route);
 
-      if ($tmpController !== null) {
-        $this->controller = $tmpController;
-        // $this->view = '';
+      if (empty($routeData['controller'])) {
+        return '';
+      } else {
+        $this->controller = $routeData['controller'];
         $this->permission = '';
 
-        $routeVars = $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
+        $routeVars = $routeData['vars']; // $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
         $this->router->setRouteVars($routeVars);
 
-        foreach ($this->router->getRouteVars() as $varName => $varValue) {
+        foreach ($routeVars as $varName => $varValue) {
           $this->params[$varName] = $varValue;
         }
-      } else {
-        list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
-        $this->logger->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
+      // } else {
+      //   list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
+      //   $this->logger->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
 
-        $this->controller = $tmpRoute['controller'] ?? '';
-        $this->view = $tmpRoute['view'] ?? '';
-        $this->permission = $tmpRoute['permission'] ?? '';
+      //   $this->controller = $tmpRoute['controller'] ?? '';
+      //   // $this->view = $tmpRoute['view'] ?? '';
+      //   $this->permission = $tmpRoute['permission'] ?? '';
 
       }
 
@@ -570,11 +584,9 @@ class Loader
 
       // ... Or a view must be applied.
       } else {
-
         $controllerObject->prepareView();
-        $view = $controllerObject->getView() === '' ? $this->view : $controllerObject->getView();
 
-        $contentHtml = '';
+        $view = $controllerObject->getView() === '' ? $this->view : $controllerObject->getView();
 
         $contentParams = [
           'app' => $this,
@@ -594,10 +606,12 @@ class Loader
             $view,
             $contentParams
           );
+        } else {
+          $contentHtml = $controllerObject->render($contentParams);
         }
 
         // In some cases the result of the view will be used as-is ...
-        if ($this->urlParamAsBool('__IS_AJAX__') || $controllerObject->hideDefaultDesktop) {
+        if (php_sapi_name() == 'cli' || $this->urlParamAsBool('__IS_AJAX__') || $controllerObject->hideDefaultDesktop) {
           $html = $contentHtml;
 
         // ... But in most cases it will be "encapsulated" in the desktop.

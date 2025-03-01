@@ -5,6 +5,8 @@ namespace ADIOS\Models;
 class User extends \ADIOS\Core\Model {
   const TOKEN_TYPE_USER_FORGOT_PASSWORD = 551155;
 
+  public string $table = "users";
+
   protected $hidden = [
     'password',
     'last_access_time',
@@ -28,7 +30,6 @@ class User extends \ADIOS\Core\Model {
 
   public function __construct(\ADIOS\Core\Loader $app)
   {
-    $this->sqlName = "users";
     parent::__construct($app);
 
     $tokenModel = $app->getModel("ADIOS/Models/Token");

@@ -24,6 +24,7 @@ class Router {
     $this->app = $app;
 
     $this->httpGet([
+      'about' => \ADIOS\Controllers\About::class,
       '/^api\/form\/describe\/?$/' => \ADIOS\Controllers\Api\Form\Describe::class,
       '/^api\/table\/describe\/?$/' => \ADIOS\Controllers\Api\Table\Describe::class,
       '/^api\/record\/get\/?$/' => \ADIOS\Controllers\Api\Record\Get::class,
@@ -50,28 +51,68 @@ class Router {
     };
   }
 
-  public function findController(string $method, string $route): string|null
+  /** array<string, array<string, string>> */
+  public function parseRoute(string $method, string $route): array
   {
-    $controller = null;
+    $routeData = [
+      'controller' => '',
+      'vars' => [],
+    ];
+    foreach ($this->getRoutes($method) as $routePattern => $controller) {
+      $routeMatch = true;
+      $routeVars = [];
 
-    foreach ($this->getRoutes($method) as $routePattern => $tmpRoute) {
-      if (preg_match($routePattern.'i', $route, $m)) {
+      if (
+        str_starts_with($routePattern, '/')
+        && str_ends_with($routePattern, '/')
+        && preg_match($routePattern.'i', $route, $m)
+      ) {
+        $routeMatch = true;
+        $routeVars = $m;
+      } else {
+        $routeMatch = $routePattern == $route;
+        $routeVars = [];
+      }
 
-        if (!empty($tmpRoute['redirect'])) {
-          $url = $tmpRoute['redirect']['url'];
+      if ($routeMatch) {
+        if (!empty($controller['redirect'])) {
+          $url = $controller['redirect']['url'];
           foreach ($m as $k => $v) {
             $url = str_replace('$'.$k, $v, $url);
           }
-          $this->redirectTo($url, $tmpRoute['redirect']['code'] ?? 302);
+          $this->redirectTo($url, $controller['redirect']['code'] ?? 302);
           exit;
-        } else if (is_string($tmpRoute)) {
-          $controller = $tmpRoute;
+        } else if (is_string($controller)) {
+          $routeData = [
+            'controller' => $controller,
+            'vars' => $routeVars,
+          ];
         }
       }
     }
 
-    return $controller;
+    return $routeData;
   }
+
+  // public function findController(string $method, string $route): string
+  // {
+  //   $controller = '';
+
+  //   $tmpRoute = $this->findRoute($method, $route);
+
+  //   if (!empty($tmpRoute['redirect'])) {
+  //     $url = $tmpRoute['redirect']['url'];
+  //     foreach ($m as $k => $v) {
+  //       $url = str_replace('$'.$k, $v, $url);
+  //     }
+  //     $this->redirectTo($url, $tmpRoute['redirect']['code'] ?? 302);
+  //     exit;
+  //   } else if (is_string($tmpRoute)) {
+  //     $controller = $tmpRoute;
+  //   }
+
+  //   return $controller;
+  // }
 
   public function setRouteVars(array $routeVars): void
   {
@@ -108,90 +149,90 @@ class Router {
     return (bool) ($this->routeVars[$varIndex] ?? false);
   }
 
-  public function extractRouteVariables(string $method, string $route = ''): array
-  {
-    if (empty($route)) $route = $this->app->route;
+  // public function extractRouteVariables(string $method, string $route): array
+  // {
+  //   $tmpRoute = $this->findRoute($method, $route);
 
-    $routeVars = [];
+  //   $routeVars = $tmpRoute[';
 
-    foreach ($this->getRoutes($method) as $routePattern => $tmpRoute) {
-      if (preg_match($routePattern.'i', $route, $m)) {
-        $routeVars = $m;
-        break;
-      }
-    }
+  //   foreach ($this->getRoutes($method) as $routePattern => $tmpRoute) {
+  //     if (preg_match($routePattern.'i', $route, $m)) {
+  //       $routeVars = $m;
+  //       break;
+  //     }
+  //   }
     
-    foreach ($routeVars as $varName => $varValue) {
-      if (is_numeric($varName)) unset($routeVars[$varName]);
-    }
+  //   foreach ($routeVars as $varName => $varValue) {
+  //     if (is_numeric($varName)) unset($routeVars[$varName]);
+  //   }
 
-    return $routeVars;
-  }
+  //   return $routeVars;
+  // }
 
 
   // 2024-12-04 OLD PRINCIPLE. ALL METHODS BELOW ARE DEPRECATED.
 
-  public function setRouting($routing) {
-    if (is_array($routing)) {
-      $this->routing = $routing;
-    }
-  }
+  // public function setRouting($routing) {
+  //   if (is_array($routing)) {
+  //     $this->routing = $routing;
+  //   }
+  // }
 
-  // DEPRECATED
-  public function addRouting($routing) {
-    if (is_array($routing)) {
-      $this->routing = array_merge($this->routing, $routing);
-    }
-  }
+  // // DEPRECATED
+  // public function addRouting($routing) {
+  //   if (is_array($routing)) {
+  //     $this->routing = array_merge($this->routing, $routing);
+  //   }
+  // }
 
-  public function replaceRouteVariables($routeParams, $variables) {
-    if (is_array($routeParams)) {
-      foreach ($routeParams as $paramName => $paramValue) {
+  // public function replaceRouteVariables($routeParams, $variables) {
+  //   if (is_array($routeParams)) {
+  //     foreach ($routeParams as $paramName => $paramValue) {
 
-        if (is_array($paramValue)) {
-          $routeParams[$paramName] = $this->replaceRouteVariables($paramValue, $variables);
-        } else {
-          krsort($variables);
-          foreach ($variables as $k2 => $v2) {
-            $routeParams[$paramName] = str_replace('$'.$k2, $v2, (string)$routeParams[$paramName]);
-          }
-        }
-      }
-    }
+  //       if (is_array($paramValue)) {
+  //         $routeParams[$paramName] = $this->replaceRouteVariables($paramValue, $variables);
+  //       } else {
+  //         krsort($variables);
+  //         foreach ($variables as $k2 => $v2) {
+  //           $routeParams[$paramName] = str_replace('$'.$k2, $v2, (string)$routeParams[$paramName]);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    return $routeParams;
-  }
+  //   return $routeParams;
+  // }
 
-  public function applyRouting(string $routeUrl, array $params): array {
-    $route = [];
+  // public function applyRouting(string $routeUrl, array $params): array {
+  //   $route = [];
 
-    foreach ($this->routing as $routePattern => $tmpRoute) {
-      if (preg_match($routePattern.'i', $routeUrl, $m)) {
+  //   foreach ($this->routing as $routePattern => $tmpRoute) {
+  //     if (preg_match($routePattern.'i', $routeUrl, $m)) {
 
-        if (!empty($tmpRoute['redirect'])) {
-          $url = $tmpRoute['redirect']['url'];
-          foreach ($m as $k => $v) {
-            $url = str_replace('$'.$k, $v, $url);
-          }
-          $this->redirectTo($url, $tmpRoute['redirect']['code'] ?? 302);
-          exit;
-        } else {
-          $route = $tmpRoute;
-          // $controller = $tmpRoute['controller'] ?? '';
-          // $view = $tmpRoute['view'] ?? '';
-          // $permission = $tmpRoute['permission'] ?? '';
-          $tmpRoute['params'] = $this->replaceRouteVariables($tmpRoute['params'] ?? [], $m);
+  //       if (!empty($tmpRoute['redirect'])) {
+  //         $url = $tmpRoute['redirect']['url'];
+  //         foreach ($m as $k => $v) {
+  //           $url = str_replace('$'.$k, $v, $url);
+  //         }
+  //         $this->redirectTo($url, $tmpRoute['redirect']['code'] ?? 302);
+  //         exit;
+  //       } else {
+  //         $route = $tmpRoute;
+  //         // $controller = $tmpRoute['controller'] ?? '';
+  //         // $view = $tmpRoute['view'] ?? '';
+  //         // $permission = $tmpRoute['permission'] ?? '';
+  //         $tmpRoute['params'] = $this->replaceRouteVariables($tmpRoute['params'] ?? [], $m);
 
-          foreach ($this->replaceRouteVariables($tmpRoute['params'] ?? [], $m) as $k => $v) {
-            $params[$k] = $v;
-          }
-        }
-      }
-    }
+  //         foreach ($this->replaceRouteVariables($tmpRoute['params'] ?? [], $m) as $k => $v) {
+  //           $params[$k] = $v;
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // return [$controller, $view, $permission, $params];
-    return [$route, $params];
-  }
+  //   // return [$controller, $view, $permission, $params];
+  //   return [$route, $params];
+  // }
 
   public function redirectTo(string $url, int $code = 302) {
     header("Location: " . $this->app->config->getAsString('accountUrl') . "/" . trim($url, "/"), true, $code);

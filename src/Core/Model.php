@@ -51,16 +51,6 @@ class Model
   public \ADIOS\Core\Record $record;
 
   /**
-   * Shorthand for "global table prefix"
-   */
-  public ?string $gtp = "";
-
-  /**
-   * Name of the table in SQL database. Used together with global table prefix.
-   */
-  public string $sqlName = '';
-
-  /**
    * SQL-compatible string used to render displayed value of the record when used
    * as a lookup.
    */
@@ -95,18 +85,12 @@ class Model
   {
     $reflection = new \ReflectionClass($this);
 
-    $this->gtp = $app->config->getAsString('gtp');
-
-    if (empty($this->table)) {
-      $this->table = (empty($this->gtp) ? '' : $this->gtp . '_') . $this->sqlName; // toto je kvoli Eloquentu
-    }
-
     $this->app = $app;
     $this->columns = $this->describeColumns();
     $this->record = $this->initRecord();
 
     $eloquentClass = $this->eloquentClass;
-    if (!empty($eloquentClass)) {
+    if (!empty($eloquentClass) && $this->app->pdo->isConnected) {
       $this->eloquent = new $eloquentClass;
       $this->eloquent->setTable($this->table);
       $this->eloquent->fillable = $this->columnNames();

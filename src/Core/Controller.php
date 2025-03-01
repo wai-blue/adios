@@ -68,7 +68,10 @@ class Controller implements \ADIOS\Core\Testable {
 
     $this->name = str_replace("\\", "/", str_replace("ADIOS\\", "", get_class($this)));
     $this->app = $app;
-    $this->renderer = $this->app->twig;
+
+    if (isset($this->app->twig)) {
+      $this->renderer = $this->app->twig;
+    }
 
     $this->shortName = $this->name;
     $this->shortName = str_replace('Controllers/', '', $this->shortName);
@@ -192,6 +195,11 @@ class Controller implements \ADIOS\Core\Testable {
     if ($this->app->testMode && !$assertion) {
       throw new Exceptions\TestAssertionFailedException('TEST FAILED: Assertion [' . $assertionName . '] not fulfilled in ' . get_parent_class($this));
     }
+  }
+
+  public function render(array $params): string
+  {
+    return 'aaaa';
   }
 
 }

@@ -38,7 +38,7 @@ All pre-compiled and built-in functionality can be easily customized.
 ## Getting started
 ### Create your app from scratch
 
-It's easy to start developing with Adios. Learn [here](create-new-project) how to create your first project.
+It's easy to start developing with Adios. Learn [here](../examples/empty-app.md) how to create your first project.
 
 ## References
 ### Who is using Adios

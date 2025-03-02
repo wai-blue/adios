@@ -1,6 +1,6 @@
 # Empty app
 
-In this example we will show how to create and empty Adios app, without being connected to the database.
+In this example we will show how to create and empty Adios app.
 
 ## Prepare the development environment
 

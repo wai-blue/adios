@@ -21,7 +21,7 @@ class Delete extends \ADIOS\Core\ApiController {
     $ok = false;
     $rowsAffected = 0;
 
-    if ($this->app->configAsBool('encryptRecordIds')) {
+    if ($this->app->config->getAsBool('encryptRecordIds')) {
       $hash = $this->app->urlParamAsString('hash');
       $ok = $hash == \ADIOS\Core\Helper::encrypt($this->app->urlParamAsString('id'), '', true);
     } else {
@@ -34,7 +34,7 @@ class Delete extends \ADIOS\Core\ApiController {
       $error = '';
       $errorHtml = '';
       try {
-        $rowsAffected = $this->model->recordManager->delete($id);
+        $rowsAffected = $this->model->record->delete($id);
       } catch (\Throwable $e) {
         $error = $e->getMessage();
         $errorHtml = $this->app->renderExceptionHtml($e);

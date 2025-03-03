@@ -14,10 +14,17 @@ namespace ADIOS\Core;
 
 spl_autoload_register(function ($class) {
   $class = trim(str_replace("\\", "/", $class), "/");
+  $app = \ADIOS\Core\Helper::getGlobalApp();
+  $appNamespace = $app->config->getAsString('appNamespace');
 
   if (preg_match('/ADIOS\/([\w\/]+)/', $class, $m)) {
-    require_once(__DIR__ . "/../{$m[1]}.php");
+    @include(__DIR__ . "/../{$m[1]}.php");
   }
+
+  if (str_starts_with($class, $appNamespace . '/')) {
+    @include($app->config->getAsString('srcDir') . '/' . str_replace($appNamespace . '/', '', $class) . '.php');
+  }
+
 });
 
 register_shutdown_function(function() {
@@ -28,7 +35,6 @@ register_shutdown_function(function() {
 });
 
 // ADIOS Loader class
-#[\AllowDynamicProperties]
 class Loader
 {
   const ADIOS_MODE_FULL = 1;
@@ -42,52 +48,35 @@ class Loader
   public string $uid = "";
   public string $route = "";
 
-  public ?\ADIOS\Core\Controller $controllerObject;
+  // public ?\ADIOS\Core\Controller $controllerObject;
 
-  public bool $logged = false;
+  // public bool $logged = false;
 
-  protected array $config = [];
-  public array $widgets = [];
-
-  public array $widgetsInstalled = [];
-
-  private array $pluginFolders = [];
-  private array $pluginObjects = [];
-  private array $plugins = [];
+  // protected array $config = [];
 
   public array $modelObjects = [];
   public array $registeredModels = [];
 
-  public bool $userLogged = false;
-  public array $userProfile = [];
-  public array $userPasswordReset = [];
+  // public bool $userLogged = false;
+  // public array $userProfile = [];
+  // public array $userPasswordReset = [];
 
   public bool $testMode = false; // Set to TRUE only in DEVELOPMENT. Disables authentication.
 
+  public \ADIOS\Core\Config $config;
   public \ADIOS\Core\Session $session;
-  public \ADIOS\Core\Db $db;
-  public \ADIOS\Core\Console $console;
+  public \ADIOS\Core\Logger $logger;
   public \ADIOS\Core\Locale $locale;
   public \ADIOS\Core\Router $router;
   public \ADIOS\Core\Email $email;
   public \ADIOS\Core\Permissions $permissions;
   public \ADIOS\Core\Test $test;
-  public \ADIOS\Core\Web\Loader $web;
-  public \Illuminate\Database\Capsule\Manager $eloquent;
   public \ADIOS\Core\Auth $auth;
   public \ADIOS\Core\Translator $translator;
-
-  public \Twig\Environment $twig;
-
-  public string $twigNamespaceCore = 'app';
-
   public \ADIOS\Core\PDO $pdo;
 
-  public array $assetsUrlMap = [];
-
-  public string $desktopContentController = "";
-
-  public string $widgetsDir = "";
+  public \Illuminate\Database\Capsule\Manager $eloquent;
+  public \Twig\Environment $twig;
 
   public string $translationContext = '';
 
@@ -99,82 +88,34 @@ class Loader
   public function __construct(array $config = [], int $mode = self::ADIOS_MODE_FULL)
   {
 
-    \ADIOS\Core\Helper::setGlobalApp($this);
-
-    $this->config = $config;
-
-    $this->test = $this->createTestProvider();
-    // $this->widgetsDir = $config['widgetsDir'] ?? "";
     $this->params = $this->extractParamsFromRequest();
 
-    if (empty($this->config['dir'])) $this->config['dir'] = "";
-    if (empty($this->config['url'])) $this->config['url'] = "";
-    if (empty($this->config['rewriteBase'])) $this->config['rewriteBase'] = "";
-    if (empty($this->config['appDir'])) $this->config['appDir'] = $this->config['dir'];
-    if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
-    if (empty($this->config['accountDir'])) $this->config['accountDir'] = $this->config['dir'];
-    if (empty($this->config['accountUrl'])) $this->config['accountUrl'] = $this->config['url'];
-
-    if (empty($this->config['sessionSalt'])) {
-      $this->config['sessionSalt'] = rand(100000, 999999);
-    }
-
-    $this->config['requestUri'] = $_SERVER['REQUEST_URI'] ?? "";
-
-    // pouziva sa ako vseobecny prefix niektorych session premennych,
-    // novy ADIOS ma zatial natvrdo hodnotu, lebo sa sessions riesia cez session name
-    if (!defined('_ADIOS_ID')) {
-      define(
-        '_ADIOS_ID',
-        $this->config['sessionSalt']."-".substr(md5($this->config['sessionSalt']), 0, 5)
-      );
-    }
-
-    // ak requestuje nejaky Asset (css, js, image, font), tak ho vyplujem a skoncim
-    if ($this->config['rewriteBase'] == "/") {
-      $this->requestedUri = ltrim(parse_url($this->config['requestUri'], PHP_URL_PATH), "/");
-    } else {
-      $this->requestedUri = str_replace($this->config['rewriteBase'], "",parse_url($this->config['requestUri'], PHP_URL_PATH));
-    }
-
-    $this->assetsUrlMap["adios/assets/css/"] = __DIR__."/../Assets/Css/";
-    $this->assetsUrlMap["adios/assets/js/"] = __DIR__."/../Assets/Js/";
-    $this->assetsUrlMap["adios/assets/images/"] = __DIR__."/../Assets/Images/";
-    $this->assetsUrlMap["adios/assets/webfonts/"] = __DIR__."/../Assets/Webfonts/";
-    // $this->assetsUrlMap["adios/assets/widgets/"] = function ($app, $url) {
-    //   $url = str_replace("adios/assets/widgets/", "", $url);
-    //   preg_match('/(.*?)\/(.+)/', $url, $m);
-
-    //   $widget = $m[1];
-    //   $asset = $m[2];
-
-    //   return $app->widgetsDir."/{$widget}/Assets/{$asset}";
-    // };
-    $this->assetsUrlMap["adios/plugins/"] = function ($app, $url) {
-      $url = str_replace("adios/plugins/", "", $url);
-      preg_match('/(.+?)\/~\/(.+)/', $url, $m);
-
-      $plugin = $m[1];
-      $resource = $m[2];
-
-      foreach ($app->pluginFolders as $pluginFolder) {
-        $file = "{$pluginFolder}/{$plugin}/{$resource}";
-        if (is_file($file)) {
-          return $file;
-        }
-      }
-    };
-
-    //////////////////////////////////////////////////
-    // inicializacia
-
     try {
+
+      \ADIOS\Core\Helper::setGlobalApp($this);
+
+      $this->config = $this->createConfigManager($config);
+
+      if (php_sapi_name() !== 'cli') {
+        if ($this->config->getAsString('rewriteBase') == "/") {
+          $this->requestedUri = ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), "/");
+        } else {
+          $this->requestedUri = str_replace(
+            $this->config->getAsString('rewriteBase'),
+            "",
+            parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+          );
+        }
+
+        // render static assets, if requested
+        $this->renderAssets();
+      }
 
       // inicializacia session managementu
       $this->session = $this->createSessionManager();
 
       // inicializacia debug konzoly
-      $this->console = $this->createConsole();
+      $this->logger = $this->createLogger();
 
       // translator
       $this->translator = $this->createTranslator();
@@ -191,91 +132,33 @@ class Loader
       // auth provider
       $this->auth = $this->createAuthProvider();
 
-      // nacitanie zakladnych ADIOS lib suborov
-      require_once dirname(__FILE__)."/Lib/basic_functions.php";
+      // test provider
+      $this->test = $this->createTestProvider();
 
-      $this->eloquent = new \Illuminate\Database\Capsule\Manager;
-
-      $dbConnectionConfig = $this->getDefaultConnectionConfig();
-
-      if ($dbConnectionConfig !== null) {
-        $this->eloquent->setAsGlobal();
-        $this->eloquent->bootEloquent();
-        $this->eloquent->addConnection($dbConnectionConfig, 'default');
-      }
+      // Twig renderer
+      $this->createTwig();
 
       $this->pdo = new \ADIOS\Core\PDO($this);
 
       if ($mode == self::ADIOS_MODE_FULL) {
-
         $this->initDatabaseConnections();
 
-      }
-
-      // inicializacia pluginov - aj pre FULL aj pre LITE mod
-
-      $this->onBeforePluginsLoaded();
-
-      foreach ($this->pluginFolders as $pluginFolder) {
-        $this->loadAllPlugins($pluginFolder);
-      }
-
-      $this->onAfterPluginsLoaded();
-
-      $this->renderAssets();
-
-
-      if ($mode == self::ADIOS_MODE_FULL) {
         // start session
 
-        session_id();
-        session_name(_ADIOS_ID);
-        session_start();
+        $this->session->start();
 
-        define('_SESSION_ID', session_id());
-      }
-
-      // inicializacia web renderera (byvala CASCADA)
-      if (isset($this->config['web']) && is_array($this->config['web'])) {
-        $this->web = \ADIOS\Core\Factory::create('Core/Web/Loader', [$this, $this->config['web']]);
-      }
-
-      // inicializacia DB - aj pre FULL aj pre LITE mod
-
-      $this->onBeforeConfigLoaded();
-
-      if ($mode == self::ADIOS_MODE_FULL) {
-        $this->loadConfigFromDB();
-      }
-
-      // finalizacia konfiguracie - aj pre FULL aj pre LITE mode
-      $this->finalizeConfig();
-
-      $this->onAfterConfigLoaded();
-
-      $this->permissions->init();
-
-      if ($mode == self::ADIOS_MODE_FULL) {
-
-
-        // inicializacia widgetov
-
-        // $this->onBeforeWidgetsLoaded();
-        // $this->addAllWidgets($this->config['widgets']);
-        // $this->onAfterWidgetsLoaded();
-
-        // vytvorim definiciu tables podla nacitanych modelov
+        $this->config->loadFromDB();
 
         foreach ($this->registeredModels as $modelName) {
           $this->getModel($modelName);
         }
-
-        // inicializacia a konfiguracia twigu
-        $this->initTwig();
-        $this->configureTwig();
       }
 
-      $this->dispatchEventToPlugins("onADIOSAfterInit", ["app" => $this]);
+
+      $userLanguage = $this->auth->getUserLanguage();
+      if (empty($userLanguage)) $userLanguage = 'en';
+      $this->config->set('language', $userLanguage);
+
     } catch (\Exception $e) {
       echo "ADIOS INIT failed: [".get_class($e)."] ".$e->getMessage() . "\n";
       echo $e->getTraceAsString() . "\n";
@@ -295,55 +178,99 @@ class Loader
     return isset($_REQUEST['__IS_WINDOW__']) && $_REQUEST['__IS_WINDOW__'] == "1";
   }
 
-  public function getDefaultConnectionConfig(): ?array
-  {
-    if (isset($this->config['db']['defaultConnection']) && is_array($this->config['db']['defaultConnection'])) {
-      return $this->config['db']['defaultConnection'];
-    } else {
-      return [
-        "driver"    => "mysql",
-        "host"      => $this->config['db_host'] ?? '',
-        "port"      => $this->config['db_port'] ?? 3306,
-        "database"  => $this->config['db_name'] ?? '',
-        "username"  => $this->config['db_user'] ?? '',
-        "password"  => $this->config['db_password'] ?? '',
-        "charset"   => 'utf8mb4',
-        "collation" => 'utf8mb4_unicode_ci',
-      ];
-    }
-  }
-
   public function initDatabaseConnections()
   {
-    $this->eloquent = new \Illuminate\Database\Capsule\Manager;
+    $dbHost = $this->config->getAsString('db_host', '');
+    $dbPort = $this->config->getAsInteger('db_port', 3306);
+    $dbName = $this->config->getAsString('db_name', '');
+    $dbUser = $this->config->getAsString('db_user', '');
+    $dbPassword = $this->config->getAsString('db_password', '');
 
-    $dbConnectionConfig = $this->getDefaultConnectionConfig();
-
-    if ($dbConnectionConfig !== null) {
+    if (!empty($dbHost) && !empty($dbPort) && !empty($dbName) && !empty($dbUser)) {
+      $this->eloquent = new \Illuminate\Database\Capsule\Manager;
       $this->eloquent->setAsGlobal();
       $this->eloquent->bootEloquent();
-      $this->eloquent->addConnection($dbConnectionConfig, 'default');
-    }
+      $this->eloquent->addConnection([
+        "driver"    => "mysql",
+        "host"      => $dbHost,
+        "port"      => $dbPort,
+        "database"  => $dbName,
+        "username"  => $dbUser,
+        "password"  => $dbPassword,
+        "charset"   => 'utf8mb4',
+        "collation" => 'utf8mb4_unicode_ci',
+      ], 'default');
 
-    $this->pdo->connect();
+      $this->pdo->connect();
+    }
   }
 
-  public function initTwig()
-  {
-    $this->twigLoader = new \Twig\Loader\FilesystemLoader();
-    $this->twigLoader->addPath($this->config['srcDir']);
-    $this->twigLoader->addPath($this->config['srcDir'], $this->twigNamespaceCore);
 
-    $this->twig = new \Twig\Environment($this->twigLoader, array(
-      'cache' => false,
-      'debug' => true,
-    ));
+  public function createTestProvider(): \ADIOS\Core\Test
+  {
+    return new Test($this);
+  }
+
+  public function createAuthProvider(): \ADIOS\Core\Auth
+  {
+    return new \ADIOS\Auth\DefaultProvider($this, []);
+  }
+
+  public function createSessionManager(): \ADIOS\Core\Session
+  {
+    return new Session($this);
+  }
+
+  public function createConfigManager(array $config): \ADIOS\Core\Config
+  {
+    return new Config($this, $config);
+  }
+
+  public function createPermissionsManager(): \ADIOS\Core\Permissions
+  {
+    return new Permissions($this);
+  }
+
+  public function createRouter(): \ADIOS\Core\Router
+  {
+    return new Router($this);
+  }
+
+  public function createLogger(): \ADIOS\Core\Logger
+  {
+    return new Logger($this);
+  }
+
+  public function createLocale(): \ADIOS\Core\Locale
+  {
+    return new Locale($this);
+  }
+
+  public function createTranslator(): \ADIOS\Core\Translator
+  {
+    return new Translator($this);
+  }
+  
+  public function createTwig()
+  {
+    if (class_exists('\\Twig\\Environment')) {
+      $twigLoader = new \Twig\Loader\FilesystemLoader();
+      $twigLoader->addPath($this->config->getAsString('srcDir'));
+      $twigLoader->addPath($this->config->getAsString('srcDir'), 'app');
+
+      $this->twig = new \Twig\Environment($twigLoader, array(
+        'cache' => false,
+        'debug' => true,
+      ));
+
+      $this->configureTwig();
+    }
   }
 
   public function configureTwig()
   {
 
-    $this->twig->addGlobal('config', $this->config);
+    $this->twig->addGlobal('config', $this->config->get());
     $this->twig->addExtension(new \Twig\Extension\StringLoaderExtension());
     $this->twig->addExtension(new \Twig\Extension\DebugExtension());
 
@@ -351,15 +278,6 @@ class Loader
       'adiosModel',
       function (string $model) {
         return $this->getModel($model);
-      }
-    ));
-
-    $this->twig->addFunction(new \Twig\TwigFunction(
-      '_dump',
-      function ($var) {
-        ob_start();
-        _var_dump($var);
-        return ob_get_clean();
       }
     ));
 
@@ -421,59 +339,7 @@ class Loader
         return $this->translate($string, [], $context);
       }
     ));
-    // $this->twig->addFunction(new \Twig\TwigFunction(
-    //   'adiosView',
-    //   function ($uid, $view, $params) {
-    //     if (!is_array($params)) {
-    //       $params = [];
-    //     }
-    //     return $this->view->create(
-    //       $view . (empty($uid) ? '' : '#' . $uid),
-    //       $params
-    //     )->render();
-    //   }
-    // ));
-    // $this->twig->addFunction(new \Twig\TwigFunction(
-    //   'adiosRender',
-    //   function ($controller, $params = []) {
-    //     return $this->render($controller, $params);
-    //   }
-    // ));
   }
-
-  // //////////////////////////////////////////////////////////////////////////////
-  // // WIDGETS
-
-  // public function addWidget($widgetName)
-  // {
-  //   if (!isset($this->widgets[$widgetName])) {
-  //     try {
-  //       $widgetClassName = "\\" . $this->config['appNamespace'] . "\\Widgets\\".str_replace("/", "\\", $widgetName);
-  //       if (!class_exists($widgetClassName)) {
-  //         throw new \Exception("Widget {$widgetName} not found.");
-  //       }
-  //       $this->widgets[$widgetName] = new $widgetClassName($this);
-
-  //       $this->router->addRouting($this->widgets[$widgetName]->routing());
-  //     } catch (\Exception $e) {
-  //       exit("Failed to load widget {$widgetName}: ".$e->getMessage());
-  //     }
-  //   }
-  // }
-
-  // public function addAllWidgets(array $widgets = [], $path = "") {
-  //   foreach ($widgets as $wName => $w_config) {
-  //     $fullWidgetName = ($path == "" ? "" : "{$path}/").$wName;
-  //     if (isset($w_config['enabled']) && $w_config['enabled'] === true) {
-  //       $this->addWidget($fullWidgetName);
-  //     } else {
-  //       // ak nie je enabled, moze to este byt dalej vetvene
-  //       if (is_array($w_config)) {
-  //         $this->addAllWidgets($w_config, $fullWidgetName);
-  //       }
-  //     }
-  //   }
-  // }
 
   //////////////////////////////////////////////////////////////////////////////
   // MODELS
@@ -484,14 +350,6 @@ class Loader
       $this->registeredModels[] = $modelClass;
     }
   }
-
-  // /**
-  // * @return array<string>
-  // */
-  // public function getRegisteredModels(): array
-  // {
-  //   return $this->registeredModels;
-  // }
 
   public function getModelClassName($modelName): string
   {
@@ -512,67 +370,12 @@ class Loader
       try {
         $modelClassName = $this->getModelClassName($modelName);
         $this->modelObjects[$modelName] = new $modelClassName($this);
-
-        // $this->router->addRouting($this->modelObjects[$modelName]->routing());
-
       } catch (\Exception $e) {
         throw new \ADIOS\Core\Exceptions\GeneralException("Can't find model '{$modelName}'. ".$e->getMessage());
       }
     }
 
     return $this->modelObjects[$modelName];
-  }
-
-  //////////////////////////////////////////////////////////////////////////////
-  // PLUGINS
-
-  public function registerPluginFolder($folder)
-  {
-    if (is_dir($folder) && !in_array($folder, $this->pluginFolders)) {
-      $this->pluginFolders[] = $folder;
-    }
-  }
-
-  public function getPluginClassName($pluginName)
-  {
-    return "\\ADIOS\\Plugins\\".str_replace("/", "\\", $pluginName);
-  }
-
-  public function getPlugin($pluginName)
-  {
-    return $this->pluginObjects[$pluginName] ?? null;
-  }
-
-  public function getPlugins() {
-    return $this->pluginObjects;
-  }
-
-  public function loadAllPlugins($pluginFolder, $subFolder = "") {
-    $folder = $pluginFolder.(empty($subFolder) ? "" : "/{$subFolder}");
-
-    foreach (scandir($folder) as $file) {
-      if (strpos($file, ".") !== false) continue;
-
-      $fullPath = (empty($subFolder) ? "" : "{$subFolder}/").$file;
-
-      if (
-        is_dir("{$folder}/{$file}")
-        && !is_file("{$folder}/{$file}/Main.php")
-      ) {
-        $this->loadAllPlugins($pluginFolder, $fullPath);
-      } else if (is_file("{$folder}/{$file}/Main.php")) {
-        try {
-          $tmpPluginClassName = $this->getPluginClassName($fullPath);
-
-          if (class_exists($tmpPluginClassName)) {
-            $this->plugins[] = $fullPath;
-            $this->pluginObjects[$fullPath] = new $tmpPluginClassName($this);
-          }
-        } catch (\Exception $e) {
-          exit("Failed to load plugin {$fullPath}: ".$e->getMessage());
-        }
-      }
-    }
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -586,106 +389,17 @@ class Loader
   //////////////////////////////////////////////////////////////////////////////
   // MISCELANEOUS
 
-  public function renderAssets() {
-    $cachingTime = 3600;
-    $headerExpires = "Expires: ".gmdate("D, d M Y H:i:s", time() + $cachingTime)." GMT";
-    $headerCacheControl = "Cache-Control: max-age={$cachingTime}";
-
-    if ($this->requestedUri == "adios/cache.css") {
-      $cssCache = $this->renderCSSCache();
-
-      header("Content-type: text/css");
-      header("ETag: ".md5($cssCache));
-      header($headerExpires);
-      header("Pragma: cache");
-      header($headerCacheControl);
-
-      echo $cssCache;
-
-      exit();
-    } else if ($this->requestedUri == "adios/cache.js") {
-      $jsCache = $this->renderJSCache();
-      $cachingTime = 3600;
-
-      header("Content-type: text/js");
-      header("ETag: ".md5($jsCache));
-      header($headerExpires);
-      header("Pragma: cache");
-      header($headerCacheControl);
-
-      echo $jsCache;
-
-      exit();
-    } else {
-      foreach ($this->assetsUrlMap as $urlPart => $mapping) {
-        if (preg_match('/^'.str_replace("/", "\\/", $urlPart).'/', $this->requestedUri, $m)) {
-
-          if ($mapping instanceof \Closure) {
-            $sourceFile = $mapping($this, $this->requestedUri);
-          } else {
-            $sourceFile = $mapping.str_replace($urlPart, "", $this->requestedUri);
-          }
-
-          $ext = strtolower(pathinfo($this->requestedUri, PATHINFO_EXTENSION));
-
-          switch ($ext) {
-            case "css":
-            case "js":
-              header("Content-type: text/{$ext}");
-              header($headerExpires);
-              header("Pragma: cache");
-              header($headerCacheControl);
-              echo file_get_contents($sourceFile);
-              break;
-            case "eot":
-            case "ttf":
-            case "woff":
-            case "woff2":
-              header("Content-type: font/{$ext}");
-              header($headerExpires);
-              header("Pragma: cache");
-              header($headerCacheControl);
-              echo file_get_contents($sourceFile);
-              break;
-            case "bmp":
-            case "gif":
-            case "jpg":
-            case "jpeg":
-            case "png":
-            case "tiff":
-            case "webp":
-            case "svg":
-              if ($ext == "svg") {
-                $contentType = "svg+xml";
-              } else {
-                $contentType = $ext;
-              }
-
-              header("Content-type: image/{$contentType}");
-              header($headerExpires);
-              header("Pragma: cache");
-              header($headerCacheControl);
-              echo file_get_contents($sourceFile);
-              break;
-          }
-
-          exit();
-        }
-      }
-    }
-  }
-
   public function install() {
     $installationStart = microtime(true);
 
-    $this->console->info("Dropping existing tables.");
+    $this->logger->info("Dropping existing tables.");
 
     foreach ($this->registeredModels as $modelName) {
       $model = $this->getModel($modelName);
       $model->dropTableIfExists();
     }
 
-    $this->console->info("Database is empty, installing models.");
+    $this->logger->info("Database is empty, installing models.");
 
     foreach ($this->registeredModels as $modelName) {
       try {
@@ -694,11 +408,11 @@ class Loader
         $start = microtime(true);
 
         $model->install();
-        $this->console->info("Model {$modelName} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
+        $this->logger->info("Model {$modelName} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
       } catch (\ADIOS\Core\Exceptions\ModelInstallationException $e) {
-        $this->console->warning("Model {$modelName} installation skipped.", ["exception" => $e->getMessage()]);
+        $this->logger->warning("Model {$modelName} installation skipped.", ["exception" => $e->getMessage()]);
       } catch (\Exception $e) {
-        $this->console->error("Model {$modelName} installation failed.", ["exception" => $e->getMessage()]);
+        $this->logger->error("Model {$modelName} installation failed.", ["exception" => $e->getMessage()]);
       } catch (\Illuminate\Database\QueryException $e) {
         //
       } catch (\ADIOS\Core\Exceptions\DBException $e) {
@@ -708,28 +422,7 @@ class Loader
       }
     }
 
-    foreach ($this->widgets as $widget) {
-      try {
-        if ($widget->install()) {
-          $this->widgetsInstalled[$widget->name] = true;
-          $this->console->info("Widget {$widget->name} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
-        } else {
-          $this->console->warning("Model {$modelName} installation skipped.");
-        }
-      } catch (\Exception $e) {
-        $this->console->error("Model {$modelName} installation failed.");
-      } catch (\ADIOS\Core\Exceptions\DBException $e) {
-        // Moze sa stat, ze vytvorenie tabulky zlyha napr. kvoli
-        // "Cannot add or update a child row: a foreign key constraint fails".
-        // V takom pripade budem instalaciu opakovat v dalsom kole
-      }
-
-      $this->dispatchEventToPlugins("onWidgetAfterInstall", [
-        "widget" => $widget,
-      ]);
-    }
-
-    $this->console->info("Core installation done in ".round((microtime(true) - $installationStart), 2)." seconds.");
+    $this->logger->info("Core installation done in ".round((microtime(true) - $installationStart), 2)." seconds.");
   }
 
   public function extractParamsFromRequest(): array {
@@ -775,7 +468,8 @@ class Loader
    * @throws \ADIOS\Core\Exception When running in SAPI and requested controller is blocked for the SAPI.
    * @return string Rendered content.
    */
-  public function render(string $route = '', array $params = []) {
+  public function render(string $route = '', array $params = []): string
+  {
 
     try {
 
@@ -785,35 +479,34 @@ class Loader
       if (count($params) == 0) $params = $this->extractParamsFromRequest();
 
       $this->route = $route;
-      $this->params = $params;
+      // $this->params = $params;
       $this->uploadedFiles = $_FILES;
 
       // Apply routing and find-out which controller, permision and rendering params will be used
       // First, try the new routing principle with httpGet
-      $tmpController = $this->router->findController(\ADIOS\Core\Router::HTTP_GET, $this->route);
+      $routeData = $this->router->parseRoute(\ADIOS\Core\Router::HTTP_GET, $this->route);
 
-      if ($tmpController !== null) {
-        $this->controller = $tmpController;
-        $this->view = '';
+      if (empty($routeData['controller'])) {
+        return '';
+      } else {
+        $this->controller = $routeData['controller'];
         $this->permission = '';
 
-        $routeVars = $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
+        $routeVars = $routeData['vars']; // $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
         $this->router->setRouteVars($routeVars);
 
-        foreach ($this->router->getRouteVars() as $varName => $varValue) {
+        foreach ($routeVars as $varName => $varValue) {
           $this->params[$varName] = $varValue;
         }
-      } else {
-        list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
-        $this->console->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
+      // } else {
+      //   list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
+      //   $this->logger->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
 
-        $this->controller = $tmpRoute['controller'] ?? '';
-        $this->view = $tmpRoute['view'] ?? '';
-        $this->permission = $tmpRoute['permission'] ?? '';
+      //   $this->controller = $tmpRoute['controller'] ?? '';
+      //   // $this->view = $tmpRoute['view'] ?? '';
+      //   $this->permission = $tmpRoute['permission'] ?? '';
 
       }
-
-      $this->onAfterRouting();
 
       if ($this->isUrlParam('sign-out')) {
         $this->auth->signOut();
@@ -834,13 +527,13 @@ class Loader
       }
 
       // Create the object for the controller
-      $this->controllerObject = new $controllerClassName($this);
-      $this->controllerObject->preInit();
-      $this->controllerObject->init();
-      $this->controllerObject->postInit();
+      $controllerObject = new $controllerClassName($this);
+      $controllerObject->preInit();
+      $controllerObject->init();
+      $controllerObject->postInit();
 
-      if (empty($this->permission) && !empty($this->controllerObject->permission)) {
-        $this->permission = $this->controllerObject->permission;
+      if (empty($this->permission) && !empty($controllerObject->permission)) {
+        $this->permission = $controllerObject->permission;
       }
 
       // Perform some basic checks
@@ -854,12 +547,15 @@ class Loader
         }
       }
 
-      if (!$this->testMode && $this->controllerObject->requiresUserAuthentication) {
+      if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
         $this->auth->auth();
         if (!$this->auth->isUserInSession()) {
-          $this->controllerObject = $this->router->createSignInController();
-          $this->permission = $this->controllerObject->permission;
+          $controllerObject = $this->router->createSignInController();
+          $this->permission = $controllerObject->permission;
         }
+      }
+
+      if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
         $this->permissions->check($this->permission);
       }
 
@@ -876,60 +572,61 @@ class Loader
 
       $return = '';
 
-      $this->dispatchEventToPlugins("onADIOSBeforeRender", ["app" => $this]);
-
       unset($this->params['__IS_AJAX__']);
 
       $this->onBeforeRender();
 
       // Either return JSON string ...
-      $json = $this->controllerObject->renderJson();
+      $json = $controllerObject->renderJson();
 
       if (is_array($json)) {
         $return = json_encode($json);
 
       // ... Or a view must be applied.
       } else {
+        $controllerObject->prepareView();
 
-        $this->controllerObject->prepareView();
-        $view = $this->controllerObject->getView() === '' ? $this->view : $this->controllerObject->getView();
-
-        $contentHtml = '';
+        $view = $controllerObject->getView() === '' ? $this->view : $controllerObject->getView();
 
         $contentParams = [
           'app' => $this,
           'uid' => $this->uid,
           'user' => $this->auth->getUser(),
-          'config' => $this->config,
+          'config' => $this->config->get(),
           'routeUrl' => $this->route,
           'routeParams' => $this->params,
           'route' => $this->route,
           'session' => $this->session->get(),
-          'viewParams' => $this->controllerObject->getViewParams(),
-          'windowParams' => $this->controllerObject->getViewParams()['windowParams'] ?? null,
+          'viewParams' => $controllerObject->getViewParams(),
+          'windowParams' => $controllerObject->getViewParams()['windowParams'] ?? null,
         ];
 
         if ($view !== null) {
-          $contentHtml = $this->controllerObject->renderer->render(
+          $contentHtml = $controllerObject->renderer->render(
             $view,
             $contentParams
           );
+        } else {
+          $contentHtml = $controllerObject->render($contentParams);
         }
 
         // In some cases the result of the view will be used as-is ...
-        if ($this->urlParamAsBool('__IS_AJAX__') || $this->controllerObject->hideDefaultDesktop) {
+        if (php_sapi_name() == 'cli' || $this->urlParamAsBool('__IS_AJAX__') || $controllerObject->hideDefaultDesktop) {
           $html = $contentHtml;
 
         // ... But in most cases it will be "encapsulated" in the desktop.
         } else {
           $desktopControllerObject = $this->router->createDesktopController();
-          $desktopControllerObject->prepareViewParams();
+          $desktopControllerObject->prepareView();
 
           $desktopParams = $contentParams;
           $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
           $desktopParams['contentHtml'] = $contentHtml;
 
-          $html = $this->twig->render($this->config['defaultDesktopView'] ?? '@' . $this->twigNamespaceCore . '/Views/Desktop.twig', $desktopParams);
+          $html = $controllerObject->renderer->render(
+            $desktopControllerObject->getView(),
+            $desktopParams
+          );
 
         }
 
@@ -945,22 +642,14 @@ class Loader
       return $this->renderFatal('Controller not found: ' . $e->getMessage(), false);
     } catch (\ADIOS\Core\Exceptions\NotEnoughPermissionsException $e) {
       $message = $e->getMessage();
-      if ($this->userLogged) {
-        $message .= " Hint: Sign out and sign in again. {$this->config['accountUrl']}?sign-out";
+      if ($this->auth->isUserInSession()) {
+        $message .= " Hint: Sign out and sign in again. {$this->config->getAsString('accountUrl')}?sign-out";
       }
       return $this->renderFatal($message, false);
       // header('HTTP/1.1 401 Unauthorized', true, 401);
     } catch (\ADIOS\Core\Exceptions\GeneralException $e) {
-      $lines = [];
-      $lines[] = "ADIOS RUN failed: [".get_class($e)."] ".$e->getMessage();
-      if ($this->config['debug']) {
-        $lines[] = "Requested URI = {$this->requestedUri}";
-        $lines[] = "Rewrite base = {$this->config['rewriteBase']}";
-        $lines[] = "SERVER.REQUEST_URI = {$this->config['requestUri']}";
-      }
-
       header('HTTP/1.1 400 Bad Request', true, 400);
-      return join(" ", $lines);
+      return "ADIOS RUN failed: [".get_class($e)."] ".$e->getMessage();
     } catch (\ArgumentCountError $e) {
       echo $e->getMessage();
       header('HTTP/1.1 400 Bad Request', true, 400);
@@ -993,52 +682,45 @@ class Loader
     }
   }
 
-  public function createTestProvider(): \ADIOS\Core\Test
-  {
-    return new Test($this);
-  }
-
-  public function createAuthProvider(): \ADIOS\Core\Auth
-  {
-    return new \ADIOS\Auth\Providers\DefaultProvider($this, []);
-  }
-
-  public function createSessionManager(): \ADIOS\Core\Session
-  {
-    return new Session($this);
-  }
-
-  public function createPermissionsManager(): \ADIOS\Core\Permissions
-  {
-    return new Permissions($this);
-  }
-
-  public function createRouter(): \ADIOS\Core\Router
-  {
-    return new Router($this);
-  }
-
-  public function createConsole(): \ADIOS\Core\Console
-  {
-    return new Console($this);
-  }
-
-  public function createLocale(): \ADIOS\Core\Locale
-  {
-    return new Locale($this);
-  }
-
-  public function createTranslator(): \ADIOS\Core\Translator
-  {
-    return new Translator($this);
-  }
-
   public function getControllerClassName(string $controller) : string {
     return '\\' . trim(str_replace('/', '\\', $controller), '\\');
   }
 
   public function controllerExists(string $controller) : bool {
     return class_exists($this->getControllerClassName($controller));
+  }
+
+  public function renderAssets() {
+    $cachingTime = 3600;
+    $headerExpires = "Expires: ".gmdate("D, d M Y H:i:s", time() + $cachingTime)." GMT";
+    $headerCacheControl = "Cache-Control: max-age={$cachingTime}";
+
+    if ($this->requestedUri == "adios/cache.css") {
+      $cssCache = $this->renderCSSCache();
+
+      header("Content-type: text/css");
+      header("ETag: ".md5($cssCache));
+      header($headerExpires);
+      header("Pragma: cache");
+      header($headerCacheControl);
+
+      echo $cssCache;
+
+      exit();
+    } else if ($this->requestedUri == "adios/cache.js") {
+      $jsCache = $this->renderJSCache();
+      $cachingTime = 3600;
+
+      header("Content-type: text/js");
+      header("ETag: ".md5($jsCache));
+      header($headerExpires);
+      header("Pragma: cache");
+      header($headerCacheControl);
+
+      echo $jsCache;
+
+      exit();
+    }
   }
 
   public function renderSuccess($return) {
@@ -1057,7 +739,7 @@ class Loader
     } else {
       return "
         <div class='alert alert-warning' role='alert'>
-          ".($isHtml ? $message : hsc($message))."
+          ".($isHtml ? $message : htmlspecialchars($message))."
         </div>
       ";
     }
@@ -1072,7 +754,7 @@ class Loader
     } else {
       return "
         <div class='alert alert-danger' role='alert' style='z-index:99999999'>
-          ".($isHtml ? $message : hsc($message))."
+          ".($isHtml ? $message : htmlspecialchars($message))."
         </div>
       ";
     }
@@ -1081,7 +763,6 @@ class Loader
   public function renderHtmlFatal($message) {
     return $this->renderFatal($message, true);
   }
-
 
   public function renderExceptionHtml($exception) {
 
@@ -1103,7 +784,7 @@ class Loader
       . "</div>"
     ;
 
-    $this->console->error("{$errorHash}\t{$errorMessage}");
+    $this->logger->error("{$errorHash}\t{$errorMessage}");
 
     switch (get_class($exception)) {
       case 'ADIOS\Core\Exceptions\DBException':
@@ -1194,215 +875,18 @@ class Loader
     return $this->renderWarning($warning, true);
   }
 
-  /**
-   * Propagates an event to all plugins of the application. Each plugin can
-   * implement hook for the event. The hook must return either modified event
-   * data of false. Returning false in the hook terminates the event propagation.
-   *
-   * @param  string $eventName Name of the event to propagate.
-   * @param  array $eventData Data of the event. Each event has its own specific structure of the data.
-   * @throws \ADIOS\Core\Exception When plugin's hook returns invalid value.
-   * @return array<string, mixed> Event data modified by plugins which implement the hook.
-   */
-  public function dispatchEventToPlugins(string $eventName, array $eventData = []): array
-  {
-    foreach ($this->pluginObjects as $plugin) {
-      if (method_exists($plugin, $eventName)) {
-        $eventData = $plugin->$eventName($eventData);
-        if (!is_array($eventData) && $eventData !== false) {
-          throw new \ADIOS\Core\Exceptions\GeneralException("Plugin {$plugin->name}, event {$eventName}: No value returned. Either forward \$event or return FALSE.");
-        }
-
-        if ($eventData === false) {
-          break;
-        }
-      }
-    }
-    return $eventData;
-  }
-
-  public function hasPermissionForController($controller, $params) {
-    return true;
-  }
-
   ////////////////////////////////////////////////
   // metody pre pracu s konfiguraciou
 
-  public function isConfig(string $path): bool
-  {
-    $config = $this->config;
-    foreach (explode('/', $path) as $key => $value) {
-      if (isset($config[$value])) {
-        $config = $config[$value];
-      } else {
-        $config = null;
-      }
-    }
-    return ($config === null ? false : true);
-  }
-
-  public function getConfig(string $path, $default = null): mixed
-  {
-    $config = $this->config;
-    foreach (explode('/', $path) as $key => $value) {
-      if (isset($config[$value])) {
-        $config = $config[$value];
-      } else {
-        $config = null;
-      }
-    }
-    return ($config === null ? $default : $config);
-  }
-
-  public function setConfig(string $path, mixed $value): void
-  {
-    $path_array = explode('/', $path);
-
-    $cfg = &$this->config;
-    foreach ($path_array as $path_level => $path_slice) {
-      if ($path_level == count($path_array) - 1) {
-        $cfg[$path_slice] = $value;
-      } else {
-        if (empty($cfg[$path_slice])) {
-          $cfg[$path_slice] = null;
-        }
-        $cfg = &$cfg[$path_slice];
-      }
-    }
-  }
-
-  public function saveConfig(array $config, string $path = '') {
-    try {
-      if (is_array($config)) {
-        foreach ($config as $key => $value) {
-          $tmpPath = $path.$key;
-
-          if (is_array($value)) {
-            $this->saveConfig($value, $tmpPath.'/');
-          } else if ($value === null) {
-            $this->pdo->execute("delete from `config` where `path` like '?%'", [$tmpPath]);
-          } else {
-            $this->pdo->execute("
-              insert into `config` set `path` = '?', `value` = '?'
-              on duplicate key update `path` = '?', `value` = '?'
-            ", [$tmpPath, $value, $tmpPath, $value]);
-          }
-        }
-      }
-    } catch (\Exception $e) {
-    }
-  }
-
-  public function saveConfigByPath(string $path, string $value) {
-    try {
-      if (!empty($path)) {
-        $this->pdo->execute("
-          insert into `config` set `path` = :path, `value` = :value
-          on duplicate key update `path` = :path, `value` = :value
-        ", ['path' => $path, 'value' => $value]);
-      }
-    } catch (\Exception $e) {
-    }
-  }
-
-  public function deleteConfig($path) {
-    try {
-      if (!empty($path)) {
-        $this->pdo->execute("delete from `config` where `path` like ?", [$path . '%']);
-      }
-    } catch (\Exception $e) {
-      if ($e->getCode() == '42S02') { // Base table not found
-        // do nothing
-      } else {
-        throw $e; // forward exception to be processed by ADIOS
-      }
-    }
-  }
-
-  public function loadConfigFromDB() {
-    if (!$this->pdo->isConnected) return;
-
-    try {
-      $cfgs = $this->pdo->fetchAll("select * from `config`");
-
-      foreach ($cfgs as $cfg) {
-        $tmp = &$this->config;
-        foreach (explode("/", $cfg['path']) as $tmp_path) {
-          if (!isset($tmp[$tmp_path])) {
-            $tmp[$tmp_path] = [];
-          }
-          $tmp = &$tmp[$tmp_path];
-        }
-        $tmp = $cfg['value'];
-      }
-    } catch (\Exception $e) {
-      if ($e->getCode() == '42S02') { // Base table not found
-        // do nothing
-      } else {
-        throw $e; // forward exception to be processed by ADIOS
-      }
-    }
-  }
-
-  public function finalizeConfig() {
-    // various default values
-    $this->config['widgets'] = $this->config['widgets'] ?? [];
-    $this->config['protocol'] = (strtoupper($_SERVER['HTTPS'] ?? "") == "ON" ? "https" : "http");
-    $this->config['timezone'] = $this->config['timezone'] ?? 'Europe/Bratislava';
-
-    $this->config['uploadDir'] = $this->config['uploadDir'] ?? "{$this->config['accountDir']}/upload";
-    $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['accountUrl']}/upload";
-
-    $this->config['uploadDir'] = str_replace("\\", "/", $this->config['uploadDir']);
-  }
-
-  public function onUserAuthorised() {
-    // to be overriden
-  }
-
-  public function onBeforeConfigLoaded() {
-    // to be overriden
-  }
-
-  public function onAfterConfigLoaded() {
-    // to be overriden
-  }
-
-  public function onBeforeWidgetsLoaded() {
-    // to be overriden
-  }
-
-  public function onAfterWidgetsLoaded() {
-    // to be overriden
-  }
-
-  public function onBeforePluginsLoaded() {
-    // to be overriden
-  }
-
-  public function onAfterPluginsLoaded() {
-    // to be overriden
-  }
-
-  public function onAfterRouting() {
-    // to be overriden
-  }
-
   public function onBeforeRender() {
-    foreach ($this->widgets as $widget) {
-      $widget->onBeforeRender();
-    }
+    // to be overriden
   }
 
   public function onAfterRender() {
-    foreach ($this->widgets as $widget) {
-      $widget->onAfterRender();
-    }
+    // to be overriden
   }
 
   ////////////////////////////////////////////////
-
-
 
   public function getUid($uid = '') {
     if (empty($uid)) {
@@ -1464,52 +948,31 @@ class Loader
     return $css;
   }
 
-  private function scanReactFolder(string $path): string {
-    $reactJs = '';
+  // private function scanReactFolder(string $path): string {
+  //   $reactJs = '';
 
-    foreach (scandir($path . '/Assets/Js/React') as $file) {
-      if ('.js' == substr($file, -3)) {
-        $reactJs = @file_get_contents($path . "/Assets/Js/React/{$file}") . ";";
-        break;
-      }
-    }
+  //   foreach (scandir($path . '/Assets/Js/React') as $file) {
+  //     if ('.js' == substr($file, -3)) {
+  //       $reactJs = @file_get_contents($path . "/Assets/Js/React/{$file}") . ";";
+  //       break;
+  //     }
+  //   }
 
-    return $reactJs;
-  }
+  //   return $reactJs;
+  // }
 
   public function renderJSCache() {
     $js = "";
 
     $jsFiles = [
-      dirname(__FILE__)."/../Assets/Js/jquery-3.5.1.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.scrollTo.min.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.window.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.ui.widget.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.ui.mouse.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery-ui-touch-punch.js",
-      dirname(__FILE__)."/../Assets/Js/md5.js",
+      dirname(__FILE__)."/../Assets/Js/adios.js",
+      dirname(__FILE__)."/../Assets/Js/ajax_functions.js",
       dirname(__FILE__)."/../Assets/Js/base64.js",
       dirname(__FILE__)."/../Assets/Js/cookie.js",
-      // dirname(__FILE__)."/../Assets/Js/keyboard_shortcuts.js",
-      dirname(__FILE__)."/../Assets/Js/json.js",
-      dirname(__FILE__)."/../Assets/Js/moment.min.js",
-      dirname(__FILE__)."/../Assets/Js/chart.min.js",
       dirname(__FILE__)."/../Assets/Js/desktop.js",
-      dirname(__FILE__)."/../Assets/Js/ajax_functions.js",
-      dirname(__FILE__)."/../Assets/Js/adios.js",
-      dirname(__FILE__)."/../Assets/Js/quill-1.3.6.min.js",
-      // dirname(__FILE__)."/../Assets/Js/bootstrap.bundle.js",
-      dirname(__FILE__)."/../Assets/Js/jquery.easing.js",
-      dirname(__FILE__)."/../Assets/Js/sb-admin-2.js",
-      // dirname(__FILE__)."/../Assets/Js/jsoneditor.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.tag-editor.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.caret.min.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery-ui.min.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.multi-select.js",
-      // dirname(__FILE__)."/../Assets/Js/jquery.quicksearch.js",
-      // dirname(__FILE__)."/../Assets/Js/datatables.js",
-      dirname(__FILE__)."/../Assets/Js/jeditable.js",
-      dirname(__FILE__)."/../Assets/Js/draggable.js"
+      dirname(__FILE__)."/../Assets/Js/jquery-3.5.1.js",
+      dirname(__FILE__)."/../Assets/Js/md5.js",
+      dirname(__FILE__)."/../Assets/Js/moment.min.js",
     ];
 
 
@@ -1520,30 +983,6 @@ class Loader
     return $js;
   }
 
-  public function configAsString(string $path, string $defaultValue = ''): string
-  {
-    return (string) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsInteger(string $path, int $defaultValue = 0): int
-  {
-    return (int) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsFloat(string $path, float $defaultValue = 0): float
-  {
-    return (float) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsBool(string $path, bool $defaultValue = false): bool
-  {
-    return (bool) $this->getConfig($path, $defaultValue);
-  }
-
-  public function configAsArray(string $path, array $defaultValue = []): array
-  {
-    return (array) $this->getConfig($path, $defaultValue);
-  }
 
 
 
@@ -1614,7 +1053,7 @@ class Loader
     } else if (isset($_COOKIE['language']) && strlen($_COOKIE['language']) == 2) {
       return $_COOKIE['language'];
     } else {
-      $language = $this->configAsString('language', 'en');
+      $language = $this->config->getAsString('language', 'en');
       if (strlen($language) !== 2) $language = 'en';
       return $language;
     }

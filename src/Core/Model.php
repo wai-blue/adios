@@ -48,17 +48,7 @@ class Model
    */
   public Loader $app;
 
-  public \ADIOS\Core\RecordManager $recordManager;
-
-  /**
-   * Shorthand for "global table prefix"
-   */
-  public ?string $gtp = "";
-
-  /**
-   * Name of the table in SQL database. Used together with global table prefix.
-   */
-  public string $sqlName = '';
+  public \ADIOS\Core\Record $record;
 
   /**
    * SQL-compatible string used to render displayed value of the record when used
@@ -75,11 +65,6 @@ class Model
 
   public string $sqlEngine = 'InnoDB';
 
-  /**
-   * Property used to store original data when recordSave() method is calledmodel
-   *
-   * @var mixed
-   */
   public string $table = '';
   public string $eloquentClass = '';
   public array $relations = [];
@@ -100,18 +85,12 @@ class Model
   {
     $reflection = new \ReflectionClass($this);
 
-    $this->gtp = $app->configAsString('gtp');
-
-    if (empty($this->table)) {
-      $this->table = (empty($this->gtp) ? '' : $this->gtp . '_') . $this->sqlName; // toto je kvoli Eloquentu
-    }
-
     $this->app = $app;
     $this->columns = $this->describeColumns();
-    $this->recordManager = $this->initRecordManager();
+    $this->record = $this->initRecord();
 
     $eloquentClass = $this->eloquentClass;
-    if (!empty($eloquentClass)) {
+    if (!empty($eloquentClass) && $this->app->pdo->isConnected) {
       $this->eloquent = new $eloquentClass;
       $this->eloquent->setTable($this->table);
       $this->eloquent->fillable = $this->columnNames();
@@ -132,9 +111,9 @@ class Model
 
   }
 
-  public function initRecordManager(): RecordManager
+  public function initRecord(): Record
   {
-    return new RecordManager($this);
+    return new Record($this);
   }
 
   /**
@@ -144,33 +123,7 @@ class Model
    */
   public function getConfig(string $configName): string
   {
-    return $this->app->configAsString('models/' . str_replace("/", "-", $this->fullName) . '/' . $configName);
-  }
-
-  /**
-   * Sets the value of configuration parameter.
-   *
-   * @return void
-   */
-  public function setConfig(string $configName, string $value): void
-  {
-    $this->app->setConfig('models/' . str_replace("/", "-", $this->fullName) . '/' . $configName, $value);
-  }
-
-  /**
-   * Persistantly saves the value of configuration parameter to the database.
-   *
-   * @return void
-   */
-  public function saveConfig(string $configName, $value): void
-  {
-    $this->app->saveConfig([
-      "models" => [
-        str_replace("/", "-", $this->fullName) => [
-          $configName => $value,
-        ],
-      ],
-    ]);
+    return $this->app->config->getAsString('models/' . str_replace("/", "-", $this->fullName) . '/' . $configName);
   }
 
   /**
@@ -305,7 +258,10 @@ class Model
 
       $this->createSqlForeignKeys();
 
-      $this->saveConfig('installed-version', max(array_keys($this->upgrades())));
+      $this->app->config->save(
+        'models/' . str_replace("/", "-", $this->fullName) . '/installed-version',
+        max(array_keys($this->upgrades()))
+      );
 
       return TRUE;
     } else {
@@ -549,9 +505,9 @@ class Model
    */
   public function recordGet(callable|null $queryModifierCallback = null): array
   {
-    $query = $this->recordManager->prepareReadQuery();
+    $query = $this->record->prepareReadQuery();
     if ($queryModifierCallback !== null) $queryModifierCallback($query);
-    $record = $this->recordManager->read($query);
+    $record = $this->record->read($query);
     $record = $this->onAfterLoadRecord($record);
     return $record;
   }
@@ -567,11 +523,11 @@ class Model
     int $page = 0,
   ): array
   {
-    $query = $this->recordManager->prepareReadQuery();
-    $query = $this->recordManager->addFulltextSearchToQuery($query, $fulltextSearch);
-    $query = $this->recordManager->addColumnSearchToQuery($query, $columnSearch);
-    $query = $this->recordManager->addOrderByToQuery($query, $orderBy);
-    $paginatedRecords = $this->recordManager->readMany($query, $itemsPerPage, $page);
+    $query = $this->record->prepareReadQuery();
+    $query = $this->record->addFulltextSearchToQuery($query, $fulltextSearch);
+    $query = $this->record->addColumnSearchToQuery($query, $columnSearch);
+    $query = $this->record->addOrderByToQuery($query, $orderBy);
+    $paginatedRecords = $this->record->readMany($query, $itemsPerPage, $page);
 
     foreach ($paginatedRecords['data'] as $key => $record) {
       $paginatedRecords['data'][$key] = $this->onAfterLoadRecord($record);
@@ -583,12 +539,13 @@ class Model
   }
 
   /**
+   * DEPRECATED
    * prepareLoadRecordQuery
    * @return mixed Eloquent query used to load record.
    */
   public function prepareLoadRecordQuery(): mixed
   {
-    return $this->recordManager->prepareReadQuery();
+    return $this->record->prepareReadQuery();
   }
 
   //////////////////////////////////////////////////////////////////

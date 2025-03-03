@@ -17,7 +17,7 @@ class Locale {
   
   public function __construct($app) {
     $this->app = $app;
-    $this->locale = $this->app->configAsArray('locale');
+    $this->locale = $this->app->config->getAsArray('locale');
   }
 
   public function dateFormat() {

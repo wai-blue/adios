@@ -5,7 +5,7 @@ namespace ADIOS\Models\Eloquent;
 use \Illuminate\Database\Eloquent\Relations\HasMany;
 use \Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class User extends \ADIOS\Core\Model\Eloquent {
+class User extends \ADIOS\Core\ModelEloquent {
   public static $snakeAttributes = false;
   public $table = 'users';
 

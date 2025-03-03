@@ -139,7 +139,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   jsxContentRendered: boolean = false;
   jsxContent: JSX.Element;
 
-  inputs: {};
+  inputs: any = {};
 
   constructor(props: FormProps) {
     super(props);
@@ -445,19 +445,23 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
    * Render tab
    */
   renderContent(): JSX.Element {
-    if (this.state.description?.inputs == null) {
-      return adiosError(`No inputs specified for ${this.props.model}. Did the controller return definition of inputs?`);
-    }
+    // if (this.state.description?.inputs == null) {
+    //   return adiosError(`No inputs specified for ${this.props.model}. Did the controller return definition of inputs?`);
+    // }
+
+    let content = <></>;
 
     if (this.state.content?.tabs) {
       let tabs: any = Object.keys(this.state.content.tabs).map((tabName: string) => {
         return this.renderTabs(tabName, this.state.content?.tabs[tabName]);
       })
 
-      return tabs;
+      content = tabs;
     } else {
-      return this.renderTabs("default", this.state.content);
+      content = this.renderTabs("default", this.state.content);
     }
+
+    return <div className={"form-content " + (this.state.isInitialized ? "initialized" : "not-initialized")}>{content}</div>
   }
 
   /*

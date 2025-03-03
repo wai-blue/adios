@@ -1,3 +1,0 @@
-# Contact
-
-info@google.com

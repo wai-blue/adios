@@ -3,15 +3,10 @@
 namespace ADIOS\Models;
 
 class UserHasRole extends \ADIOS\Core\Model {
+
+  public string $table = "user_has_roles";
   public string $eloquentClass = Eloquent\UserHasRole::class;
-
   public bool $isJunctionTable = FALSE;
-
-  public function __construct(\ADIOS\Core\Loader $app)
-  {
-    $this->sqlName = "user_has_roles";
-    parent::__construct($app);
-  }
 
   public function describeColumns(): array
   {

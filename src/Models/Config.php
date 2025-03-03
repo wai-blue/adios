@@ -2,14 +2,11 @@
 
 namespace ADIOS\Models;
 
-class Config extends \ADIOS\Core\Model {
+class Config extends \ADIOS\Core\Model
+{
 
+  public string $table = 'config';
   public string $eloquentClass = Eloquent\Config::class;
-
-  public function __construct(\ADIOS\Core\Loader $app) {
-    $this->sqlName = "config";
-    parent::__construct($app);
-  }
 
   public function describeColumns(): array
   {

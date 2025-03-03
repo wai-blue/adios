@@ -266,6 +266,7 @@ class Record {
     $savedRecord = $record;
 
     $this->validate($savedRecord);
+    $savedRecord = $this->normalize($savedRecord);
 
     try {
 

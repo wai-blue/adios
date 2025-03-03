@@ -199,7 +199,7 @@ class Controller implements \ADIOS\Core\Testable {
 
   public function render(array $params): string
   {
-    return 'aaaa';
+    return '';
   }
 
 }

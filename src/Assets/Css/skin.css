@@ -63,10 +63,8 @@
   .btn-list-item .text { @apply flex-1; }
   .btn-list-item .icon { @apply self-stretch flex items-center; }
 
-  .btn.btn-disabled { @apply text-gray-200 border border-gray-200 hover:border-gray-200 hover:text-gray-200; }
-  .btn.btn-disabled .icon { @apply text-gray-200 hover:text-gray-200; }
-  .btn.btn-disabled .text { @apply text-gray-400 hover:text-gray-200; }
-
+  .btn.btn-disabled { @apply text-gray-200; opacity: 0.5 }
+  
   .btn.btn-dropdown { @apply items-baseline; }
   .btn.btn-dropdown > .menu { @apply cursor-default relative; left: -100%; top: 0.5em; }
   .btn.btn-dropdown > .menu > .list { @apply divide-none invisible mt-1 bg-white shadow-xl rounded absolute z-10; }

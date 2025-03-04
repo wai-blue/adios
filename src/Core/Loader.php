@@ -617,16 +617,21 @@ class Loader
         // ... But in most cases it will be "encapsulated" in the desktop.
         } else {
           $desktopControllerObject = $this->router->createDesktopController();
-          $desktopControllerObject->prepareView();
 
-          $desktopParams = $contentParams;
-          $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
-          $desktopParams['contentHtml'] = $contentHtml;
+          if ($desktopControllerObject->getView()) {
+            $desktopControllerObject->prepareView();
 
-          $html = $controllerObject->renderer->render(
-            $desktopControllerObject->getView(),
-            $desktopParams
-          );
+            $desktopParams = $contentParams;
+            $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
+            $desktopParams['contentHtml'] = $contentHtml;
+
+            $html = $controllerObject->renderer->render(
+              $desktopControllerObject->getView(),
+              $desktopParams
+            );
+          } else {
+            $html = $contentHtml;
+          }
 
         }
 

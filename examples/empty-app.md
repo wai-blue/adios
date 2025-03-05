@@ -4,17 +4,23 @@ In this example we will show how to create and empty Adios app.
 
 ## Prepare the development environment
 
-  * check if you have PHP 8.x
+  * check if you have PHP 8.x and composer
   * create root folder for your app: `mkdir /var/www/html/my-app`
-  * go to the folder: `cd /var/www/html/my-app`
-  * install Adios (no dependencies required): `composer require wai-blue/adios`
+
+## Install Adios
+
+In `/var/www/html/my-app` folder run following:
+
+```
+composer require wai-blue/adios
+```
 
 ## Create your app loader
 
 Create very simple app loader class. Leave it empty for now.
 
 ```php
-## ./src/app.php
+## ./src/App.php
 <?php
 class MyApp extends \ADIOS\Core\Loader { }
 ```
@@ -43,7 +49,7 @@ Load your class, environment config and render your app.
 // load config, composer's autoloaders and app loader class
 require_once("env.php");
 require_once("vendor/autoload.php");
-require_once("src/app.php");
+require_once("src/App.php");
 
 // create loader and render default output
 echo (new MyApp($config))->render();

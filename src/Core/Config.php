@@ -21,7 +21,7 @@ class Config
     if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
     if (empty($this->config['accountDir'])) $this->config['accountDir'] = $this->config['dir'];
     if (empty($this->config['accountUrl'])) $this->config['accountUrl'] = $this->config['url'];
-    if (empty($this->config['sessionSalt'])) $this->config['sessionSalt'] = rand(100000, 999999);
+    if (empty($this->config['sessionSalt'])) $this->config['sessionSalt'] = $this->config['appNamespace'] ?? 'adios-session';
 
     $this->set('requestUri', $_SERVER['REQUEST_URI'] ?? "");
 

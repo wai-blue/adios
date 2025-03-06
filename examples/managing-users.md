@@ -47,7 +47,7 @@ Run following commands in you project's folder:
 
 ```
 npm install react react-select react-dom tailwindcss primereact webpack webpack-cli
-npm install babel-loader @babel/preset-react @babel/preset-typescript style-loader css-loader sass-loader sass
+npm install babel-loader @babel/preset-react @babel/preset-typescript style-loader css-loader sass-loader sass --force
 npm install uuid axios @uiw/react-color-compact moment react-images-uploading react-tag-input sweetalert2 notyf
 npm install react-flatpickr --force
 ```

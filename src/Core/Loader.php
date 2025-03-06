@@ -97,7 +97,9 @@ class Loader
       $this->config = $this->createConfigManager($config);
 
       if (php_sapi_name() !== 'cli') {
-        if ($this->config->getAsString('rewriteBase') == "/") {
+        if (!empty($_GET['route'])) {
+          $this->requestedUri = $_GET['route'];
+        } else if ($this->config->getAsString('rewriteBase') == "/") {
           $this->requestedUri = ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), "/");
         } else {
           $this->requestedUri = str_replace(
@@ -619,14 +621,18 @@ class Loader
           $desktopControllerObject = $this->router->createDesktopController();
           $desktopControllerObject->prepareView();
 
-          $desktopParams = $contentParams;
-          $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
-          $desktopParams['contentHtml'] = $contentHtml;
+          if (isset($desktopControllerObject->renderer) && !empty($desktopControllerObject->getView())) {
+            $desktopParams = $contentParams;
+            $desktopParams['viewParams'] = array_merge($desktopControllerObject->getViewParams(), $contentParams['viewParams']);
+            $desktopParams['contentHtml'] = $contentHtml;
 
-          $html = $controllerObject->renderer->render(
-            $desktopControllerObject->getView(),
-            $desktopParams
-          );
+            $html = $desktopControllerObject->renderer->render(
+              $desktopControllerObject->getView(),
+              $desktopParams
+            );
+          } else {
+            $html = $contentHtml;
+          }
 
         }
 

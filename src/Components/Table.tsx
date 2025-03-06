@@ -335,8 +335,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     if (this.props.descriptionSource == 'props') return;
 
     request.get(
-      this.getEndpointUrl('describeTable'),
+      '',
       {
+        route: this.getEndpointUrl('describeTable'),
         ...this.getEndpointParams(),
       },
       (description: any) => {
@@ -361,8 +362,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       this.setState({data: this.props.data});
     } else {
       request.get(
-        this.getEndpointUrl('getRecords'),
+        '',
         {
+          route: this.getEndpointUrl('getRecords'),
           ...this.getEndpointParams(),
           filterBy: this.state.filterBy,
           model: this.model,
@@ -635,8 +637,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
       if (recordToDelete) {
         request.get(
-          this.getEndpointUrl('deleteRecord'),
+          '',
           {
+            route: this.getEndpointUrl('deleteRecord'),
             ...this.getEndpointParams(),
             id: recordToDelete.id ?? 0,
             hash: recordToDelete._idHash_ ?? '',

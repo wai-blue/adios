@@ -63,10 +63,8 @@
   .btn-list-item .text { @apply flex-1; }
   .btn-list-item .icon { @apply self-stretch flex items-center; }
 
-  .btn.btn-disabled { @apply text-gray-200 border border-gray-200 hover:border-gray-200 hover:text-gray-200; }
-  .btn.btn-disabled .icon { @apply text-gray-200 hover:text-gray-200; }
-  .btn.btn-disabled .text { @apply text-gray-400 hover:text-gray-200; }
-
+  .btn.btn-disabled { @apply text-gray-200; opacity: 0.5 }
+  
   .btn.btn-dropdown { @apply items-baseline; }
   .btn.btn-dropdown > .menu { @apply cursor-default relative; left: -100%; top: 0.5em; }
   .btn.btn-dropdown > .menu > .list { @apply divide-none invisible mt-1 bg-white shadow-xl rounded absolute z-10; }
@@ -80,6 +78,9 @@
 
   .breadcrumbs { @apply flex pb-2; }
   .breadcrumbs ol li:nth-child(n+2) { @apply hidden sm:block md:block ;}
+  .breadcrumbs ol > li > div { @apply flex items-center; }
+  .breadcrumbs ol > li > div > a { @apply ms-1 text-sm font-medium text-gray-500 hover:text-primary md:ms-2; }
+  .breadcrumbs ol > li > div > span { @apply ms-1 text-sm font-medium text-gray-800; }
 
   .card { @apply border border-solid border-slate-200 rounded shadow-lg mb-4; }
   .card-header { @apply flex justify-between font-bold border-b border-slate-200 p-4 bg-gray-50; }

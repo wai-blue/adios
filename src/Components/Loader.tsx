@@ -32,6 +32,7 @@ export class ADIOS {
 
   constructor(config: object) {
     this.config = config;
+    globalThis.app = this;
   }
 
   translate(orig: string, context?: string): string {

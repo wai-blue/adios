@@ -63,7 +63,7 @@ class Lookup extends \ADIOS\Core\Db\Column
       return $lookupModel->eloquent->create($lookupModel->getNewRecordDataFromString($value['_LOOKUP'] ?? ''))->id;
     } else if (empty($value)) {
       return null;
-    }
+    } else return null;
   }
 
   public function sqlIndexString(string $table, string $columnName): string

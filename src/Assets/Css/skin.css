@@ -17,8 +17,8 @@
 
   .btn.btn-extra-small .icon { @apply px-1 py-0.5; font-size: 0.3rem; }
   .btn.btn-extra-small .text { @apply px-1 py-0.5; font-size: 0.3rem; }
-  .btn.btn-small .icon { @apply text-sm py-0 h-auto md:h-[1.25rem]; }
-  .btn.btn-small .text { @apply text-sm py-0 h-auto md:h-[1.25rem]; }
+  .btn.btn-small .icon { @apply text-sm py-0; }
+  .btn.btn-small .text { @apply text-sm py-0; }
   .btn.btn-large .icon { @apply text-lg px-2.5 py-1.5; }
   .btn.btn-large .text { @apply text-lg px-2.5 py-1.5; }
   .btn.btn-extra-large .icon { @apply text-2xl px-3.5 py-2; }

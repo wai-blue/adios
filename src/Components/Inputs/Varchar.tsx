@@ -130,7 +130,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
               </select>
             </div>
           :
-            <button className="mt-1 btn btn-extra-small btn-transparent" onClick={() => { this.setState({showPredefinedValues: true}); }}>
+            <button className="mt-1 btn btn-small btn-transparent" onClick={() => { this.setState({showPredefinedValues: true}); }}>
               <span className="text text-xs">Choose from predefined options...</span>
             </button>
         : null}

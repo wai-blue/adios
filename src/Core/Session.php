@@ -14,7 +14,7 @@ class Session
 
     if (isset($_SESSION) && is_array($_SESSION) && !is_array($_SESSION[$this->salt])) $_SESSION[$this->salt] = [];
 
-    $this->salt = $this->app->config->getAsString('sessionSalt') . "-" . substr(md5($this->app->config->getAsString('sessionSalt')), 0, 5);
+    $this->salt = $this->app->config->getAsString('sessionSalt');
   }
 
   public function getSalt(): string

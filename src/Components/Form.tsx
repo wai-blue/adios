@@ -565,6 +565,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
     return {
       inputName: inputName,
+      inputClassName: 'w-full',
       record: record,
       description: inputDescription,
       value: value,

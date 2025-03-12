@@ -1,9 +1,6 @@
 @layer adios {
 
-  /* These CSS settings are useful when using <app-*></app-*> in Twig views. */
   app-dialog { display: none; }
-  app-form { display: none; }
-  app-table { display: none; }
 
   .alert-info { @apply p-4 mb-4 text-blue-800 rounded-lg bg-blue-50; }
   .alert-danger { @apply p-4 mb-4 text-red-800 rounded-lg bg-red-50; }
@@ -14,9 +11,9 @@
   .badge { @apply text-sm p-1 text-white bg-slate-300 rounded inline m-0.5; }
 
   .btn { @apply rounded inline-flex text-left p-0 m-0 items-center bg-primary text-white cursor-pointer hover:bg-secondary hover:text-white hover:no-underline; box-sizing: border-box; }
-  .btn.btn-small { @apply h-auto md:h-[1.25rem]; }
-  .btn .icon { @apply flex h-full items-center px-2 py-1 justify-center border-slate-200; }
-  .btn .text { @apply flex h-full items-center px-2 py-1 break-words border-slate-200; max-height: 3.5rem; overflow: hidden; }
+  .btn.btn-small { @apply h-auto; }
+  .btn .icon { @apply h-full items-center px-2 py-1 justify-center border-slate-200; }
+  .btn .text { @apply h-full items-center px-2 py-1 break-words border-slate-200; max-height: 3.5rem; overflow: hidden; }
 
   .btn.btn-no-border { @apply !border-none; }
 
@@ -64,7 +61,7 @@
   .btn.btn-violet-outline { @apply text-violet-800 bg-transparent border border-violet-100 hover:bg-violet-200; }
   .btn.btn-violet-outline .text { @apply !border-violet-800; }
 
-  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none; }
+  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none w-full; }
   .btn-list-item .text { @apply flex-1; }
   .btn-list-item .icon { @apply self-stretch flex items-center; }
 
@@ -154,6 +151,7 @@
   .adios-lookup[class*='-container'] { width: 100%; }
   .adios-lookup *[class*='-indicator'] { padding: 0px !important; }
   .adios-lookup *[class*='-control'] { @apply !w-full rounded-sm; min-height: auto !important; }
+  .adios-lookup *[class*='-control'] > div { padding-bottom: 0px !important; padding-top: 0px !important; }
   .adios-lookup *[class*='-input-container'] { @apply !p-0.5 !m-0; min-width: 2em; }
   .adios-lookup *[class*='-ValueContainer'] { @apply !p-0; }
   .adios-lookup *[class*='-Input'] { @apply !text-sm; }

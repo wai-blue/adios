@@ -500,14 +500,6 @@ class Loader
         foreach ($routeVars as $varName => $varValue) {
           $this->params[$varName] = $varValue;
         }
-      // } else {
-      //   list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
-      //   $this->logger->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
-
-      //   $this->controller = $tmpRoute['controller'] ?? '';
-      //   // $this->view = $tmpRoute['view'] ?? '';
-      //   $this->permission = $tmpRoute['permission'] ?? '';
-
       }
 
       if ($this->isUrlParam('sign-out')) {
@@ -599,6 +591,7 @@ class Loader
           'routeParams' => $this->params,
           'route' => $this->route,
           'session' => $this->session->get(),
+          'controller' => $controllerObject,
           'viewParams' => $controllerObject->getViewParams(),
           'windowParams' => $controllerObject->getViewParams()['windowParams'] ?? null,
         ];
@@ -1038,8 +1031,10 @@ class Loader
 
   public function urlParamAsBool(string $paramName, bool $defaultValue = false): bool
   {
-    if (isset($this->params[$paramName])) return (bool) $this->params[$paramName];
-    else return $defaultValue;
+    if (isset($this->params[$paramName])) {
+      if (strtolower($this->params[$paramName]) === 'false') return false;
+      else return (bool) $this->params[$paramName];
+    } else return $defaultValue;
   }
 
   /**

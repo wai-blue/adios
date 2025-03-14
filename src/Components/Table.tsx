@@ -144,6 +144,7 @@ interface TableData {
 export interface TableState {
   endpoint: TableEndpoint,
   description?: TableDescription,
+  loadingData: boolean,
   data?: TableData | null,
   filterBy?: any,
   recordId?: any,
@@ -199,6 +200,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         model: this.model,
         uid: props.uid,
       },
+      loadingData: false,
       page: 1,
       itemsPerPage: this.props.itemsPerPage,
       orderBy: this.props.orderBy,
@@ -361,30 +363,33 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     if (this.props.data) {
       this.setState({data: this.props.data});
     } else {
-      request.get(
-        '',
-        {
-          route: this.getEndpointUrl('getRecords'),
-          ...this.getEndpointParams(),
-          filterBy: this.state.filterBy,
-          model: this.model,
-          orderBy: this.state.orderBy,
-          page: this.state.page ?? 0,
-          itemsPerPage: this.state.itemsPerPage ?? 15,
-          parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
-          parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
-          fulltextSearch: this.state.fulltextSearch,
-          tag: this.props.tag,
-          context: this.props.context,
-          where: this.props.where,
-          __IS_AJAX__: '1',
-        },
-        (data: any) => {
-          this.setState({
-            data: data,
-          });
-        }
-      );
+      this.setState({loadingData: true}, () => {
+        request.get(
+          '',
+          {
+            route: this.getEndpointUrl('getRecords'),
+            ...this.getEndpointParams(),
+            filterBy: this.state.filterBy,
+            model: this.model,
+            orderBy: this.state.orderBy,
+            page: this.state.page ?? 0,
+            itemsPerPage: this.state.itemsPerPage ?? 15,
+            parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
+            parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
+            fulltextSearch: this.state.fulltextSearch,
+            tag: this.props.tag,
+            context: this.props.context,
+            where: this.props.where,
+            __IS_AJAX__: '1',
+          },
+          (data: any) => {
+            this.setState({
+              loadingData: false,
+              data: data,
+            });
+          }
+        );
+      });
     }
   }
 
@@ -475,7 +480,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       const step: number = (max - min) / 5;
       const colorIndex = Math.min(5, Math.floor((val - min) / step) + 1);
 
-      cellClassName += ' bg-' + column.colorScale + '---step-' + colorIndex;
+      cellClassName += column.colorScale + '---step-' + colorIndex;
     }
 
     return cellClassName;
@@ -739,7 +744,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       description: (this.state.description && this.state.description.inputs ? this.state.description?.inputs[columnName] : null),
     };
     const rowIndex = options.rowIndex;
-    const cellContent = enumValues ? enumValues[columnValue] : columnValue;
+
+    let cellContent = enumValues ? enumValues[columnValue] : columnValue;
 
     if (typeof column.cellRenderer == 'function') {
       return column.cellRenderer(this, data, options);
@@ -752,12 +758,14 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       } else {
         switch (column.type) {
           case 'int':
+            if (column.showExponential) cellContent = cellContent.toExponential();
             cellValueElement = <>
               {cellContent}
               {column.unit ? ' ' + column.unit : ''}
             </>;
           break;
           case 'float':
+            if (column.showExponential) cellContent = cellContent.toExponential();
             cellValueElement = <>
               {cellContent ? Number(cellContent).toFixed(column.decimals ?? 2) : null}
               {column.unit ? ' ' + column.unit : ''}
@@ -946,7 +954,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
           <div
             id={"adios-table-" + this.props.uid}
-            className={"adios component table" + (this.props.className ? " " + this.props.className : "")}
+            className={
+              "adios component table" + (this.props.className ? " " + this.props.className : "") + (this.state.loadingData ? " loading" : "")
+            }
           >
             {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
             {this.state.description?.ui?.showFilter ? this.renderFilter() : null}

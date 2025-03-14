@@ -23,6 +23,8 @@ abstract class Column implements \JsonSerializable
   protected array $predefinedValues = [];
   protected string $colorScale = '';
 
+  protected array $properties = [];
+
   public function __construct(\ADIOS\Core\Model $model, string $title)
   {
     $this->model = $model;

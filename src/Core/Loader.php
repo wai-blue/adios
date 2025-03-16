@@ -188,7 +188,7 @@ class Loader
     $dbUser = $this->config->getAsString('db_user', '');
     $dbPassword = $this->config->getAsString('db_password', '');
 
-    if (!empty($dbHost) && !empty($dbPort) && !empty($dbName) && !empty($dbUser)) {
+    if (!empty($dbHost) && !empty($dbPort) && !empty($dbUser)) {
       $this->eloquent = new \Illuminate\Database\Capsule\Manager;
       $this->eloquent->setAsGlobal();
       $this->eloquent->bootEloquent();
@@ -196,7 +196,7 @@ class Loader
         "driver"    => "mysql",
         "host"      => $dbHost,
         "port"      => $dbPort,
-        "database"  => $dbName,
+        "database"  => $dbName ?? '',
         "username"  => $dbUser,
         "password"  => $dbPassword,
         "charset"   => 'utf8mb4',

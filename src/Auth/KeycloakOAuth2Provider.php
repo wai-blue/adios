@@ -22,7 +22,8 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
 
   }
 
-  public function signOut() {
+  public function signOut()
+  {
     $accessToken = $this->getAccessToken();
     $accountUrl = $this->app->config->getAsString('accountUrl');
     try {
@@ -41,26 +42,35 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
     }
   }
 
-  public function getAccessToken() {
+  public function getAccessToken()
+  {
     return $this->app->session->get('oauthAccessToken');
   }
 
-  public function setAccessToken($accessToken) {
+  public function setAccessToken($accessToken)
+  {
     $this->app->session->set('oauthAccessToken', $accessToken);
   }
 
   public function auth()
   {
+    // $this->app->logger->info('Keycloak: auth()');
     $accessToken = $this->getAccessToken();
+    // $this->app->logger->info('Keycloak: accessToken length = ' . strlen($accessToken));
 
-    if ($accessToken) {
+    if ($accessToken && $accessToken->hasExpired()) {
       try {
         $accessToken = $this->provider->getAccessToken('refresh_token', [
           'refresh_token' => $accessToken->getRefreshToken()
         ]);
-
         $this->setAccessToken($accessToken);
+      } catch (\Exception $e) {
+        $this->deleteSession();
+      }
+    }
 
+    if ($accessToken) {
+      try {
         $resourceOwner = $this->provider->getResourceOwner($accessToken);
 
         if ($resourceOwner) $this->signIn($resourceOwner->toArray());
@@ -134,7 +144,6 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
 
       if ($authResult) {
         $this->signIn($authResult);
-
         $this->app->router->redirectTo('');
         exit;
       } else {

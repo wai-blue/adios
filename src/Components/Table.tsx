@@ -64,6 +64,7 @@ export interface TableUi {
   //showPaging?: boolean,
   //showControls?: boolean,
   //showAddButton?: boolean,
+  showNoDataAddButton?: boolean,
   //showPrintButton?: boolean,
   //showSearchButton?: boolean,
   //showExportCsvButton?: boolean,
@@ -310,7 +311,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       //globalFilter={globalFilter}
       //header={header}
       emptyMessage: <>
-        <div className="p-2">{this.translate('No data.', 'ADIOS\\Core\\Loader::Components\\Table')}</div>{this.showAddButton() ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}
+        <div className="p-2">{this.translate('No data.', 'ADIOS\\Core\\Loader::Components\\Table')}</div>{this.state.description?.ui?.showNoDataAddButton ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}
       </>,
       dragSelection: true,
       selectAll: true,
@@ -944,7 +945,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       if (!this.state.data || !this.state.description?.columns) {
         return <ProgressBar mode="indeterminate" style={{ height: '8px' }}></ProgressBar>;
       }
-      
+
       const fallback: any = <div className="alert alert-danger">Failed to render table. Check console for error log.</div>
 
       return (

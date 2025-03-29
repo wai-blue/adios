@@ -10,6 +10,12 @@ namespace ADIOS\Core;
  * 
  */
 class Controller implements \ADIOS\Core\Testable {
+
+  const RETURN_TYPE_VIEW = 0;
+  const RETURN_TYPE_JSON = 1;
+  const RETURN_TYPE_STRING = 2;
+  const RETURN_TYPE_NONE = 3;
+
   /**
    * Reference to ADIOS object
    */
@@ -58,6 +64,8 @@ class Controller implements \ADIOS\Core\Testable {
   public string $fullName = "";
   public string $permission = "";
   public null|string $view = null;
+
+  public int $returnType = self::RETURN_TYPE_VIEW;
 
   public object $renderer;
   public string $translationContext = '';
@@ -128,6 +136,16 @@ class Controller implements \ADIOS\Core\Testable {
   public function postInit(): void
   {
     //
+  }
+
+  public function run(): mixed
+  {
+    return null;
+  }
+
+  public function renderString(): string
+  {
+    return '';
   }
 
   /**

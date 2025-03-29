@@ -571,12 +571,24 @@ class Loader
       $this->onBeforeRender();
 
       // Either return JSON string ...
-      $json = $controllerObject->renderJson();
+      if ($controllerObject->returnType == Controller::RETURN_TYPE_JSON) {
+        try {
+          $returnArray = $controllerObject->renderJson();
+        } catch (\Throwable $e) {
+          http_response_code(400);
 
-      if (is_array($json)) {
-        $return = json_encode($json);
-
-      // ... Or a view must be applied.
+          $returnArray = [
+            'status' => 'error',
+            'code' => $e->getCode(),
+            'message' => $e->getMessage(),
+          ];
+        }
+        $return = json_encode($returnArray);
+      } elseif ($controllerObject->returnType == Controller::RETURN_TYPE_STRING) {
+        $return = $controllerObject->renderString();
+      } elseif ($controllerObject->returnType == Controller::RETURN_TYPE_NONE) {
+        $controllerObject->run();
+        $return = '';
       } else {
         $controllerObject->prepareView();
 
@@ -629,7 +641,7 @@ class Loader
 
         }
 
-        return $html;
+        $return = $html;
       }
 
       $this->onAfterRender();

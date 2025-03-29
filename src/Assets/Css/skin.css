@@ -148,14 +148,17 @@
   .modal .modal-body { @apply p-2 flex-1 overflow-y-auto; }
   .modal .modal-footer { @apply p-2 border-t border-t-gray-200 bg-gray-50; }
 
-  .table-default { @apply w-full text-left rtl:text-right text-gray-500 dark:text-gray-400; }
-  .table-default > thead { @apply text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400; }
+  .table-default { @apply w-full text-left border border-gray-200 rtl:text-right text-gray-500 dark:text-gray-400; }
+  .table-default > thead { @apply text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400; }
   .table-default > thead > tr > th { @apply px-6 py-3; }
-  .table-default > tbody > tr { @apply bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200; }
+  .table-default > tbody > tr { @apply bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50; }
   .table-default > tbody > tr > th { @apply px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white; }
   .table-default > tbody > tr > td { @apply px-6 py-4; }
-  .table-default > thead { @apply text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400; }
-  .table-default > thead > tr > th { @apply px-6 py-3; }
+  .table-default > thead { @apply text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400; }
+
+  .table-default.dense > thead > tr > th { @apply px-1 py-1; }
+  .table-default.dense > tbody > tr > th { @apply px-1 py-1; }
+  .table-default.dense > tbody > tr > td { @apply px-1 py-1; }
 
 
   .adios-lookup[class*='-container'] { width: 100%; }

@@ -41,8 +41,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
   fp: any
 
   options: any = {
-    dateFormat: 'd.m.Y',
-    allowInput: true,
+    allowInput: false,
     locale: {
       weekdays: {
         shorthand: ['Ne.', 'Po.', 'Ut.', 'St.', 'Št.', 'Pi.', 'So.'],
@@ -63,20 +62,21 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
     switch (props.type) {
       case 'datetime':
-        this.options = {...this.options, ...{ dateFormat: 'd.m.Y H:i' }};
+        this.options = {...this.options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:m:s'};
       break;
       case 'date':
-        this.options = {...this.options, ...{ weekNumbers: true, dateFormat: 'd.m.Y' }};
+        this.options = {...this.options, showMonths: 2, weekNumbers: true, dateFormat: 'd.m.Y'};
       break;
       case 'time':
         this.options = {
           ...this.options,
           ...{
-            dateFormat: 'H:i',
+            dateFormat: 'H:m',
             enableTime: true,
             noCalendar: true,
             time_24hr: true,
-            minuteIncrement: 15
+            minuteIncrement: 15,
+            showMonths: 2,
           }
         };
       break;
@@ -89,10 +89,10 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
     } else if (value != '') {
       switch (this.props.type) {
         case 'datetime':
-          value = moment(value, 'DD.MM.YYYY H:i:s').format('YYYY-MM-DD H:i:s');
+          value = moment(value).format('YYYY-MM-DD H:mm:s');
         break;
         case 'date':
-          value = moment(value, 'DD.MM.YYYY').format('YYYY-MM-DD');
+          value = moment(value).format('YYYY-MM-DD');
         break;
         case 'time':
           value = moment(value).format('HH:mm');
@@ -108,10 +108,10 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
     switch (this.props.type) {
       case 'datetime':
-        value = (value == '0000-00-00' ? '' : datetimeToEUFormat(value));
+        value = moment(value).format('DD.MM.YYYY H:mm:s');
       break;
       case 'date':
-        value = (value == '0000-00-00' ? '' : dateToEUFormat(value));
+        value = moment(value).format('DD.MM.YYYY');
       break;
     }
 

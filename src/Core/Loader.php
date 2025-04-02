@@ -188,7 +188,7 @@ class Loader
     $dbUser = $this->config->getAsString('db_user', '');
     $dbPassword = $this->config->getAsString('db_password', '');
 
-    if (!empty($dbHost) && !empty($dbPort) && !empty($dbName) && !empty($dbUser)) {
+    if (!empty($dbHost) && !empty($dbPort) && !empty($dbUser)) {
       $this->eloquent = new \Illuminate\Database\Capsule\Manager;
       $this->eloquent->setAsGlobal();
       $this->eloquent->bootEloquent();
@@ -196,7 +196,7 @@ class Loader
         "driver"    => "mysql",
         "host"      => $dbHost,
         "port"      => $dbPort,
-        "database"  => $dbName,
+        "database"  => $dbName ?? '',
         "username"  => $dbUser,
         "password"  => $dbPassword,
         "charset"   => 'utf8mb4',
@@ -500,14 +500,6 @@ class Loader
         foreach ($routeVars as $varName => $varValue) {
           $this->params[$varName] = $varValue;
         }
-      // } else {
-      //   list($tmpRoute, $this->params) = $this->router->applyRouting($this->route, $this->params);
-      //   $this->logger->info("applyRouting for {$this->route}: " . print_r($tmpRoute, true));
-
-      //   $this->controller = $tmpRoute['controller'] ?? '';
-      //   // $this->view = $tmpRoute['view'] ?? '';
-      //   $this->permission = $tmpRoute['permission'] ?? '';
-
       }
 
       if ($this->isUrlParam('sign-out')) {
@@ -579,12 +571,24 @@ class Loader
       $this->onBeforeRender();
 
       // Either return JSON string ...
-      $json = $controllerObject->renderJson();
+      if ($controllerObject->returnType == Controller::RETURN_TYPE_JSON) {
+        try {
+          $returnArray = $controllerObject->renderJson();
+        } catch (\Throwable $e) {
+          http_response_code(400);
 
-      if (is_array($json)) {
-        $return = json_encode($json);
-
-      // ... Or a view must be applied.
+          $returnArray = [
+            'status' => 'error',
+            'code' => $e->getCode(),
+            'message' => $e->getMessage(),
+          ];
+        }
+        $return = json_encode($returnArray);
+      } elseif ($controllerObject->returnType == Controller::RETURN_TYPE_STRING) {
+        $return = $controllerObject->renderString();
+      } elseif ($controllerObject->returnType == Controller::RETURN_TYPE_NONE) {
+        $controllerObject->run();
+        $return = '';
       } else {
         $controllerObject->prepareView();
 
@@ -599,6 +603,7 @@ class Loader
           'routeParams' => $this->params,
           'route' => $this->route,
           'session' => $this->session->get(),
+          'controller' => $controllerObject,
           'viewParams' => $controllerObject->getViewParams(),
           'windowParams' => $controllerObject->getViewParams()['windowParams'] ?? null,
         ];
@@ -636,7 +641,7 @@ class Loader
 
         }
 
-        return $html;
+        $return = $html;
       }
 
       $this->onAfterRender();
@@ -1038,8 +1043,10 @@ class Loader
 
   public function urlParamAsBool(string $paramName, bool $defaultValue = false): bool
   {
-    if (isset($this->params[$paramName])) return (bool) $this->params[$paramName];
-    else return $defaultValue;
+    if (isset($this->params[$paramName])) {
+      if (strtolower($this->params[$paramName]) === 'false') return false;
+      else return (bool) $this->params[$paramName];
+    } else return $defaultValue;
   }
 
   /**

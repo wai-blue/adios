@@ -12,17 +12,23 @@ class Auth {
     $this->app = $app;
     $this->params = $params;
 
-    if ($this->isUserInSession()) $this->loadUserFromSession();
+    // if ($this->isUserInSession()) $this->loadUserFromSession();
+  }
+
+  public function getSessionKey(): string
+  {
+    $cfg = $this->app->config->getAsArray('auth');
+    return $cfg['sessionKey'] ?? '';
   }
 
   public function getUserFromSession(): ?array
   {
-    return $this->app->session->get('userProfile');
+    return $this->app->session->get('userProfile', $this->getSessionKey());
   }
 
   public function updateUserInSession(array $user): void
   {
-    $this->app->session->set('userProfile', $user);
+    $this->app->session->set('userProfile', $user, $this->getSessionKey());
   }
 
   public function isUserInSession(): bool

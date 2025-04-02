@@ -1,5 +1,7 @@
 @layer adios {
 
+  app-dialog { display: none; }
+
   .alert-info { @apply p-4 mb-4 text-blue-800 rounded-lg bg-blue-50; }
   .alert-danger { @apply p-4 mb-4 text-red-800 rounded-lg bg-red-50; }
   .alert-success { @apply p-4 mb-4 text-green-800 rounded-lg bg-green-50; }
@@ -9,9 +11,9 @@
   .badge { @apply text-sm p-1 text-white bg-slate-300 rounded inline m-0.5; }
 
   .btn { @apply rounded inline-flex text-left p-0 m-0 items-center bg-primary text-white cursor-pointer hover:bg-secondary hover:text-white hover:no-underline; box-sizing: border-box; }
-  .btn.btn-small { @apply h-auto md:h-[1.25rem]; }
-  .btn .icon { @apply flex h-full items-center px-2 py-1 justify-center border-slate-200; }
-  .btn .text { @apply flex h-full items-center px-2 py-1 break-words border-slate-200; max-height: 3.5rem; overflow: hidden; }
+  .btn.btn-small { @apply h-auto; }
+  .btn .icon { @apply h-full items-center px-2 py-1 justify-center border-slate-200; }
+  .btn .text { @apply h-full items-center px-2 py-1 break-words border-slate-200; max-height: 3.5rem; overflow: hidden; }
 
   .btn.btn-no-border { @apply !border-none; }
 
@@ -25,13 +27,14 @@
   .btn.btn-extra-large .text { @apply text-2xl px-3.5 py-2; }
 
   .btn.btn-transparent { @apply text-gray-800 bg-transparent border border-gray-100 hover:border-gray-200 hover:bg-gray-100; }
-  .btn.btn-transparent:hover .icon { @apply bg-gray-100; }
+  .btn.btn-primary { @apply text-white bg-primary border border-primary hover:border-primary/80 hover:bg-primary/80; }
+  .btn.btn-secondary { @apply text-white bg-secondary border border-secondary hover:border-secondary/80 hover:bg-secondary/80; }
   .btn.btn-white { @apply text-gray-800 bg-white border border-gray-100 hover:bg-gray-100; }
-  .btn.btn-light { @apply text-gray-800 bg-gray-200 hover:bg-gray-400; }
+  .btn.btn-light { @apply text-primary bg-primary/10 hover:bg-secondary/10; }
   .btn.btn-danger { @apply text-red-600 bg-red-200 hover:bg-red-400 hover:text-white; }
   .btn.btn-success { @apply text-white bg-green-700 hover:bg-green-900 hover:text-white; }
   .btn.btn-success-outline { @apply text-green-700 bg-white border border-dotted border-green-700 hover:border-solid; }
-  .btn.btn-add { @apply text-white bg-secondary hover:bg-green-900 hover:text-white; }
+  .btn.btn-add { @apply text-white bg-secondary hover:bg-secondary/80 hover:text-white; }
   .btn.btn-add-outline { @apply text-secondary bg-white border border-dotted border-secondary hover:border-solid; }
   .btn.btn-save { @apply text-white bg-secondary hover:bg-green-900 hover:text-white; }
   .btn.btn-save-outline { @apply text-secondary bg-white border border-dotted border-secondary hover:border-solid; }
@@ -59,17 +62,17 @@
   .btn.btn-violet-outline { @apply text-violet-800 bg-transparent border border-violet-100 hover:bg-violet-200; }
   .btn.btn-violet-outline .text { @apply !border-violet-800; }
 
-  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none; }
+  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none w-full; }
   .btn-list-item .text { @apply flex-1; }
   .btn-list-item .icon { @apply self-stretch flex items-center; }
 
   .btn.btn-disabled { @apply text-gray-200; opacity: 0.5 }
   
   .btn.btn-dropdown { @apply items-baseline; }
-  .btn.btn-dropdown > .menu { @apply cursor-default relative; left: -100%; top: 0.5em; }
-  .btn.btn-dropdown > .menu > .list { @apply divide-none invisible mt-1 bg-white shadow-xl rounded absolute z-10; }
+  .btn.btn-dropdown > .menu { @apply cursor-default invisible relative; left: -100%; top: 0.5em; }
+  .btn.btn-dropdown > .menu > .list { @apply divide-none  mt-1 bg-white shadow-xl rounded absolute z-10; }
   .btn.btn-dropdown:focus-within { @apply bg-gray-100; }
-  .btn.btn-dropdown:focus-within > .menu > .list { @apply visible; }
+  .btn.btn-dropdown:focus-within > .menu { @apply visible; }
   .btn.btn-dropdown:focus-within > .menu > .list .btn { @apply text-nowrap; }
 
   .btn-group { @apply flex divide-x rounded border border-gray-100; }
@@ -84,6 +87,10 @@
 
   .card { @apply border border-solid border-slate-200 rounded shadow-lg mb-4; }
   .card-header { @apply flex justify-between font-bold border-b border-slate-200 p-4 bg-gray-50; }
+  .card-header-buttons { @apply -m-4; }
+  .card-header-buttons .btn { @apply font-normal p-4 border-none rounded-none; }
+  .card-header-buttons .btn .icon { @apply my-0 py-0; }
+  .card-header-buttons .btn .text { @apply my-0 py-0; }
   .card-header small { @apply font-normal; }
   .card-body { @apply p-2; }
   .card-footer { @apply flex justify-between border-t border-slate-200 p-4; }
@@ -146,9 +153,23 @@
   .modal .modal-body { @apply p-2 flex-1 overflow-y-auto; }
   .modal .modal-footer { @apply p-2 border-t border-t-gray-200 bg-gray-50; }
 
+  .table-default { @apply w-full text-left border border-gray-200 rtl:text-right text-gray-500 dark:text-gray-400; }
+  .table-default > thead { @apply text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400; }
+  .table-default > thead > tr > th { @apply px-6 py-3; }
+  .table-default > tbody > tr { @apply bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50; }
+  .table-default > tbody > tr > th { @apply px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white; }
+  .table-default > tbody > tr > td { @apply px-6 py-4; }
+  .table-default > thead { @apply text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400; }
+
+  .table-default.dense > thead > tr > th { @apply px-1 py-1; }
+  .table-default.dense > tbody > tr > th { @apply px-1 py-1; }
+  .table-default.dense > tbody > tr > td { @apply px-1 py-1; }
+
+
   .adios-lookup[class*='-container'] { width: 100%; }
   .adios-lookup *[class*='-indicator'] { padding: 0px !important; }
   .adios-lookup *[class*='-control'] { @apply !w-full rounded-sm; min-height: auto !important; }
+  .adios-lookup *[class*='-control'] > div { padding-bottom: 0px !important; padding-top: 0px !important; }
   .adios-lookup *[class*='-input-container'] { @apply !p-0.5 !m-0; min-width: 2em; }
   .adios-lookup *[class*='-ValueContainer'] { @apply !p-0; }
   .adios-lookup *[class*='-Input'] { @apply !text-sm; }

@@ -31,16 +31,18 @@ class Session
     define('_SESSION_ID', session_id());
   }
 
-  public function set(string $path, mixed $value)
+  public function set(string $path, mixed $value, string $key = '')
   {
-    if (!isset($_SESSION[$this->salt])) $_SESSION[$this->salt] = [];
-    $_SESSION[$this->salt][$path] = $value;
+    if (empty($key)) $key = $this->salt;
+    if (!isset($_SESSION[$key])) $_SESSION[$key] = [];
+    $_SESSION[$key][$path] = $value;
   }
 
-  public function get(string $path = ''): mixed
+  public function get(string $path = '', string $key = ''): mixed
   {
-    if ($path == '') return $_SESSION[$this->salt] ?? [];
-    else return $_SESSION[$this->salt][$path] ?? null;
+    if (empty($key)) $key = $this->salt;
+    if ($path == '') return $_SESSION[$key] ?? [];
+    else return $_SESSION[$key][$path] ?? null;
   }
 
   public function push(string $path, mixed $value): void

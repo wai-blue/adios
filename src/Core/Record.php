@@ -282,7 +282,7 @@ class Record {
 
       if ((bool) ($record['_toBeDeleted_'] ?? false)) {
         $this->delete((int) $savedRecord['id']);
-        $savedRecord = [];
+        return [];
       } else if ($isCreate) {
         $savedRecord = $this->model->onBeforeCreate($savedRecord);
         $savedRecord = $this->create($savedRecord);

@@ -61,9 +61,11 @@ class Lookup extends \ADIOS\Core\Db\Column
     } else if ($value['_isNew_'] ?? false) {
       $lookupModel = $this->model->app->getModel($this->model->getColumns()[$colName]->getLookupModel());
       return $lookupModel->eloquent->create($lookupModel->getNewRecordDataFromString($value['_LOOKUP'] ?? ''))->id;
+    } else if ($value['_useMasterRecordId_'] ?? false) {
+      return $value;
     } else if (empty($value)) {
       return null;
-    }
+    } else return null;
   }
 
   public function sqlIndexString(string $table, string $columnName): string

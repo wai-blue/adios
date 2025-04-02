@@ -146,7 +146,12 @@ class Router {
 
   public function routeVarAsBool($varIndex): bool
   {
-    return (bool) ($this->routeVars[$varIndex] ?? false);
+    if (isset($this->params[$paramName])) {
+      if (strtolower($this->routeVars[$varIndex]) === 'false') return false;
+      else return (bool) ($this->routeVars[$varIndex] ?? false);
+    } else {
+      return false;
+    }
   }
 
   // public function extractRouteVariables(string $method, string $route): array

@@ -20,19 +20,28 @@ class Locale {
     $this->locale = $this->app->config->getAsArray('locale');
   }
 
-  public function dateFormat() {
-    return $this->locale["date"]["format"] ?? "d.m.Y";
+  public function getDateShortFormat(): string
+  {
+    return $this->locale["date"]["formatShort"] ?? "d.m.Y";
   }
 
-  public function datetimeFormat() {
+  public function getDateLongFormat(): string
+  {
+    return $this->locale["date"]["formatLong"] ?? "d.m.Y";
+  }
+
+  public function getDatetimeFormat(): string
+  {
     return $this->locale["datetime"]["format"] ?? "d.m.Y H:i:s";
   }
 
-  public function timeFormat() {
+  public function getTimeFormat(): string
+  {
     return $this->locale["time"]["format"] ?? "H:i:s";
   }
 
-  public function currencySymbol() {
+  public function getCurrencySymbol(): string
+  {
     return $this->locale["currency"]["symbol"] ?? "€";
   }
 
@@ -43,6 +52,34 @@ class Locale {
       "datetimeFormat" => $this->datetimeFormat(),
       "currencySymbol" => $this->currencySymbol(),
     ];
+  }
+
+  public function formatDateShort(string|int $dateOrTimestamp): string
+  {
+    if (is_string($dateOrTimestamp)) $ts = strtotime($dateOrTimestamp);
+    else $ts = $dateOrTimestamp;
+    return date($this->getDateShortFormat(), $ts);
+  }
+
+  public function formatDateLong(string|int $dateOrTimestamp): string
+  {
+    if (is_string($dateOrTimestamp)) $ts = strtotime($dateOrTimestamp);
+    else $ts = $dateOrTimestamp;
+    return date($this->getDateLongFormat(), $ts);
+  }
+
+  public function formatDatetime(string|int $datetimeOrTimestamp): string
+  {
+    if (is_string($dateOrTimestamp)) $ts = strtotime($datetimeOrTimestamp);
+    else $ts = $datetimeOrTimestamp;
+    return date($this->getDatetimeFormat(), $ts);
+  }
+
+  public function formatTime(string|int $timeOrTimestamp): string
+  {
+    if (is_string($dateOrTimestamp)) $ts = strtotime($timeOrTimestamp);
+    else $ts = $timeOrTimestamp;
+    return date($this->getTimeFormat(), $ts);
   }
 
 }

@@ -42,6 +42,8 @@
   .btn.btn-delete-outline { @apply text-red-800 bg-transparent border border-red-100 hover:border-red-200; }
   .btn.btn-cancel { @apply text-gray-600 bg-gray-200 hover:bg-gray-400 hover:text-white; }
   .btn.btn-cancel-outline { @apply text-gray-600 bg-white border border-dotted border-gray-200 hover:border-solid; }
+  .btn.btn-close { @apply text-gray-600 bg-gray-200 hover:bg-gray-400 hover:text-white; }
+  .btn.btn-close-outline { @apply text-gray-600 bg-white border border-dotted border-gray-200 hover:border-solid; }
 
   .btn.btn-blue { @apply text-blue-800 bg-blue-100 border border-blue-100 hover:border-blue-200; }
   .btn.btn-blue-outline { @apply text-blue-800 bg-transparent border border-blue-800 hover:bg-blue-200; }
@@ -132,6 +134,8 @@
   .input-wrapper .input-info { @apply text-sm text-gray-500 pr-1; }
   .input-wrapper .input-description { @apply text-sm text-primary pr-1; }
 
+  .input-highlighted { @apply bg-primary/20; }
+
   .key-value-table { @apply leading-8 divide-y border border-slate-200; }
   .key-value-table.dense { @apply leading-4 border border-slate-200; }
   .key-value-table > div { @apply flex justify-between p-1 border-b border-slate-200 hover:bg-gray-100; }
@@ -152,6 +156,8 @@
   .modal .modal-header .modal-header-right { @apply flex flex-1 gap-1 justify-end; }
   .modal .modal-body { @apply p-2 flex-1 overflow-y-auto; }
   .modal .modal-footer { @apply p-2 border-t border-t-gray-200 bg-gray-50; }
+
+  .table-header-search::placeholder { filter: grayscale(1); }
 
   .table-default { @apply w-full text-left border border-gray-200 rtl:text-right text-gray-500 dark:text-gray-400; }
   .table-default > thead { @apply text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400; }

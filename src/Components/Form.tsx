@@ -775,7 +775,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   renderCloseButton(): JSX.Element {
     return (
       <button
-        className="btn btn-light"
+        className="btn btn-close"
         type="button"
         data-dismiss="modal"
         aria-label="Close"

@@ -1,5 +1,6 @@
 import React, { Component, ChangeEvent, createRef } from 'react';
 
+import { setUrlParam } from "./Helper";
 import Modal, { ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
 import ModalSimple from "./ModalSimple";
@@ -175,6 +176,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   state: TableState;
   model: string;
   translationContext: string = 'table';
+  refFulltextSearchInput: any = null;
 
   dt = createRef<DataTable<any[]>>();
 
@@ -182,6 +184,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     super(props);
 
     globalThis.app.reactElements[this.props.uid] = this;
+
+    this.refFulltextSearchInput = React.createRef();
 
     this.model = this.props.model ?? '';
 
@@ -555,43 +559,67 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     return this.state.description?.ui?.title ? <>{this.state.description?.ui?.title}</> : <></>;
   }
 
-  renderHeaderRight(): Array<JSX.Element> {
-    let elements: Array<JSX.Element> = [];
+  renderFulltextSearch(): JSX.Element {
     if (this.state.description?.ui?.showFulltextSearch) {
-      elements.push(
+      return <>
         <input
-          className="table-header-search"
+          ref={this.refFulltextSearchInput}
+          className={"table-header-search " + (this.state.fulltextSearch == "" ? "" : "input-highlighted")}
           type="search"
-          placeholder={this.translate('Start typing to search...', 'ADIOS\\Core\\Loader::Components\\Table')}
+          placeholder={'🔍 ' + this.translate('Start typing to search...', 'ADIOS\\Core\\Loader::Components\\Table')}
           value={this.state.fulltextSearch}
+          onKeyUp={(event: any) => {
+            if (event.keyCode == 13) {
+              this.loadData();
+              setUrlParam('q', this.state.fulltextSearch);
+            }
+          }}
           onChange={(event: ChangeEvent<HTMLInputElement>) => this.onFulltextSearchChange(event.target.value)}
         />
-      );
+        <button
+          className="btn btn-transparent"
+          onClick={() => this.loadData()}
+        >
+          <span className="icon"><i className="fas fa-magnifying-glass"></i></span>
+        </button>
+      </>;
+    } else {
+      return <></>;
     }
+  }
+
+  renderHeaderRight(): Array<JSX.Element> {
+    let elements: Array<JSX.Element> = [];
+    // elements.push(this.renderFulltextSearch());
     return elements;
   }
 
   renderHeader(): JSX.Element {
-    return <div className="table-header">
-      <div className="table-header-left">
-        {this.renderHeaderLeft().map((item: any, index: any) => {
-          return <div key={'header-left-' + index}>{item}</div>;
-        })}
-      </div>
-
-      {this.state.description?.ui?.showHeaderTitle ?
-        <div className="table-header-title">
-          {this.renderHeaderTitle()}
+    return <>
+      <div className="table-header">
+        <div className="table-header-left">
+          {this.renderHeaderLeft().map((item: any, index: any) => {
+            return <div key={'header-left-' + index}>{item}</div>;
+          })}
         </div>
-        : null
-      }
 
-      <div className="table-header-right">
-        {this.renderHeaderRight().map((item: any, index: any) => {
-          return <div key={'header-right-' + index}>{item}</div>;
-        })}
+        {this.state.description?.ui?.showHeaderTitle ?
+          <div className="table-header-title">
+            {this.renderHeaderTitle()}
+          </div>
+          : null
+        }
+
+        <div className="table-header-right">
+          {this.renderHeaderRight().map((item: any, index: any) => {
+            return <div key={'header-right-' + index}>{item}</div>;
+          })}
+        </div>
       </div>
-    </div>
+      <div className="table-header">
+        {this.renderFulltextSearch()}
+      </div>
+    </>
   }
 
   renderFilter(): JSX.Element {
@@ -1094,6 +1122,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   onFulltextSearchChange(fulltextSearch: string) {
     this.setState({
       fulltextSearch: fulltextSearch
-    }, () => this.loadData());
+    });
   }
 }

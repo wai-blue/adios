@@ -1,6 +1,15 @@
 # Hubleto CHANGELOG
 
-## Release 1.8 (not published yet)
+## Release 1.10 (not published yet)
+
+  * new property `Controller->$returnType`
+  * improved default skin
+  * new `Console->createLogger()` and `Auth->createUserModel()` methods
+  * various bugfixes
+  * updated documentation
+  * codebase cleanup
+
+## Release 1.9
 
   * new `\ADIOS\Core\Loader->urlParamNotEmpty()` method
   * various bugfixes

@@ -102,7 +102,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
       else return <AsyncSelect {...selectProps} />;
     } else {
     
-      return <><div className="w-full">
+      return <>
         <input
           type='text'
           value={this.state.value ?? ''}
@@ -134,7 +134,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
               <span className="text text-xs">Choose from predefined options...</span>
             </button>
         : null}
-      </div></>;
+      </>;
     }
   }
 }

@@ -26,8 +26,8 @@
   .adios.component.table .table-body tbody tr td .to-be-deleted { @apply bg-red-500; }
   .adios.component.table .table-body tbody tr td .to-be-deleted input { @apply text-red-500; }
 
-  .adios.component.input { @apply inline-flex justify-between items-center; }
-
+  .adios.component.input { @apply inline-flex justify-between items-center w-full; }
+  
   .adios.component.input input,
   .adios.component.input textarea,
   .adios.component.input select { @apply border border-slate-200 flex flex-1 rounded-sm w-full p-0.5; }

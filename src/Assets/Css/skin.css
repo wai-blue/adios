@@ -2,6 +2,8 @@
 
   app-dialog { display: none; }
 
+  .alert-primary { @apply p-4 mb-4 text-primary rounded-lg bg-primary/20; }
+  .alert-secondary { @apply p-4 mb-4 text-secondary rounded-lg bg-secondary/20; }
   .alert-info { @apply p-4 mb-4 text-blue-800 rounded-lg bg-blue-50; }
   .alert-danger { @apply p-4 mb-4 text-red-800 rounded-lg bg-red-50; }
   .alert-success { @apply p-4 mb-4 text-green-800 rounded-lg bg-green-50; }
@@ -87,14 +89,16 @@
   .breadcrumbs ol > li > div > a { @apply ms-1 text-sm font-medium text-gray-500 hover:text-primary md:ms-2; }
   .breadcrumbs ol > li > div > span { @apply ms-1 text-sm font-medium text-gray-800; }
 
-  .card { @apply border border-solid border-slate-200 rounded shadow-lg mb-4; }
-  .card-header { @apply flex justify-between font-bold border-b border-slate-200 p-4 bg-gray-50; }
+  .card { @apply flex flex-col border border-solid border-slate-200 rounded shadow-lg mb-4; }
+  .card.card-horizontal { @apply flex flex-row; }
+  .card-header { @apply flex justify-between font-bold border-b border-slate-200 p-4 bg-gray-100; }
+  .card.card-horizontal .card-header { @apply border-none; }
   .card-header-buttons { @apply -m-4; }
   .card-header-buttons .btn { @apply font-normal p-4 border-none rounded-none; }
   .card-header-buttons .btn .icon { @apply my-0 py-0; }
   .card-header-buttons .btn .text { @apply my-0 py-0; }
   .card-header small { @apply font-normal; }
-  .card-body { @apply p-2; }
+  .card-body { @apply p-2 flex-1; }
   .card-footer { @apply flex justify-between border-t border-slate-200 p-4; }
 
   .dialog { @apply rounded bg-white; }

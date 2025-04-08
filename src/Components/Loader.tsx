@@ -257,12 +257,14 @@ export class ADIOS {
 
         componentProps[attributeName] = attributeValue;
 
-        if (this.attributesToSkip.includes(attributeName)) {
-          i++;
-          continue;
-        }
-        // Remove attributes from HTML DOM
-        domElement.removeAttribute(domElement.attributes[i].name);
+        i++;
+        // if (this.attributesToSkip.includes(attributeName)) {
+        //   i++;
+        //   continue;
+        // }
+
+        // // Remove attributes from HTML DOM
+        // domElement.removeAttribute(domElement.attributes[i].name);
       }
 
       let children: Array<any> = [];
@@ -322,6 +324,12 @@ export class ADIOS {
       // https://blog.saeloun.com/2021/07/15/react-18-adds-new-root-api/
       requestIdleCallback(() => {
         this.reactElementsWaitingForRender--;
+
+        // console.log($(element), $(element).html());
+        // $(element).find('*').each((el) => {
+        //   console.log($(el));//, $(this).html());
+        //   // $(this).parent().before($(this));
+        // });
 
         if (this.reactElementsWaitingForRender <= 0) {
           //@ts-ignore

@@ -70,7 +70,8 @@ export interface TableUi {
   //showSearchButton?: boolean,
   //showExportCsvButton?: boolean,
   //showImportCsvButton?: boolean,
-  showFulltextSearch?: boolean
+  showFulltextSearch?: boolean,
+  emptyMessage: any,
 }
 
 export interface TableDescription {
@@ -314,7 +315,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       stripedRows: true,
       //globalFilter={globalFilter}
       //header={header}
-      emptyMessage: <>
+      emptyMessage: this.props.description?.ui?.emptyMessage || <>
         <div className="p-2">{this.translate('No data.', 'ADIOS\\Core\\Loader::Components\\Table')}</div>{this.state.description?.ui?.showNoDataAddButton ? <div className="pt-2">{this.renderAddButton(true)}</div> : null}
       </>,
       dragSelection: true,

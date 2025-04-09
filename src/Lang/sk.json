@@ -33,7 +33,8 @@
     },
     "root": {
         "You cannot delete record that is linked with another records. Delete the linked records first.": "Nie je možné zmazať záznam, ktorý je prepojený s inými záznamami. Vymažte najprv prepojené záznamy.",
-        "Show error details": "Zobraziť podrobnosti chyby"
+        "Show error details": "Zobraziť podrobnosti chyby",
+        "`{{ colTitle }}` is required.": "`{{ colTitle }}` je povinný."
     },
     "Controllers\\SignIn": {
         "Keep signed in": "Zostať prihlásený",

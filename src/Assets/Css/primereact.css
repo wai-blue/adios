@@ -32,7 +32,7 @@
   .p-tabview-nav-link { @apply mr-0.5 p-0 rounded-none border border-gray-200 border-t-gray-400 bg-transparent !no-underline font-normal hover:text-primary hover:border-t-primary dark:border-slate-600 dark:text-white dark:hover:text-white dark:hover:bg-primary/20; }
   .p-tabview-title { @apply p-3 block; }
   .p-tabview-selected > .p-tabview-nav-link { @apply text-primary border-t-primary border-l-primary/10 border-r-primary/10 bg-white hover:!bg-none dark:text-white dark:bg-primary/20; }
-  .p-tabview-selected .p-tabview-title { @apply bg-primary/10 hover:!bg-primary/10; }
+  .p-tabview-selected .p-tabview-title { @apply bg-white/10 hover:!bg-white/30; }
   .p-inputswitch { zoom: 0.66; }
   .p-dialog .p-dialog-header { @apply p-2 text-sm; }
   .p-dialog .p-dialog-title { @apply text-sm; }

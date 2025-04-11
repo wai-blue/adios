@@ -464,19 +464,20 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     if (column.enumValues) {
       cellClassName += ' badge ' + (column.enumCssClasses ? (column.enumCssClasses[rowData[columnName]] ?? '') : '');
     } else {
-      switch (column.type) {
-        case 'int':
-        case 'float':
-          cellClassName += ' text-right font-semibold';
-        break;
-        case 'date':
-        case 'datetime':
-          cellClassName += ' text-left';
-        break;
-        case 'lookup':
-          cellClassName += ' text-primary';
-        break;
-      }
+      cellClassName += ' column-' + column.type;
+      // switch (column.type) {
+      //   case 'int':
+      //   case 'float':
+      //     cellClassName += ' text-right font-semibold';
+      //   break;
+      //   case 'date':
+      //   case 'datetime':
+      //     cellClassName += ' text-left';
+      //   break;
+      //   case 'lookup':
+      //     cellClassName += ' text-primary';
+      //   break;
+      // }
     }
 
     if (column.colorScale) {

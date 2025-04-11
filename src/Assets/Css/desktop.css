@@ -13,6 +13,8 @@
   table tr { @apply odd:bg-slate-50; }
   table tr td { @apply p-1; }
 
+  input, select, textarea { @apply bg-white/20; }
+
 
   /* SPECIAL components, idetified by # id */
   aside#default-sidebar { @apply flex fixed top-0 left-0 z-10 pt-12 h-full transition-transform -translate-x-full md:translate-x-0; }
@@ -30,8 +32,8 @@
   aside#default-sidebar > div > ul > li > ul > li > ul > li > ul > li { @apply ml-2 text-sm; } /* lvl-4 */
   aside#default-sidebar > div > ul > li > ul > li > ul > li > ul > li > ul > li { @apply ml-4 text-sm; } /* lvl-5 */
 
-  nav#default-navbar { @apply bg-white fixed w-full z-20 top-0 start-0 dark:bg-slate-800; }
-  nav#default-navbar > div { @apply flex flex-wrap items-center justify-between mx-auto p-2 dark:bg-slate-800; }
+  nav#default-navbar { @apply bg-white fixed w-full z-20 top-0 start-0; }
+  nav#default-navbar > div { @apply flex flex-wrap items-center justify-between mx-auto p-2 dark:bg-slate-600; }
   nav#default-navbar .btn { @apply !shadow-none; }
 
   div#sign-in-screen { @apply w-full h-screen flex items-center justify-center; }

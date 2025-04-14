@@ -9,9 +9,9 @@
   h1 { @apply mt-4 text-primary text-2xl; }
   h2 { @apply mb-2 text-primary text-xl; }
 
-  table { @apply border border-slate-50; }
+  /* table { @apply border border-slate-50; }
   table tr { @apply odd:bg-slate-50; }
-  table tr td { @apply p-1; }
+  table tr td { @apply p-1; } */
 
   input, select, textarea { @apply bg-white/20; }
 

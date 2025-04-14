@@ -54,9 +54,10 @@ class Locale {
     ];
   }
 
-  public function formatCurrency(string|float $value): string
+  public function formatCurrency(string|float $value, string $symbol = ''): string
   {
-    return number_format((float) $value, 2, ",", " ") . ' ' . $this->getCurrencySymbol();
+    if ($symbol == '') $symbol = $this->getCurrencySymbol();
+    return number_format((float) $value, 2, ",", " ") . ' ' . $symbol;
   }
 
   public function formatDateShort(string|int $dateOrTimestamp): string

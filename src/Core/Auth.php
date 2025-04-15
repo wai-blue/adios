@@ -69,6 +69,15 @@ class Auth {
     // to be overriden
   }
 
+  /**
+   * Generates and manages optional forgot password functionality
+   * @return void
+   */
+  public function forgotPassword()
+  {
+    // to be overriden
+  }
+
   public function getUser(): array
   {
     return is_array($this->user) ? $this->user : [];

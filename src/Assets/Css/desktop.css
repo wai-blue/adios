@@ -4,7 +4,7 @@
   html { @apply !font-sans text-gray-800 dark:bg-slate-800; font-size: 10pt; }
 
   a { @apply hover:underline }
-  a[role=button] { @apply text-primary font-bold text-sm; }
+  a[role=button] { @apply text-primary bg-white cursor-pointer m-2 inline-block font-bold text-sm p-2 border border-gray-50 hover:no-underline hover:bg-gray-50; }
 
   h1 { @apply mt-4 text-primary text-2xl; }
   h2 { @apply mb-2 text-primary text-xl; }

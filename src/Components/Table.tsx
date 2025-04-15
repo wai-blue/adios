@@ -71,7 +71,7 @@ export interface TableUi {
   //showExportCsvButton?: boolean,
   //showImportCsvButton?: boolean,
   showFulltextSearch?: boolean,
-  emptyMessage: any,
+  emptyMessage?: any,
 }
 
 export interface TableDescription {

@@ -105,8 +105,6 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
     if (this.state.data && this.state.data[this.state.value]?._LOOKUP) {
       return <>
         <a
-          role="button"
-          className="text-primary"
           data-pr-tooltip={JSON.stringify(this.state.data[this.state.value] ?? {})}
           data-pr-position="bottom"
         >

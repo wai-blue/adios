@@ -3,16 +3,16 @@
   /* PRIMETABLE */
 
   .p-progressbar .p-progressbar-value { @apply bg-primary; }
-  /* .p-datatable .p-datatable-tbody > tr > td { @apply p-1 text-sm; } */
-  .p-datatable .p-datatable-thead > tr > th { @apply p-1 border-b border-b-gray-400; }
-  .p-datatable .p-datatable-thead > tr > th .p-sortable-column-icon { @apply scale-[0.75]; }
+  .p-datatable .p-datatable-tbody > tr > td { @apply border-gray-50 dark:border-slate-600; }
+  .p-datatable .p-datatable-thead > tr > th { @apply p-1 dark:bg-slate-600 dark:text-white dark:border-slate-800; }
+  .p-datatable .p-datatable-thead > tr > th .p-sortable-column-icon { @apply scale-[0.75] dark:text-gray-400; }
   .p-datatable .p-sortable-column.p-highlight { @apply bg-slate-100; }
   .p-datatable .p-sortable-column.p-highlight .p-column-header-content .p-column-title { @apply text-primary; }
   .p-datatable .p-sortable-column.p-highlight .p-column-header-content .p-sortable-column-icon { @apply text-primary; }
   .p-datatable tr { height: 1px; }
-  .p-datatable tr td { height: inherit; vertical-align: middle; }
+  .p-datatable tr td { @apply dark:bg-slate-800 dark:text-white; height: inherit; vertical-align: middle; }
   /* .p-datatable tr td > div { height: 100%; } */
-  .p-datatable-footer { @apply p-2 text-sm bg-slate-100; }
+  .p-datatable-footer { @apply p-2 text-sm bg-slate-100 border-none dark:bg-slate-800 dark:text-white; }
   .p-dropdown-item.p-highlight { @apply bg-slate-100 text-primary; }
   .p-treetable .p-treetable-tbody > tr > td { @apply p-1 text-sm; }
   .p-tree-container .p-treenode { @apply ml-2; }
@@ -26,20 +26,23 @@
   .p-tree-toggler { @apply scale-[0.66]; }
   .p-tabview { @apply pb-2; }
   .p-tabview .p-tabview-ink-bar { @apply bg-primary; }
-  .p-tabview-nav { @apply border-b border-gray-200; }
-  .p-tabview-panels { @apply p-1 border-l border-r border-b border-gray-200; }
+  .p-tabview-nav { @apply border-b border-gray-200 bg-transparent dark:border-b-slate-400; }
+  .p-tabview-panels { @apply p-1 border-l border-r border-b border-gray-200 dark:bg-slate-600 dark:border-none; }
   /* .p-tabview-panels { @apply p-1; } */
-  .p-tabview-nav-link { @apply mr-0.5 p-0 rounded-none border border-gray-200 border-t-gray-400 bg-transparent !no-underline font-normal hover:text-primary hover:border-t-primary; }
+  .p-tabview-nav-link { @apply mr-0.5 p-0 rounded-none border border-gray-200 border-t-gray-400 bg-transparent !no-underline font-normal hover:text-primary hover:border-t-primary dark:border-slate-600 dark:text-white dark:hover:text-white dark:hover:bg-primary/20; }
   .p-tabview-title { @apply p-3 block; }
-  .p-tabview-selected > .p-tabview-nav-link { @apply text-primary border-t-primary border-l-primary/10 border-r-primary/10 bg-white hover:!bg-none; }
-  .p-tabview-selected .p-tabview-title { @apply bg-primary/10 hover:!bg-primary/10; }
+  .p-tabview-selected > .p-tabview-nav-link { @apply text-primary border-t-primary border-l-primary/10 border-r-primary/10 bg-white hover:!bg-none dark:text-white dark:bg-primary/20; }
+  .p-tabview-selected .p-tabview-title { @apply bg-white/10 hover:!bg-white/30; }
   .p-inputswitch { zoom: 0.66; }
   .p-dialog .p-dialog-header { @apply p-2 text-sm; }
   .p-dialog .p-dialog-title { @apply text-sm; }
-  .p-dialog .p-dialog-content { @apply p-2 text-sm; }
-  .p-dialog .p-dialog-footer { @apply p-4 border-t border-gray-200 bg-gray-50 flex justify-between; }
+  .p-dialog .p-dialog-content { @apply p-2 text-sm dark:bg-slate-600 dark:text-white; }
+  .p-dialog .p-dialog-footer { @apply p-4 border-t border-gray-200 bg-gray-50 flex justify-between dark:bg-slate-600 dark:text-white; }
 
   /* PRIMETABLE PAGINATION*/
+  .p-paginator { @apply bg-white border-none dark:bg-slate-800; }
+  .p-paginator .p-link { @apply dark:text-white; }
+  .p-paginator .p-paginator-current { @apply dark:text-white; }
   .p-paginator .p-paginator-pages .p-paginator-page.p-highlight { @apply bg-secondary border-secondary text-white; }
   .p-paginator .p-paginator-pages .p-paginator-page { @apply border-1 border-gray-300 rounded-2xl transition-all; }
   .p-paginator .p-paginator-pages .p-paginator-page:not(.p-highlight):hover { @apply border-1 border-gray-500 bg-gray-500 text-white; }

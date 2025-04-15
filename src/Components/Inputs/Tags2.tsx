@@ -131,6 +131,7 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
       for (let i in options) {
         items.push(
           <button
+            key={i}
             className="btn btn-transparent btn-small mr-1"
             style={{ borderColor: (options[i].color ? options[i].color : '') }}
           >

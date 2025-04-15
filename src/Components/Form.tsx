@@ -565,7 +565,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
     return {
       inputName: inputName,
-      inputClassName: 'w-full',
+      inputClassName: '',
       record: record,
       description: inputDescription,
       value: value,
@@ -764,7 +764,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     return <>
       {this.state.description?.permissions?.canUpdate ? <button
         onClick={() => this.setState({ isInlineEditing: true })}
-        className="btn btn-transparent"
+        className="btn btn-edit"
       >
         <span className="icon"><i className="fas fa-pencil-alt"></i></span>
         <span className="text">{this.translate('Edit', 'ADIOS\\Core\\Loader::Components\\Form')}</span>
@@ -775,12 +775,12 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   renderCloseButton(): JSX.Element {
     return (
       <button
-        className="btn btn-light"
+        className="btn btn-close"
         type="button"
         data-dismiss="modal"
         aria-label="Close"
         onClick={this.props.onClose}
-      ><span className="text">&times;</span></button>
+      ><span className="icon"><i className="fas fa-xmark"></i></span></button>
     );
   }
 

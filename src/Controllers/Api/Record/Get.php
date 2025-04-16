@@ -3,7 +3,6 @@
 namespace ADIOS\Controllers\Api\Record;
 
 class Get extends \ADIOS\Core\ApiController {
-  protected ?\Illuminate\Database\Eloquent\Builder $query = null;
 
   public \ADIOS\Core\Model $model;
 

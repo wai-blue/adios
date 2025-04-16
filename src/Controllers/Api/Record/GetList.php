@@ -6,9 +6,8 @@ use Illuminate\Support\Str;
 
 class GetList extends \ADIOS\Core\ApiController {
   public \ADIOS\Core\Model $model;
-  protected ?\Illuminate\Database\Eloquent\Builder $query = null;
-  public array $data = [];
-  private int $itemsPerPage = 15;
+  // public array $data = [];
+  // private int $itemsPerPage = 15;
 
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);

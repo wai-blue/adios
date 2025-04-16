@@ -262,8 +262,8 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     return globalThis.app.translate(orig, context ?? this.translationContext);
   }
 
-  onAfterLoadTableDescription(params: any): any {
-    return params;
+  onAfterLoadTableDescription(description: any): any {
+    return description;
   }
 
   // getEndpointUrl(): string {

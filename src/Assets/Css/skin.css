@@ -10,7 +10,12 @@
   .alert-warning { @apply p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50; }
   .alert-danger { @apply p-4 mb-4 text-red-800 rounded-lg bg-red-50; }
 
-  .badge { @apply text-sm p-1 text-white bg-slate-300 rounded inline m-0.5; }
+  .badge { @apply text-sm p-1 text-white bg-slate-300 text-slate-800 rounded inline m-0.5; }
+  .badge-info { @apply text-blue-800 bg-blue-50; }
+  .badge-danger { @apply text-red-800 bg-red-50; }
+  .badge-success { @apply text-green-800 bg-green-50; }
+  .badge-warning { @apply text-yellow-800 bg-yellow-50; }
+  .badge-danger { @apply text-red-800 bg-red-50; }
 
   .btn { @apply rounded inline-flex text-left p-0 m-0 items-center bg-primary text-white cursor-pointer border-slate-200 hover:bg-secondary hover:text-white hover:no-underline; box-sizing: border-box; }
   .btn.btn-small { @apply h-auto; }
@@ -148,8 +153,8 @@
   .key-value-table > div div:nth-child(2) { @apply font-bold; }
 
   .modal { @apply flex flex-col h-screen w-full overflow-auto bg-white dark:bg-slate-600; }
-  .modal.right { @apply fixed top-0 right-0 md:w-1/2 z-50 h-full shadow-2xl border-l border-l-primary dark:border-l-slate-400 dark:shadow-black; }
-  .modal.right.wide { @apply md:w-2/3; }
+  .modal.right { @apply absolute top-0 right-0 md:w-1/2 z-50 h-full shadow-2xl border-l border-l-primary dark:border-l-slate-400 dark:shadow-black; }
+  .modal.right.wide { @apply md:w-[80%]; }
   .modal.right.wider { @apply md:w-[90vw] ;}
   .modal.centered { @apply fixed mx-auto md:my-4 md:w-2/3 md:h-[calc(100vh-theme(space.8))] z-50 shadow-2xl rounded border border-primary dark:border-slate-600; top: 0; left: 50%; transform: translate(-50%, 0%);}
   .modal.centered.large { @apply md:w-[90vw] md:h-[90vh];}
@@ -162,6 +167,8 @@
   .modal .modal-header .modal-header-right { @apply flex flex-1 gap-1 justify-end; }
   .modal .modal-body { @apply p-2 flex-1 overflow-y-auto; }
   .modal .modal-footer { @apply p-2 border-t border-t-gray-200 bg-gray-50 dark:bg-slate-600 dark:border-slate-400; }
+
+  .modal.right .modal.right { @apply w-[95%] border border-primary; margin-right: 0.5em; margin-top: 2em; height: calc(100% - 2.5em); }
 
   .table-header-search::placeholder { filter: grayscale(1); }
 

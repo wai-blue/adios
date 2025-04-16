@@ -5,7 +5,7 @@ namespace ADIOS\Models;
 class UserHasRole extends \ADIOS\Core\Model {
 
   public string $table = "user_has_roles";
-  public string $eloquentClass = Eloquent\UserHasRole::class;
+  public string $recordManagerClass = RecordManagers\UserHasRole::class;
   public bool $isJunctionTable = FALSE;
 
   public function describeColumns(): array

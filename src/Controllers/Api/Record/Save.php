@@ -3,7 +3,6 @@
 namespace ADIOS\Controllers\Api\Record;
 
 class Save extends \ADIOS\Core\ApiController {
-  protected ?\Illuminate\Database\Eloquent\Builder $query = null;
 
   public \ADIOS\Core\Model $model;
 
@@ -24,7 +23,7 @@ class Save extends \ADIOS\Core\ApiController {
     $model = $this->app->getModel($modelClass);
     if (!is_object($model)) throw new \Exception("Unable to create model {$model}.");
 
-    $savedRecord = $this->model->record->save($originalRecord);
+    $savedRecord = $this->model->record->recordSave($originalRecord);
 
     return [
       'status' => 'success',

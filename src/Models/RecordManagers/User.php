@@ -1,11 +1,11 @@
 <?php
 
-namespace ADIOS\Models\Eloquent;
+namespace ADIOS\Models\RecordManagers;
 
 use \Illuminate\Database\Eloquent\Relations\HasMany;
 use \Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class User extends \ADIOS\Core\ModelEloquent {
+class User extends \ADIOS\Core\EloquentRecordManager {
   public static $snakeAttributes = false;
   public $table = 'users';
 

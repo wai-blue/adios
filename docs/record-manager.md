@@ -6,7 +6,7 @@ For example, following very simple code:
 
 ```php
 $mContact = new \MyApp\Models\Contact($this->app);
-$contact = $mContact->record->read($mContact->record->prepareReadQuery()->where('id', 1));
+$contact = $mContact->record->recordRead($mContact->record->prepareReadQuery()->where('id', 1));
 ```
 
 will produce an array (`$contact`) containing the *record* with contact ID = 1. It will have the following structure (example):
@@ -123,7 +123,7 @@ Then the values in the SQL would be either `1` or `2` or `3` and will be visuall
 To create a record, simply run:
 
 ```php
-$mContact->record->create([
+$mContact->record->recordCreate([
   "first_name" => "John",
   "last_name" => "Smith",
   "id_category" => 1,
@@ -137,7 +137,7 @@ To read a record, simply run:
 ```php
 $readQuery = $mContact->record->prepareReadQuery(); // prepare the query for reading
 $readQuery->where('id', 1); // use Eloquent to modify the query
-$record = $mContact->record->read($readQuery); // read record
+$record = $mContact->record->recordRead($readQuery); // read record
 ```
 
 ### Updating records
@@ -145,7 +145,7 @@ $record = $mContact->record->read($readQuery); // read record
 To update a record, simply run:
 
 ```php
-$mContact->record->update([
+$mContact->record->recordUpdate([
   "id" => 1,
   "first_name" => "John",
   "last_name" => "Smith",

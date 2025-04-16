@@ -18,12 +18,10 @@ use ADIOS\Core\ViewsWithController\Form;
 use ADIOS\Core\ViewsWithController\Table;
 use Closure;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use ReflectionClass;
 
 /**
- * Core implementation of database model. Extends from Eloquent's model and adds own
- * functionalities.
+ * Core implementation of model.
  */
 class Model
 {
@@ -48,7 +46,8 @@ class Model
    */
   public Loader $app;
 
-  public \ADIOS\Core\Record $record;
+  // public \ADIOS\Core\Record $record;
+  public object $record;
 
   /**
    * SQL-compatible string used to render displayed value of the record when used
@@ -66,11 +65,10 @@ class Model
   public string $sqlEngine = 'InnoDB';
 
   public string $table = '';
-  public string $eloquentClass = '';
+  public string $recordManagerClass = '';
   public array $relations = [];
 
   public ?array $junctions = [];
-  public \Illuminate\Database\Eloquent\Model $eloquent;
 
   /** @property array<string, \ADIOS\Core\Db\Column> */
   protected array $columns = [];
@@ -87,14 +85,10 @@ class Model
 
     $this->app = $app;
     $this->columns = $this->describeColumns();
-    $this->record = $this->initRecord();
 
-    $eloquentClass = $this->eloquentClass;
-    if (!empty($eloquentClass) && $this->app->pdo->isConnected) {
-      $this->eloquent = new $eloquentClass;
-      $this->eloquent->setTable($this->table);
-      $this->eloquent->fillable = $this->columnNames();
-    }
+    $this->record = $this->initRecordManager();
+    $this->record->model = $this;
+    $this->record->app = $this->app;
 
     $this->fullName = str_replace("\\", "/", $reflection->getName());
 
@@ -111,9 +105,15 @@ class Model
 
   }
 
-  public function initRecord(): Record
+  public function initRecordManager(): object
   {
-    return new Record($this);
+    $recordManagerClass = $this->recordManagerClass;
+    if (!empty($recordManagerClass) && $this->app->pdo->isConnected) {
+      $record = new $recordManagerClass();
+    } else {
+      $record = null;
+    }
+    return $record;
   }
 
   /**
@@ -507,7 +507,7 @@ class Model
   {
     $query = $this->record->prepareReadQuery();
     if ($queryModifierCallback !== null) $queryModifierCallback($query);
-    $record = $this->record->read($query);
+    $record = $this->record->recordRead($query);
     $record = $this->onAfterLoadRecord($record);
     return $record;
   }
@@ -527,7 +527,7 @@ class Model
     $query = $this->record->addFulltextSearchToQuery($query, $fulltextSearch);
     $query = $this->record->addColumnSearchToQuery($query, $columnSearch);
     $query = $this->record->addOrderByToQuery($query, $orderBy);
-    $paginatedRecords = $this->record->readMany($query, $itemsPerPage, $page);
+    $paginatedRecords = $this->record->recordReadMany($query, $itemsPerPage, $page);
 
     foreach ($paginatedRecords['data'] as $key => $record) {
       $paginatedRecords['data'][$key] = $this->onAfterLoadRecord($record);
@@ -536,16 +536,6 @@ class Model
     $paginatedRecords = $this->onAfterLoadRecords($paginatedRecords);
 
     return $paginatedRecords;
-  }
-
-  /**
-   * DEPRECATED
-   * prepareLoadRecordQuery
-   * @return mixed Eloquent query used to load record.
-   */
-  public function prepareLoadRecordQuery(): mixed
-  {
-    return $this->record->prepareReadQuery();
   }
 
   //////////////////////////////////////////////////////////////////

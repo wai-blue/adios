@@ -3,7 +3,6 @@
 namespace ADIOS\Controllers\Api\Record;
 
 class Delete extends \ADIOS\Core\ApiController {
-  protected ?\Illuminate\Database\Eloquent\Builder $query = null;
 
   public \ADIOS\Core\Model $model;
 
@@ -34,7 +33,7 @@ class Delete extends \ADIOS\Core\ApiController {
       $error = '';
       $errorHtml = '';
       try {
-        $rowsAffected = $this->model->record->delete($id);
+        $rowsAffected = $this->model->record->recordDelete($id);
       } catch (\Throwable $e) {
         $error = $e->getMessage();
         $errorHtml = $this->app->renderExceptionHtml($e);

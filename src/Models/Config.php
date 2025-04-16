@@ -6,7 +6,7 @@ class Config extends \ADIOS\Core\Model
 {
 
   public string $table = 'config';
-  public string $eloquentClass = Eloquent\Config::class;
+  public string $recordManagerClass = RecordManagers\Config::class;
 
   public function describeColumns(): array
   {

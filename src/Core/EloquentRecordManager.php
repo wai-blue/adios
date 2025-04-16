@@ -2,43 +2,44 @@
 
 namespace ADIOS\Core;
 
-/**
-  * Record-management
-  * CRUD-like layer for manipulating records (data)
-*/
+class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implements RecordManagerInterface {
+  protected $primaryKey = 'id';
+  protected $guarded = [];
+  public $timestamps = false;
+  public static $snakeAttributes = false;
 
-class Record {
+  public ?\ADIOS\Core\Loader $app;
+  public ?\ADIOS\Core\Model $model;
 
-  protected \ADIOS\Core\Loader $app;
-  protected \ADIOS\Core\Model $model;
-
-  /** What relations to be included in loaded record. If null, default relations will be selected. */
-  /** @property array<string> */
-  protected array $relationsToRead = [];
+  // /** What relations to be included in loaded record. If null, default relations will be selected. */
+  // /** @property array<string> */
+  // protected array $relationsToRead = [];
 
   protected int $maxReadLevel = 2;
 
-  public function __construct(\ADIOS\Core\Model $model) {
-    $this->model = $model;
-    $this->app = $model->app;
+  public function __construct(array $attributes = [])
+  {
+    parent::__construct($attributes);
+    $this->app = null;
+    $this->model = null;
   }
 
-  public function getRelationsToRead(): array
-  {
-    return $this->relationsToRead;
-  }
+  // public function getRelationsToRead(): array
+  // {
+  //   return $this->relationsToRead;
+  // }
 
-  public function setRelationsToRead(array $relationsToRead)
-  {
-    $this->relationsToRead = $relationsToRead;
-  }
+  // public function setRelationsToRead(array $relationsToRead): void
+  // {
+  //   $this->relationsToRead = $relationsToRead;
+  // }
 
   public function getMaxReadLevel(): array
   {
     return $this->maxReadLevel;
   }
 
-  public function setMaxReadLevel(array $maxReadLevel)
+  public function setMaxReadLevel(array $maxReadLevel): void
   {
     $this->maxReadLevel = $maxReadLevel;
   }
@@ -51,7 +52,7 @@ class Record {
    */
   public function prepareReadQuery(mixed $query = null, int $level = 0): mixed
   {
-    if ($query === null) $query = $this->model->eloquent->prepareReadQuery();
+    if ($query === null) $query = $this;
 
     $selectRaw = [];
     $withs = [];
@@ -81,8 +82,8 @@ class Record {
       $colDefinition = $column->toArray();
       if ($colDefinition['type'] == 'lookup') {
         $lookupModel = $this->app->getModel($colDefinition['model']);
-        $lookupConnection = $lookupModel->eloquent->getConnectionName();
-        $lookupDatabase = $lookupModel->eloquent->getConnection()->getDatabaseName();
+        $lookupConnection = $lookupModel->record->getConnectionName();
+        $lookupDatabase = $lookupModel->record->getConnection()->getDatabaseName();
         $lookupTableName = $lookupModel->getFullTableSqlName();
         $joinAlias = 'join_' . $columnName;
 
@@ -103,7 +104,7 @@ class Record {
     // TODO: Toto je pravdepodobne potencialna SQL injection diera. Opravit.
     $query = $query->selectRaw(join(',', $selectRaw)); //->with($withs);
     foreach ($this->model->relations as $relName => $relDefinition) {
-      if (count($this->relationsToRead) > 0 && !in_array($relName, $this->relationsToRead)) continue;
+      // if (count($this->relationsToRead) > 0 && !in_array($relName, $this->relationsToRead)) continue;
 
       $relModel = new $relDefinition[1]($this->app);
 
@@ -121,7 +122,7 @@ class Record {
     return $query;
   }
 
-  function addFulltextSearchToQuery(mixed $query, string $fulltextSearch): mixed
+  public function addFulltextSearchToQuery(mixed $query, string $fulltextSearch): mixed
   {
     if (!empty($fulltextSearch)) {
       foreach ($this->model->getColumns() as $columnName => $column) {
@@ -157,7 +158,7 @@ class Record {
     return $query;
   }
 
-  public function readMany(mixed $query, int $itemsPerPage, int $page): array
+  public function recordReadMany(mixed $query, int $itemsPerPage, int $page): array
   {
     $data = $query->paginate(
       $itemsPerPage,
@@ -173,20 +174,20 @@ class Record {
     return $data;
   }
 
-  public function read(mixed $query): array {
+  public function recordRead(mixed $query): array {
     $record = $query->first()?->toArray();
     if (!is_array($record)) $record = [];
 
-    $record = $this->encryptIds($record);
+    $record = $this->recordEncryptIds($record);
     $record['_RELATIONS'] = array_keys($this->model->relations);
-    if (count($this->relationsToRead) > 0) {
-      $record['_RELATIONS'] = array_values(array_intersect($record['_RELATIONS'], $this->relationsToRead));
-    }
+    // if (count($this->relationsToRead) > 0) {
+    //   $record['_RELATIONS'] = array_values(array_intersect($record['_RELATIONS'], $this->relationsToRead));
+    // }
 
     return $record;
   }
 
-  public function encryptIds(array $record): array
+  public function recordEncryptIds(array $record): array
   {
 
     foreach ($this->model->getColumns() as $colName => $column) {
@@ -201,7 +202,7 @@ class Record {
     return $record;
   }
 
-  public function decryptIds(array $record): array
+  public function recordDecryptIds(array $record): array
   {
     foreach ($this->model->getColumns() as $colName => $column) {
       $colDefinition = $column->toArray();
@@ -221,11 +222,11 @@ class Record {
       switch ($relType) {
         case \ADIOS\Core\Model::HAS_MANY:
           foreach ($record[$relName] as $subKey => $subRecord) {
-            $record[$relName][$subKey] = $relModel->record->decryptIds($record[$relName][$subKey]);
+            $record[$relName][$subKey] = $relModel->record->recordDecryptIds($record[$relName][$subKey]);
           }
         break;
         case \ADIOS\Core\Model::HAS_ONE:
-          $record[$relName] = $relModel->record->decryptIds($record[$relName]);
+          $record[$relName] = $relModel->record->recordDecryptIds($record[$relName]);
         break;
       }
     }
@@ -233,26 +234,26 @@ class Record {
     return $record;
   }
 
-  public function create(array $record): array
+  public function recordCreate(array $record): array
   {
     unset($record['id']);
-    $record['id'] = $this->model->eloquent->create($record)->id;
+    $record['id'] = $this->create($record)->id;
     return $record;
   }
 
-  public function update(array $record): array
+  public function recordUpdate(array $record): array
   {
-    $this->model->eloquent->find((int) ($record['id'] ?? 0))->update($record);
+    $this->find((int) ($record['id'] ?? 0))->update($record);
     return $record;
   }
 
-  public function delete(int|string $id): int
+  public function recordDelete(int|string $id): int
   {
-    $this->model->eloquent->where('id', $id)->delete();
+    $this->where('id', $id)->delete();
     return 1; // TODO: return $rowsAffected
   }
 
-  public function save(array $record, int $idMasterRecord = 0): array
+  public function recordSave(array $record, int $idMasterRecord = 0): array
   {
 
     $id = (int) ($record['id'] ?? 0);
@@ -265,8 +266,8 @@ class Record {
     $originalRecord = $record;
     $savedRecord = $record;
 
-    $this->validate($savedRecord);
-    $savedRecord = $this->normalize($savedRecord);
+    $this->recordValidate($savedRecord);
+    $savedRecord = $this->recordNormalize($savedRecord);
 
     try {
 
@@ -281,15 +282,15 @@ class Record {
       }
 
       if ((bool) ($record['_toBeDeleted_'] ?? false)) {
-        $this->delete((int) $savedRecord['id']);
+        $this->recordDelete((int) $savedRecord['id']);
         return [];
       } else if ($isCreate) {
         $savedRecord = $this->model->onBeforeCreate($savedRecord);
-        $savedRecord = $this->create($savedRecord);
+        $savedRecord = $this->recordCreate($savedRecord);
         $savedRecord = $this->model->onAfterCreate($originalRecord, $savedRecord);
       } else {
         $savedRecord = $this->model->onBeforeUpdate($savedRecord);
-        $savedRecord = $this->update($savedRecord);
+        $savedRecord = $this->recordUpdate($savedRecord);
         $savedRecord = $this->model->onAfterUpdate($originalRecord, $savedRecord);
       }
 
@@ -300,12 +301,12 @@ class Record {
           switch ($relType) {
             case \ADIOS\Core\Model::HAS_MANY:
               foreach ($record[$relName] as $subKey => $subRecord) {
-                $subRecord = $relModel->record->save($subRecord, $savedRecord['id']);
+                $subRecord = $relModel->record->recordSave($subRecord, $savedRecord['id']);
                 $savedRecord[$relName][$subKey] = $subRecord;
               }
             break;
             case \ADIOS\Core\Model::HAS_ONE:
-              $subRecord = $relModel->record->save($record[$relName], $savedRecord['id']);
+              $subRecord = $relModel->record->recordSave($record[$relName], $savedRecord['id']);
               $savedRecord[$relName] = $subRecord;
             break;
           }
@@ -355,7 +356,7 @@ class Record {
    * @param array<string, mixed> $record
    * @return array<string, mixed>
    */
-  public function validate(array $record): array
+  public function recordValidate(array $record): array
   {
     $invalidInputs = [];
 
@@ -383,7 +384,7 @@ class Record {
     return $record;
   }
 
-  public function normalize(array $record): array {
+  public function recordNormalize(array $record): array {
     $columns = $this->model->getColumns();
 
     foreach ($record as $colName => $colValue) {

@@ -22,7 +22,7 @@ class UserRole extends \ADIOS\Core\Model {
     self::ADMINISTRATOR => 'ADMINISTRATOR',
   ];
 
-  public string $eloquentClass = Eloquent\UserRole::class;
+  public string $recordManagerClass = RecordManagers\UserRole::class;
   public string $table = 'user_roles';
   public ?string $lookupSqlValue = "{%TABLE%}.name";
 

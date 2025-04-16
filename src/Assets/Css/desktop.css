@@ -13,7 +13,7 @@
   table tr { @apply odd:bg-slate-50; }
   table tr td { @apply p-1; } */
 
-  input, select, textarea { @apply bg-white/20; }
+  input, select, textarea { @apply bg-white/20 border-slate-500 border rounded p-1; }
 
 
   /* SPECIAL components, idetified by # id */
@@ -21,7 +21,7 @@
   aside#default-sidebar > nav { @apply bg-primary p-1 flex gap-0.5 flex-col w-36 dark:bg-slate-600 dark:border-r dark:border-r-slate-400; }
   aside#default-sidebar > nav .btn { @apply w-full rounded bg-primary hover:bg-white/20 dark:bg-transparent dark:hover:bg-primary; }
   aside#default-sidebar > nav .btn .icon { @apply w-6 text-sm text-left flex justify-center content-center flex-wrap border-none bg-transparent; }
-  aside#default-sidebar > nav .btn .text { @apply border-none text-sm; }
+  aside#default-sidebar > nav .btn .text { @apply border-none text-base; }
   aside#default-sidebar > nav .btn.btn-active { @apply bg-white text-gray-800 dark:bg-primary dark:text-white dark:hover:bg-primary/80; }
   aside#default-sidebar > div { @apply h-full w-32 p-1 shadow-lg overflow-y-auto bg-gray-50; }
   aside#default-sidebar > div > ul > li a { @apply flex items-center px-1 py-0.5 text-gray-900 rounded no-underline hover:bg-gray-100 hover:text-primary; }

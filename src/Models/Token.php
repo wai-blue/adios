@@ -20,7 +20,7 @@ class Token extends \ADIOS\Core\Model {
   public string $table = "tokens";
   public ?string $lookupSqlValue = "{%TABLE%}.token";
   public $tokenTypes = [];
-  public string $eloquentClass = \ADIOS\Models\Eloquent\Token::class;
+  public string $recordManagerClass = RecordManagers\Token::class;
 
   public function describeColumns(): array
   {

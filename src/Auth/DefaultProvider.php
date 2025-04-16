@@ -49,7 +49,7 @@ class DefaultProvider extends \ADIOS\Core\Auth {
       }
 
       if (!empty($login) && !empty($password)) {
-        $users = $userModel->eloquent
+        $users = $userModel->record
           ->orWhere($this->loginAttribute, $login)
           ->where($this->activeAttribute, '<>', 0)
           ->get()

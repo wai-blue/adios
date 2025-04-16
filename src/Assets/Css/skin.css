@@ -153,8 +153,8 @@
   .key-value-table > div div:nth-child(2) { @apply font-bold; }
 
   .modal { @apply flex flex-col h-screen w-full overflow-auto bg-white dark:bg-slate-600; }
-  .modal.right { @apply fixed top-0 right-0 md:w-1/2 z-50 h-full shadow-2xl border-l border-l-primary dark:border-l-slate-400 dark:shadow-black; }
-  .modal.right.wide { @apply md:w-2/3; }
+  .modal.right { @apply absolute top-0 right-0 md:w-1/2 z-50 h-full shadow-2xl border-l border-l-primary dark:border-l-slate-400 dark:shadow-black; }
+  .modal.right.wide { @apply md:w-[80%]; }
   .modal.right.wider { @apply md:w-[90vw] ;}
   .modal.centered { @apply fixed mx-auto md:my-4 md:w-2/3 md:h-[calc(100vh-theme(space.8))] z-50 shadow-2xl rounded border border-primary dark:border-slate-600; top: 0; left: 50%; transform: translate(-50%, 0%);}
   .modal.centered.large { @apply md:w-[90vw] md:h-[90vh];}
@@ -168,8 +168,7 @@
   .modal .modal-body { @apply p-2 flex-1 overflow-y-auto; }
   .modal .modal-footer { @apply p-2 border-t border-t-gray-200 bg-gray-50 dark:bg-slate-600 dark:border-slate-400; }
 
-  .modal.right .modal.right { @apply border-t border-t-primary; margin-top: 3em; height: calc(100vh - 3em); }
-  .modal.right .modal.right .modal.right { @apply border-t border-t-primary; margin-top: 6em; height: calc(100vh - 6em); }
+  .modal.right .modal.right { @apply w-[95%] border border-primary; margin-right: 0.5em; margin-top: 2em; height: calc(100% - 2.5em); }
 
   .table-header-search::placeholder { filter: grayscale(1); }
 

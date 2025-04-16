@@ -105,7 +105,7 @@ class Model
 
   }
 
-  public function initRecordManager(): object
+  public function initRecordManager(): null|object
   {
     $recordManagerClass = $this->recordManagerClass;
     if (!empty($recordManagerClass) && $this->app->pdo->isConnected) {

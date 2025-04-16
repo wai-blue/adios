@@ -86,7 +86,7 @@ class User extends \ADIOS\Core\Model {
 
   public function updateAccessInformation(int $idUser) {
     $clientIp = $this->getClientIpAddress();
-    $this->record->where('id', $idUser)->recordUpdate([
+    $this->record->where('id', $idUser)->update([
       'last_access_time' => date('Y-m-d H:i:s'),
       'last_access_ip' => $clientIp,
     ]);
@@ -94,7 +94,7 @@ class User extends \ADIOS\Core\Model {
 
   public function updateLoginAndAccessInformation(int $idUser) {
     $clientIp = $this->getClientIpAddress();
-    $this->record->where('id', $idUser)->recordUpdate([
+    $this->record->where('id', $idUser)->update([
       'last_login_time' => date('Y-m-d H:i:s'),
       'last_login_ip' => $clientIp,
       'last_access_time' => date('Y-m-d H:i:s'),
@@ -195,7 +195,7 @@ class User extends \ADIOS\Core\Model {
   public function updatePassword(int $idUser, string $password) {
     return $this->record
       ->where('id', $idUser)
-      ->recordUpdate(
+      ->update(
         ["password" => $this->hasPassword($password)]
       )
     ;

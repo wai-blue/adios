@@ -73,7 +73,16 @@ class Auth {
    * Generates and manages optional forgot password functionality
    * @return void
    */
-  public function forgotPassword()
+  public function forgotPassword(): void
+  {
+    // to be overriden
+  }
+
+  /**
+   * Manages resetting passwords
+   * @return void
+   */
+  public function resetPassword(): void
   {
     // to be overriden
   }

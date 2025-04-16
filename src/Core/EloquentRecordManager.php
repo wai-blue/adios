@@ -192,7 +192,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
     foreach ($this->model->getColumns() as $colName => $column) {
       $colDefinition = $column->toArray();
-      if (($colName == 'id' || $colDefinition['type'] == 'lookup') && $record[$colName] !== null) {
+      if (($colName == 'id' || $colDefinition['type'] == 'lookup') && isset($record[$colName]) && $record[$colName] !== null) {
         $record[$colName] = \ADIOS\Core\Helper::encrypt($record[$colName]);
       }
     }

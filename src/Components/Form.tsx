@@ -247,7 +247,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     };
   }
 
-  customizeDescription(description: FormDescription): FormDescription {
+  onAfterLoadFormDescription(description: FormDescription): FormDescription {
     return description;
   }
 
@@ -263,7 +263,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
         // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
-        description = this.customizeDescription(description);
+        description = this.onAfterLoadFormDescription(description);
 
         this.setState({
           description: description,

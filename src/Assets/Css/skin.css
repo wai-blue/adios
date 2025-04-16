@@ -168,6 +168,9 @@
   .modal .modal-body { @apply p-2 flex-1 overflow-y-auto; }
   .modal .modal-footer { @apply p-2 border-t border-t-gray-200 bg-gray-50 dark:bg-slate-600 dark:border-slate-400; }
 
+  .modal.right .modal.right { @apply border-t border-t-primary; margin-top: 3em; height: calc(100vh - 3em); }
+  .modal.right .modal.right .modal.right { @apply border-t border-t-primary; margin-top: 6em; height: calc(100vh - 6em); }
+
   .table-header-search::placeholder { filter: grayscale(1); }
 
   .table-default { @apply w-full text-left border border-gray-200 rtl:text-right text-gray-500 dark:text-gray-400; }

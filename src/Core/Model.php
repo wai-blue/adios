@@ -86,9 +86,12 @@ class Model
     $this->app = $app;
     $this->columns = $this->describeColumns();
 
-    $this->record = $this->initRecordManager();
-    $this->record->model = $this;
-    $this->record->app = $this->app;
+    $recordManagerClass = $this->recordManagerClass;
+    if (!empty($recordManagerClass) && $this->app->pdo->isConnected) {
+      $this->record = $this->initRecordManager();
+      $this->record->model = $this;
+      $this->record->app = $this->app;
+    }
 
     $this->fullName = str_replace("\\", "/", $reflection->getName());
 

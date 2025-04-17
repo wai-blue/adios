@@ -40,6 +40,12 @@
         "Sign in": "Anmelden",
         "Your email": "Email",
         "Password": "Passwort",
-        "Invalid email or password.": "Ungültige E-Mail oder ungültiges Passwort."
+        "Invalid email or password.": "Ungültige E-Mail oder ungültiges Passwort.",
+        "Forgot password?": ""
+    },
+    "Controllers\\ForgotPassword": {
+        "Email": "",
+        "Request password reset": "",
+        "Back to sign in": ""
     }
 }

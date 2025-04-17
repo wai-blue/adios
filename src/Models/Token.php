@@ -29,7 +29,7 @@ class Token extends \ADIOS\Core\Model {
   public function describeColumns(): array
   {
     return array_merge(parent::describeColumns(), [
-      "type" => new Integer($this, 'Token type'),
+      "type" => new Varchar($this, 'Token type'),
       "valid_to" => new DateTime($this, 'Expiration date'),
       "token" => new Varchar($this, 'Token')
     ]);

@@ -41,6 +41,12 @@
         "Sign in": "Prihlásiť sa",
         "Your email": "Email",
         "Password": "Heslo",
-        "Invalid email or password.": "Neplatné meno alebo heslo."
+        "Invalid email or password.": "Neplatné meno alebo heslo.",
+        "Forgot password?": ""
+    },
+    "Controllers\\ForgotPassword": {
+        "Email": "",
+        "Request password reset": "",
+        "Back to sign in": ""
     }
 }

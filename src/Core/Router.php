@@ -250,8 +250,14 @@ class Router {
     $controller->requiresUserAuthentication = FALSE;
     $controller->hideDefaultDesktop = TRUE;
     $controller->translationContext = 'ADIOS\\Core\\Loader::Controllers\\SignIn';
-    $controller->setView('@app/Views/SignIn.twig');
+
+    $controller->setView('@app/Views/SignIn.twig', ['status' => $_GET['incorrectLogin'] ?? '' == "1"]);
     return $controller;
+  }
+
+  public function createResetPasswordController(): \ADIOS\Core\Controller
+  {
+    return new \ADIOS\Core\Controller($this->app);
   }
 
   public function createDesktopController(): \ADIOS\Core\Controller

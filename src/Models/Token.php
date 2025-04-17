@@ -10,6 +10,10 @@
 
 namespace ADIOS\Models;
 
+use ADIOS\Core\Db\Column\DateTime;
+use ADIOS\Core\Db\Column\Integer;
+use ADIOS\Core\Db\Column\Varchar;
+
 /**
  * Model for storing various validation tokens. Stored in 'tokens' SQL table.
  *
@@ -25,18 +29,9 @@ class Token extends \ADIOS\Core\Model {
   public function describeColumns(): array
   {
     return array_merge(parent::describeColumns(), [
-      "type" => [
-        "type" => "int",
-        "title" => "Token type",
-      ],
-      "valid_to" => [
-        "type" => "datetime",
-        "title" => "Expiration date"
-      ],
-      "token" => [
-        "type" => "varchar",
-        "title" => "Token"
-      ]
+      "type" => new Integer($this, 'Token type'),
+      "valid_to" => new DateTime($this, 'Expiration date'),
+      "token" => new Varchar($this, 'Token')
     ]);
   }
 

@@ -487,7 +487,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       const step: number = (max - min) / 5;
       const colorIndex = Math.min(5, Math.floor((val - min) / step) + 1);
 
-      cellClassName += column.colorScale + '---step-' + colorIndex;
+      cellClassName += ' ' + column.colorScale + '---step-' + colorIndex;
     }
 
     return cellClassName;

@@ -100,9 +100,9 @@
   .breadcrumbs ol > li > div > a { @apply ms-1 text-sm font-medium text-gray-500 hover:text-primary md:ms-2; }
   .breadcrumbs ol > li > div > span { @apply ms-1 text-sm font-medium text-gray-800; }
 
-  .card { @apply flex flex-col border border-solid border-slate-200 rounded shadow-lg mb-4 dark:bg-slate-600 dark:border-slate-500 dark:text-white; }
+  .card { @apply flex flex-col border border-solid border-slate-200 rounded shadow hover:shadow-lg dark:bg-slate-600 dark:border-slate-500 dark:text-white; }
   .card.card-horizontal { @apply flex flex-row; }
-  .card-header { @apply flex justify-between text-lg border-b border-slate-200 p-2 bg-gray-100 text-gray-800 dark:bg-slate-500 dark:border-slate-500 dark:text-white; }
+  .card-header { @apply flex justify-between items-center text-lg border-b border-slate-200 p-2 bg-gray-100 text-gray-800 dark:bg-slate-500 dark:border-slate-500 dark:text-white; }
   .card.card-horizontal .card-header { @apply border-none; }
   .card-header-buttons { @apply -m-4; }
   .card-header-buttons .btn { @apply font-normal p-4 border-none rounded-none; }

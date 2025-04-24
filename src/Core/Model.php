@@ -458,7 +458,11 @@ class Model
     if (isset($columns['id'])) unset($columns['id']);
 
     $description = new \ADIOS\Core\Description\Table();
-    $description->columns = $columns;
+    foreach ($columns as $columnName => $column) {
+      if (!$column->getHidden()) {
+        $description->columns[$columnName] = $column;
+      }
+    }
 
     $description->inputs = [];
     foreach ($columns as $columnName => $column) {

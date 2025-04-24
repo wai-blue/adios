@@ -494,7 +494,7 @@ class Loader
         $this->controller = $routeData['controller'];
         $this->permission = '';
 
-        $routeVars = $routeData['vars']; // $this->router->extractRouteVariables(\ADIOS\Core\Router::HTTP_GET);
+        $routeVars = $routeData['vars'];
         $this->router->setRouteVars($routeVars);
 
         foreach ($routeVars as $varName => $varValue) {
@@ -522,9 +522,6 @@ class Loader
 
       // Create the object for the controller
       $controllerObject = new $controllerClassName($this);
-      $controllerObject->preInit();
-      $controllerObject->init();
-      $controllerObject->postInit();
 
       if (empty($this->permission) && !empty($controllerObject->permission)) {
         $this->permission = $controllerObject->permission;
@@ -552,6 +549,8 @@ class Loader
       if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
         $this->permissions->check($this->permission);
       }
+
+      $controllerObject->init();
 
       // All OK, rendering content...
 

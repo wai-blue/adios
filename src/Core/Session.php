@@ -24,11 +24,13 @@ class Session
 
   public function start(): void
   {
-    session_id();
-    session_name($this->salt);
-    session_start();
+    if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
+      session_id();
+      session_name($this->salt);
+      session_start();
 
-    define('_SESSION_ID', session_id());
+      define('_SESSION_ID', session_id());
+    }
   }
 
   public function set(string $path, mixed $value, string $key = '')

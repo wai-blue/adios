@@ -27,11 +27,13 @@
   .adios.component.table .table-body tbody tr td .to-be-deleted { @apply bg-red-500; }
   .adios.component.table .table-body tbody tr td .to-be-deleted input { @apply text-red-500; }
 
+  .adios.component.table .table-cell-content { @apply max-w-60 truncate whitespace-nowrap; }
   .adios.component.table .table-cell-content.column-lookup { @apply text-primary dark:text-white; }
   .adios.component.table .table-cell-content.column-int { @apply text-right font-semibold; }
   .adios.component.table .table-cell-content.column-float { @apply text-right font-semibold; }
   .adios.component.table .table-cell-content.column-date { @apply text-right; }
   .adios.component.table .table-cell-content.column-datetime { @apply text-right; }
+  .adios.component.table .table-cell-content.column-boolean { @apply text-center; }
 
   .adios.component.input { @apply inline-flex justify-between items-center w-full; }
   

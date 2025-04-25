@@ -22,6 +22,7 @@ abstract class Column implements \JsonSerializable
   protected array $enumValues = [];
   protected array $predefinedValues = [];
   protected string $colorScale = '';
+  protected string $cssClass = '';
 
   protected array $properties = [];
 
@@ -54,6 +55,9 @@ abstract class Column implements \JsonSerializable
 
   public function getColorScale(): string { return $this->colorScale; }
   public function setColorScale(string $colorScale): Column { $this->colorScale = $colorScale; return $this; }
+
+  public function getCssClass(): string { return $this->cssClass; }
+  public function setCssClass(string $cssClass): Column { $this->cssClass = $cssClass; return $this; }
 
   public function getFormat(): bool { return $this->format; }
   public function setFormat(bool $format = true): Column { $this->format = $format; return $this; }
@@ -105,6 +109,7 @@ abstract class Column implements \JsonSerializable
       'format' => $this->format,
       'placeholder' => $this->placeholder,
       'colorScale' => $this->colorScale,
+      'cssClass' => $this->cssClass,
     ];
 
     if (count($this->enumValues) > 0) $column['enumValues'] = $this->enumValues;

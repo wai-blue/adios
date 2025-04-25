@@ -786,26 +786,32 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   renderHeaderLeft(): JSX.Element {
     return <>
-      {this.props.showInModal ? this.renderCloseButton() : null}
       {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
     </>;
   }
 
   renderHeaderRight(): JSX.Element {
-    const prevId = this.state?.prevId ?? 0;
-    const nextId = this.state?.nextId ?? 0;
-
     return <>
-      {this.renderCopyButton()}
-      {this.renderDeleteButton()}
-      {prevId || nextId ? <>
-        {this.renderPrevRecordButton()}
-        {this.renderNextRecordButton()}
-      </> : null}
+      {this.state.isInlineEditing ? this.renderDeleteButton() : null}
+      {this.props.showInModal ? this.renderCloseButton() : null}
     </>;
   }
 
-  renderFooter(): JSX.Element|null { return null; }
+  renderFooter(): JSX.Element {
+    const prevId = this.state?.prevId ?? 0;
+    const nextId = this.state?.nextId ?? 0;
+
+    if (prevId || nextId) {
+      return <>
+        <div className="pr-4">
+          {this.renderPrevRecordButton()}
+          {this.renderNextRecordButton()}
+        </div>
+      </>;
+    } else {
+      return <></>;
+    }
+  }
 
   renderSubTitle(): JSX.Element {
     let subTitle = this.state.description?.ui?.subTitle;

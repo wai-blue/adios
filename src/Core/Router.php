@@ -67,6 +67,7 @@ class Router {
         && str_ends_with($routePattern, '/')
         && preg_match($routePattern.'i', $route, $m)
       ) {
+        unset($m[0]);
         $routeMatch = true;
         $routeVars = $m;
       } else {
@@ -90,6 +91,7 @@ class Router {
         }
       }
     }
+
 
     return $routeData;
   }

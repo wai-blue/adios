@@ -550,7 +550,9 @@ class Loader
         $this->permissions->check($this->permission);
       }
 
+      $controllerObject->preInit();
       $controllerObject->init();
+      $controllerObject->postInit();
 
       // All OK, rendering content...
 

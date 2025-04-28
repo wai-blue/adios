@@ -801,16 +801,15 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     const prevId = this.state?.prevId ?? 0;
     const nextId = this.state?.nextId ?? 0;
 
-    if (prevId || nextId) {
-      return <>
+    return <>
+      {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
+      {prevId || nextId ? <>
         <div className="pr-4">
           {this.renderPrevRecordButton()}
           {this.renderNextRecordButton()}
         </div>
-      </>;
-    } else {
-      return <></>;
-    }
+      </> : null}
+    </>;
   }
 
   renderSubTitle(): JSX.Element {

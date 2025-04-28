@@ -177,18 +177,19 @@
   .modal.centered.small { @apply fixed mx-auto mt-1 md:w-1/2 md:h-1/2 z-50 shadow-xl; top: 50%; left: 50%; transform: translate(-50%, -50%);}
   .modal.centered.tiny { @apply fixed mx-auto mt-1 md:w-1/3 md:h-1/3 z-50 shadow-xl; top: 50%; left: 50%; transform: translate(-50%, -50%);}
 
-  .modal.inside-parent { @apply absolute top-0 left-0 bg-white border border-primary shadow; z-index: 1; width: calc(100% - 2em); height: calc(100% - 2em); margin: 1em; }
+  .modal.inside-parent { @apply absolute top-0 left-0 bg-white border border-primary shadow; z-index: 1; width: calc(100% - 2em); height: auto; margin: 1em; }
 
   .modal .modal-header { @apply flex items-center border-b border-b-primary/20 text-primary dark:text-white dark:bg-slate-800 dark:border-slate-400 items-baseline w-full justify-between p-2 bg-primary/5; }
   .modal .modal-header .modal-header-left { @apply flex flex-1 gap-1; }
   .modal .modal-header .modal-header-title { @apply flex-1 text-center; }
-  .modal .modal-header .modal-header-title h2 { @apply m-0 p-0; }
+  .modal .modal-header .modal-header-title h2 { @apply m-0 p-0 text-primary; }
   .modal .modal-header .modal-header-right { @apply flex flex-1 gap-1 justify-end; }
   .modal .modal-body { @apply p-2 flex-1 overflow-y-auto; }
   .modal .modal-footer { @apply flex gap-2 p-2 border-t border-t-gray-200 bg-gray-50 dark:bg-slate-600 dark:border-slate-400; }
 
   .modal.theme-secondary { @apply border-secondary; }
   .modal.theme-secondary .modal-header { @apply border-b-secondary/20 bg-secondary/5 text-secondary; }
+  .modal.theme-secondary .modal-header-title h2 { @apply text-secondary; }
 
   .modal.right .modal.right { @apply w-[95%] border border-primary; margin-right: 0.5em; margin-top: 2em; height: calc(100% - 2.5em); }
 

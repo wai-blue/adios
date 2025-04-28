@@ -779,7 +779,13 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         type="button"
         data-dismiss="modal"
         aria-label="Close"
-        onClick={this.props.onClose}
+        onClick={() => {
+          if (this.props.onClose) {
+            let ok = true;
+            if (this.state.recordChanged) ok = confirm('You have unsaved changes. Are you sure to close?');
+            if (ok) this.props.onClose();
+          }
+        }}
       ><span className="icon"><i className="fas fa-xmark"></i></span></button>
     );
   }
@@ -801,16 +807,14 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     const prevId = this.state?.prevId ?? 0;
     const nextId = this.state?.nextId ?? 0;
 
-    if (prevId || nextId) {
-      return <>
+    return <>
+      {prevId || nextId ? <>
         <div className="pr-4">
           {this.renderPrevRecordButton()}
           {this.renderNextRecordButton()}
         </div>
-      </>;
-    } else {
-      return <></>;
-    }
+      </> : null}
+    </>;
   }
 
   renderSubTitle(): JSX.Element {

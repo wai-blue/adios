@@ -3,7 +3,7 @@
   /* CLASSES in alphabetical order */
 
   .adios.component.table { @apply w-full; }
-  .adios.component.table.loading { opaciy: 0.5; }
+  .adios.component.table.loading { opacity: 0.25; }
   .adios.component.table .table-header { @apply flex flex-row items-center gap-2 mb-2 justify-between; }
   .adios.component.table .table-header-left { @apply flex gap-1; }
   .adios.component.table .table-header-title { @apply text-left text-primary text-center text-2xl mr-2 dark:text-white; }
@@ -17,8 +17,9 @@
   /* .adios.component.table .table-body tbody tr td > div { @apply; } */
   .adios.component.table .table-body tbody tr td .inline-edit-icon { @apply invisible cursor-pointer; }
   .adios.component.table .table-body tbody tr td:hover .inline-edit-icon { @apply visible; }
-  .adios.component.table .table-body tr.highlighted { @apply divide-none text-primary; }
-  .adios.component.table .table-body tr.highlighted td { @apply border-b border-primary dark:bg-slate-600 dark:border-slate-600; }
+  .adios.component.table .table-body tr.highlighted { @apply divide-none text-primary border-l border-l-primary border-l-4; }
+  /* .adios.component.table .table-body tr.highlighted td > div { @apply border-b border-primary dark:bg-slate-600 dark:border-slate-600; } */
+  .adios.component.table .table-body tr.highlighted td:nth-child(1) > div { @apply pl-2; }
   .adios.component.table .table-body tr td { @apply cursor-pointer; }
   .adios.component.input.table { @apply max-w-[100%] }
 

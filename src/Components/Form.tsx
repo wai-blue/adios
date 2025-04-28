@@ -802,7 +802,6 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     const nextId = this.state?.nextId ?? 0;
 
     return <>
-      {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
       {prevId || nextId ? <>
         <div className="pr-4">
           {this.renderPrevRecordButton()}

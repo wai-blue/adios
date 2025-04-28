@@ -922,7 +922,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
                     if (event.keyCode == 13) {
                       let columnSearch: any = this.state.columnSearch;
                       columnSearch[columnName] = event.currentTarget.value;
-                      console.log('column search', columnName, event.currentTarget.value, columnSearch);
                       this.setState({columnSearch: columnSearch}, () => {
                         this.loadData();
                       });

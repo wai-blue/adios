@@ -3,7 +3,7 @@
   /* CLASSES in alphabetical order */
 
   .adios.component.table { @apply w-full; }
-  .adios.component.table.loading { opaciy: 0.5; }
+  .adios.component.table.loading { opacity: 0.25; }
   .adios.component.table .table-header { @apply flex flex-row items-center gap-2 mb-2 justify-between; }
   .adios.component.table .table-header-left { @apply flex gap-1; }
   .adios.component.table .table-header-title { @apply text-left text-primary text-center text-2xl mr-2 dark:text-white; }

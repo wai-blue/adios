@@ -23,6 +23,7 @@ abstract class Column implements \JsonSerializable
   protected array $predefinedValues = [];
   protected string $colorScale = '';
   protected string $cssClass = '';
+  protected string $tableCellRenderer = '';
 
   protected array $properties = [];
 
@@ -80,6 +81,9 @@ abstract class Column implements \JsonSerializable
   public function getDefaultValue(): mixed { return $this->defaultValue; }
   public function setDefaultValue(mixed $defaultValue): Column { $this->defaultValue = $defaultValue; return $this; }
 
+  public function getTableCellRenderer(): string { return $this->tableCellRenderer; }
+  public function setTableCellRenderer(string $tableCellRenderer): Column { $this->tableCellRenderer = $tableCellRenderer; return $this; }
+
   public function describeInput(): \ADIOS\Core\Description\Input
   {
     $description = new \ADIOS\Core\Description\Input();
@@ -91,6 +95,7 @@ abstract class Column implements \JsonSerializable
     if (!empty($this->getDescription())) $description->setDescription($this->getDescription());
     if (!empty($this->getUnit())) $description->setUnit($this->getUnit());
     if (!empty($this->getFormat())) $description->setFormat($this->getFormat());
+    if (!empty($this->getTableCellRenderer())) $description->setTableCellRenderer($this->getTableCellRenderer());
     $description->setEnumValues($this->enumValues);
     $description->setPredefinedValues($this->predefinedValues);
     return $description;
@@ -110,6 +115,7 @@ abstract class Column implements \JsonSerializable
       'placeholder' => $this->placeholder,
       'colorScale' => $this->colorScale,
       'cssClass' => $this->cssClass,
+      'tableCellRenderer' => $this->tableCellRenderer,
     ];
 
     if (count($this->enumValues) > 0) $column['enumValues'] = $this->enumValues;

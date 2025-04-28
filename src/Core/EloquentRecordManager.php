@@ -143,7 +143,18 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   public function addColumnSearchToQuery(mixed $query, array $columnSearch): mixed
   {
     if (count($columnSearch) > 0) {
-      // TODO
+      foreach ($this->model->getColumns() as $columnName => $column) {
+        if (!empty($columnSearch[$columnName])) {
+          $enumValues = $column->getEnumValues();
+          if (count($enumValues) > 0) {
+            $query->having('_ENUM[' . $columnName . ']', 'like', "%{$columnSearch[$columnName]}%");
+          } else if ($column->getType() == 'lookup') {
+            $query->having('_LOOKUP[' . $columnName . ']', 'like', "%{$columnSearch[$columnName]}%");
+          } else {
+            $query->having($columnName, 'like', "%{$columnSearch[$columnName]}%");
+          }
+        }
+      }
     }
 
     return $query;

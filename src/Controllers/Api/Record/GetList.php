@@ -21,7 +21,7 @@ class GetList extends \ADIOS\Core\ApiController {
   {
     return $this->model->recordGetList(
       $this->app->urlParamAsString('fulltextSearch'),
-      $this->app->urlParamAsArray('filterBy'),
+      $this->app->urlParamAsArray('columnSearch'),
       $this->app->urlParamAsArray('orderBy'),
       $this->app->urlParamAsInteger('itemsPerPage', 15),
       $this->app->urlParamAsInteger('page'),

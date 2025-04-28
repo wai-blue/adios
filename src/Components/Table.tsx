@@ -71,6 +71,7 @@ export interface TableUi {
   //showExportCsvButton?: boolean,
   //showImportCsvButton?: boolean,
   showFulltextSearch?: boolean,
+  showColumnSearch?: boolean,
   emptyMessage?: any,
 }
 
@@ -125,6 +126,7 @@ export interface TableProps {
   closeFormAfterSave?: boolean,
   className?: string,
   fulltextSearch?: string,
+  columnSearch?: any,
 }
 
 // Laravel pagination
@@ -159,6 +161,7 @@ export interface TableState {
   page: number,
   itemsPerPage: number,
   fulltextSearch?: string,
+  columnSearch?: any,
   inlineEditingEnabled: boolean,
   isInlineEditing: boolean,
   isUsedAsInput: boolean,
@@ -218,6 +221,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       readonly: props.readonly ?? false,
       customEndpointParams: this.props.customEndpointParams ?? {},
       fulltextSearch: props.fulltextSearch ?? '',
+      columnSearch: props.columnSearch ?? {},
     };
 
     if (props.description) state.description = props.description;
@@ -300,6 +304,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       paginator: totalRecords > this.state.itemsPerPage,
       lazy: true,
       rows: this.state.itemsPerPage,
+      filterDisplay: 'row',
       totalRecords: totalRecords,
       rowsPerPageOptions: [5, 15, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000],
       paginatorTemplate: "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown",
@@ -383,6 +388,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
             parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
             fulltextSearch: this.state.fulltextSearch,
+            columnSearch: this.state.columnSearch,
             tag: this.props.tag,
             context: this.props.context,
             where: this.props.where,
@@ -774,12 +780,20 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       isInlineEditing: this.props.isInlineEditing,
       description: (this.state.description && this.state.description.inputs ? this.state.description?.inputs[columnName] : null),
     };
+    const cellProps = {
+      columnName: columnName,
+      column: column,
+      data: data,
+      options: options,
+    };
     const rowIndex = options.rowIndex;
 
     let cellContent = enumValues ? enumValues[columnValue] : columnValue;
 
     if (typeof column.cellRenderer == 'function') {
       return column.cellRenderer(this, data, options);
+    } else if (typeof column.tableCellRenderer === 'string' && column.tableCellRenderer !== '') {
+      return globalThis.app.renderReactElement(column.tableCellRenderer, cellProps) ?? <></>;
     } else {
 
       let cellValueElement: JSX.Element|null = null;
@@ -896,7 +910,29 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       columns.push(<Column
         key={columnName}
         field={columnName}
-        header={column.title}
+        header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
+        filter={true}
+        showFilterMenu={false}
+        filterElement={<>
+          <div className="input-wrapper">
+            <div className="input-body"><div className="adios component input">
+              <div className="input-element">
+                <input
+                  onKeyUp={(event: any) => {
+                    if (event.keyCode == 13) {
+                      let columnSearch: any = this.state.columnSearch;
+                      columnSearch[columnName] = event.currentTarget.value;
+                      console.log('column search', columnName, event.currentTarget.value, columnSearch);
+                      this.setState({columnSearch: columnSearch}, () => {
+                        this.loadData();
+                      });
+                    }
+                  }}
+                ></input>
+              </div>
+            </div></div>
+          </div>
+        </>}
         body={(data: any, options: any) => {
           return (
             <div

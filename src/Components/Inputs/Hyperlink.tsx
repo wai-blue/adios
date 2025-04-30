@@ -29,16 +29,20 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
   }
 
   renderValueElement() {
-    return (
-      <a
-        href={this.state.value}
-        target='_blank'
-        // onClick={(e) => { e.stopPropagation(); }}
-        className="btn btn-blue-outline btn-small"
-      >
-        <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
-        <span className="text">{this.state.value ? this.state.value : ''}</span>
-      </a>
-    );
+    if (this.state.data && this.state.data[this.state.columnName]) {
+      return (
+        <a
+          href={this.state.value}
+          target='_blank'
+          // onClick={(e) => { e.stopPropagation(); }}
+          className="btn btn-blue-outline btn-small"
+        >
+          <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
+          <span className="text">{this.state.value ? this.state.value : ''}</span>
+        </a>
+      );
+    } else {
+      return <span className="no-value"></span>;
+    }
   }
 }

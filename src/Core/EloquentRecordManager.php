@@ -150,6 +150,15 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
             $query->having('_ENUM[' . $columnName . ']', 'like', "%{$columnSearch[$columnName]}%");
           } else if ($column->getType() == 'lookup') {
             $query->having('_LOOKUP[' . $columnName . ']', 'like', "%{$columnSearch[$columnName]}%");
+          } else if (in_array($column->getType(), ['int', 'decimal', 'float'])) {
+            $q = trim(str_replace(' ', '', str_replace(',', '.', $columnSearch[$columnName])));
+
+            preg_match('/(.*?)([\\d\\.]+)/', $q, $m);
+
+            $operation = $m[1];
+            $value = (float) $m[2];
+
+            $query->where($columnName, $operation, $value);
           } else {
             $query->having($columnName, 'like', "%{$columnSearch[$columnName]}%");
           }

@@ -33,7 +33,9 @@ class Delete extends \ADIOS\Core\ApiController {
       $error = '';
       $errorHtml = '';
       try {
+        $this->model->onBeforeDelete((int) $id);
         $rowsAffected = $this->model->record->recordDelete($id);
+        $this->model->onAfterDelete((int) $id);
       } catch (\Throwable $e) {
         $error = $e->getMessage();
         $errorHtml = $this->app->renderExceptionHtml($e);

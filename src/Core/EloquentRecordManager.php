@@ -285,8 +285,9 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
     $originalRecord = $record;
     $savedRecord = $record;
-
-    $this->recordValidate($savedRecord);
+    if ($idMasterRecord == 0) {
+      $this->recordValidate($savedRecord);
+    }
     $savedRecord = $this->recordNormalize($savedRecord);
 
     try {
@@ -302,7 +303,9 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       }
 
       if ((bool) ($record['_toBeDeleted_'] ?? false)) {
+        $this->model->onBeforeDelete((int) $id);
         $this->recordDelete((int) $savedRecord['id']);
+        $this->model->onAfterDelete((int) $id);
         return [];
       } else if ($isCreate) {
         $savedRecord = $this->model->onBeforeCreate($savedRecord);
@@ -399,6 +402,23 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
     if (!empty($invalidInputs)) {
       throw new \ADIOS\Core\Exceptions\RecordSaveException(json_encode($invalidInputs), 87335);
+    }
+
+    foreach ($this->model->relations as $relName => $relDefinition) {
+      if (isset($record[$relName]) && is_array($record[$relName])) {
+        list($relType, $relModelClass) = $relDefinition;
+        $relModel = new $relModelClass($this->app);
+        switch ($relType) {
+          case \ADIOS\Core\Model::HAS_MANY:
+            foreach ($record[$relName] as $subKey => $subRecord) {
+              $subRecord = $relModel->record->recordValidate($subRecord, $record['id']);
+            }
+          break;
+          case \ADIOS\Core\Model::HAS_ONE:
+            $subRecord = $relModel->record->recordValidate($record[$relName], $record['id']);
+          break;
+        }
+      }
     }
 
     return $record;

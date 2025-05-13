@@ -285,7 +285,9 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
     $originalRecord = $record;
     $savedRecord = $record;
-
+    if ($idMasterRecord == 0) {
+      $this->recordValidate($savedRecord);
+    }
     $savedRecord = $this->recordNormalize($savedRecord);
 
     try {

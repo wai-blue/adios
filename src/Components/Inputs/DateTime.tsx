@@ -117,7 +117,10 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       break;
     }
 
-    return value;
+    return <>
+      <i className="fas fa-calendar-days mr-2"></i>
+      {value}
+    </>
   }
 
   renderInputElement() {

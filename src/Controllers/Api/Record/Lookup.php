@@ -35,6 +35,9 @@ class Lookup extends \ADIOS\Core\ApiController {
         if (isset($value['id'])) {
           $data[$key]['id'] = \ADIOS\Core\Helper::encrypt($value['id']);
         }
+        if (!empty($this->model->lookupUrlDetail)) {
+          $data[$key]['_URL_DETAIL'] = str_replace('{%ID%}', $value['id'], $this->model->lookupUrlDetail);
+        }
       }
     }
 

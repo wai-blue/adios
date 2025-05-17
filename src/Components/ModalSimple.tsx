@@ -16,7 +16,7 @@ export default class ModalSimple extends Modal {
           id={"adios-modal-" + this.props.uid}
           className={"modal " + this.props.type}
         >
-          {this.props.children}
+          <div className="modal-inner">{this.props.children}</div>
         </div>
       </>;
     } else {

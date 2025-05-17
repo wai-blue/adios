@@ -47,8 +47,8 @@
   .adios.component.input.datetime input { @apply max-w-[160px]; }
 
   .adios.component.input .inner { @apply flex w-full items-center rounded gap-1; }
-  .adios.component.input .inner .value-element { @apply inline-flex flex-1 items-center pr-1 mr-1 text-gray-900 dark:text-white; min-height: 1.5rem; }
-  .adios.component.input .inner .input-element { @apply flex-1 flex flex-row gap-1 pr-1 mr-1 text-gray-900 items-center dark:text-white; min-height: 1.5rem; }
+  .adios.component.input .inner .value-element { @apply inline-flex flex-1 items-center pr-1 mr-1 dark:text-white; min-height: 1.5rem; }
+  .adios.component.input .inner .input-element { @apply flex-1 flex flex-row gap-1 pr-1 mr-1 items-center dark:text-white; min-height: 1.5rem; }
   .adios.component.input .inner .value-element .no-value { @apply text-gray-300 italic after:content-['N/A']; }
   .adios.component.input .inner .inline-editing-buttons { @apply flex flex-1 gap-1 invisible; }
   .adios.component.input .inner .inline-editing-buttons.always-visible { @apply !visible; }

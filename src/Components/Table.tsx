@@ -579,7 +579,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
           onKeyUp={(event: any) => {
             if (event.keyCode == 13) {
               this.loadData();
-              setUrlParam('q', this.state.fulltextSearch);
+              if (!this.props.parentForm) {
+                setUrlParam('q', this.state.fulltextSearch);
+              }
             }
           }}
           onChange={(event: ChangeEvent<HTMLInputElement>) => this.onFulltextSearchChange(event.target.value)}
@@ -1107,9 +1109,10 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     } else {
       if (!this.props.parentForm) {
         const urlParams = new URLSearchParams(window.location.search);
-        const recordTitle = this.findRecordById(id)._LOOKUP ?? null;
-        urlParams.set('recordId', id);
-        if (recordTitle) urlParams.set('recordTitle', recordTitle);
+        // const recordTitle = this.findRecordById(id)._LOOKUP ?? null;
+        console.log('parf', this.props);
+        if (!this.props.parentForm) urlParams.set('recordId', id);
+        // if (recordTitle) urlParams.set('recordTitle', recordTitle);
         window.history.pushState({}, "", '?' + urlParams.toString());
       }
 

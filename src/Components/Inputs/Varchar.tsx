@@ -102,7 +102,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
       else return <AsyncSelect {...selectProps} />;
     } else {
     
-      return <div className="flex flex-col">
+      return <div className="flex gap-2 w-full">
         <input
           type='text'
           value={this.state.value ?? ''}

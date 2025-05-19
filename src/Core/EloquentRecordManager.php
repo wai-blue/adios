@@ -324,13 +324,17 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
           switch ($relType) {
             case \ADIOS\Core\Model::HAS_MANY:
               foreach ($record[$relName] as $subKey => $subRecord) {
-                $subRecord = $relModel->record->recordSave($subRecord, $savedRecord['id']);
-                $savedRecord[$relName][$subKey] = $subRecord;
+                if (is_array($subRecord)) {
+                  $subRecord = $relModel->record->recordSave($subRecord, $savedRecord['id']);
+                  $savedRecord[$relName][$subKey] = $subRecord;
+                }
               }
             break;
             case \ADIOS\Core\Model::HAS_ONE:
-              $subRecord = $relModel->record->recordSave($record[$relName], $savedRecord['id']);
-              $savedRecord[$relName] = $subRecord;
+              if (is_array($record[$relName])) {
+                $subRecord = $relModel->record->recordSave($record[$relName], $savedRecord['id']);
+                $savedRecord[$relName] = $subRecord;
+              }
             break;
           }
         }
@@ -411,11 +415,15 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
         switch ($relType) {
           case \ADIOS\Core\Model::HAS_MANY:
             foreach ($record[$relName] as $subKey => $subRecord) {
-              $subRecord = $relModel->record->recordValidate($subRecord, $record['id']);
+              if (is_array($subRecord)) {
+                $subRecord = $relModel->record->recordValidate($subRecord, $record['id']);
+              }
             }
           break;
           case \ADIOS\Core\Model::HAS_ONE:
-            $subRecord = $relModel->record->recordValidate($record[$relName], $record['id']);
+            if (is_array($record[$relName])) {
+              $subRecord = $relModel->record->recordValidate($record[$relName], $record['id']);
+            }
           break;
         }
       }

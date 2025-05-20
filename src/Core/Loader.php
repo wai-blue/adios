@@ -723,7 +723,7 @@ class Loader
       $jsCache = $this->renderJSCache();
       $cachingTime = 3600;
 
-      header("Content-type: text/js");
+      header("Content-type: application/x-javascript");
       header("ETag: ".md5($jsCache));
       header($headerExpires);
       header("Pragma: cache");

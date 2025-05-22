@@ -444,9 +444,9 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       }
     }
 
-    foreach ($columns as $colName => $column) {
-      if (!isset($record[$colName])) $record[$colName] = $column->getNullValue();
-    }
+    // foreach ($columns as $colName => $column) {
+    //   if (!isset($record[$colName])) $record[$colName] = $column->getNullValue();
+    // }
 
     return $record;
   }

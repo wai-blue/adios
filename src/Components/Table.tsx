@@ -913,9 +913,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         key={columnName}
         field={columnName}
         header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
-        filter={true}
+        filter={this.state.description?.ui?.showColumnSearch}
         showFilterMenu={false}
-        filterElement={<>
+        filterElement={this.state.description?.ui?.showColumnSearch ? <>
           <div className="input-wrapper">
             <div className="input-body"><div className="adios component input">
               <div className="input-element">
@@ -933,7 +933,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
               </div>
             </div></div>
           </div>
-        </>}
+        </> : null}
         body={(data: any, options: any) => {
           return (
             <div

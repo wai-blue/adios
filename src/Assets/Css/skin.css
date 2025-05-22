@@ -2,6 +2,14 @@
 
   app-dialog { display: none; }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .alert-primary { @apply p-4 mb-4 text-primary rounded-lg bg-primary/20; }
   .alert-secondary { @apply p-4 mb-4 text-secondary rounded-lg bg-secondary/20; }
   .alert-info { @apply p-4 mb-4 text-blue-800 rounded-lg bg-blue-50; }
@@ -124,12 +132,13 @@
   .card-footer { @apply flex justify-between border-t border-slate-200 p-4; }
 
   .dialog { @apply rounded bg-white; }
-  .dialog-header { @apply p-4; }
-  .dialog-body { @apply p-4; }
+  .dialog-header { @apply !p-4 !text-base; }
+  .dialog-content { @apply !p-4 !text-base; }
   .dialog-footer { @apply p-4 border-t border-slate-200 bg-gray-50; }
 
   .dialog-danger-header { @apply bg-red-600 text-white hover:bg-red-400; }
   .dialog-warning-header { @apply bg-yellow-300 text-gray-800 hover:bg-yellow-200; }
+  .dialog-confirm-header { @apply bg-blue-300 text-gray-800 hover:bg-yellow-200; }
 
   .divider { @apply px-1 pt-4 pb-2; }
   .divider.dense { @apply px-1 py-2; }

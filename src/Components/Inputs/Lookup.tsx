@@ -10,6 +10,7 @@ interface LookupInputProps extends InputProps {
   model?: string
   endpoint?: string,
   customEndpointParams?: any,
+  urlAdd?: string,
 }
 
 interface LookupInputState extends InputState {
@@ -113,7 +114,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
         >
           <span className="text text-primary">{this.state.data[this.state.value]?._LOOKUP}</span>
         </a>
-        {urlDetail ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.accountUrl + "/" + urlDetail}>
+        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.accountUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
       </>;
@@ -150,6 +151,9 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
       />
       {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.app.config.accountUrl + "/" + urlDetail}>
         <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
+      </a> : null}
+      {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.accountUrl + "/" + this.props.urlAdd}>
+        <span className="icon"><i className="fas fa-plus"></i></span>
       </a> : null}
     </>;
   }

@@ -30,6 +30,17 @@ class DefaultProvider extends \ADIOS\Core\Auth {
     return new \ADIOS\Models\User($this->app);
   }
 
+  public function findUsersByLogin(string $login): array
+  {
+    return $this->createUserModel()->record
+      ->orWhere($this->loginAttribute, $login)
+      ->where($this->activeAttribute, '<>', 0)
+      ->get()
+      ->makeVisible([$this->passwordAttribute])
+      ->toArray()
+    ;
+  }
+
   public function auth(): void
   {
 
@@ -49,13 +60,7 @@ class DefaultProvider extends \ADIOS\Core\Auth {
       }
 
       if (!empty($login) && !empty($password)) {
-        $users = $userModel->record
-          ->orWhere($this->loginAttribute, $login)
-          ->where($this->activeAttribute, '<>', 0)
-          ->get()
-          ->makeVisible([$this->passwordAttribute])
-          ->toArray()
-        ;
+        $users = $this->findUsersByLogin($login);
 
         foreach ($users as $user) {
           $passwordMatch = FALSE;

@@ -107,20 +107,45 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
   renderValueElement() {
     let value = this.state.value;
+    let days = moment(value).diff(moment(), 'days');
 
-    switch (this.props.type) {
-      case 'datetime':
-        value = moment(value).format('DD.MM.YYYY H:mm:s');
-      break;
-      case 'date':
-        value = moment(value).format('DD.MM.YYYY');
-      break;
+    if (value) {
+      switch (this.props.type) {
+        case 'datetime':
+          value = moment(value).format('DD.MM.YYYY H:mm:s');
+        break;
+        case 'date':
+          value = moment(value).format('DD.MM.YYYY');
+        break;
+      }
+
+      return <div className="flex gap-2 items-center">
+        <i className="fas fa-calendar-days mr-2"></i>
+        {value}
+        <div className="text-gray-400">({
+          days < -365 ? "more than a year ago" : 
+          days < -30*6 ? "more than 6 months ago" :
+          days < -30*3 ? "more than 3 months ago" :
+          days < -30 ? "more than a month ago" :
+          days < -14 ? "more than 2 weeks ago" :
+          days < -7 ? "more than a week ago" :
+          days < -1 ? days + " days ago" :
+          days == -1 ? "yesterday" :
+          days == 0 ? "today" :
+          days == 1 ? "tomorrow" :
+          days > 365 ? "in a year" : 
+          days > 30*6 ? "in 6-12 months" :
+          days > 30*3 ? "in 3-6 months" :
+          days > 30 ? "in 1-3 months" :
+          days > 14 ? "in 2-4 weeks" :
+          days > 7 ? "in 1-2 weeks" :
+          days > 1 ? "in a week" :
+          null
+        })</div>
+      </div>
+    } else {
+      return super.renderValueElement();
     }
-
-    return <>
-      <i className="fas fa-calendar-days mr-2"></i>
-      {value}
-    </>
   }
 
   renderInputElement() {

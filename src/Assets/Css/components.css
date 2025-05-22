@@ -36,6 +36,8 @@
   .adios.component.table .table-cell-content.column-datetime { @apply text-right; }
   .adios.component.table .table-cell-content.column-boolean { @apply text-center; }
 
+  .adios.component.table .column-search .input-element { @apply bg-white; }
+
   .adios.component.input { @apply inline-flex justify-between items-center w-full; }
   
   .adios.component.input input,

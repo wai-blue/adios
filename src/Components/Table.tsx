@@ -916,7 +916,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         filter={this.state.description?.ui?.showColumnSearch}
         showFilterMenu={false}
         filterElement={this.state.description?.ui?.showColumnSearch ? <>
-          <div className="input-wrapper">
+          <div className="column-search input-wrapper">
             <div className="input-body"><div className="adios component input">
               <div className="input-element">
                 <input
@@ -1110,7 +1110,6 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       if (!this.props.parentForm) {
         const urlParams = new URLSearchParams(window.location.search);
         // const recordTitle = this.findRecordById(id)._LOOKUP ?? null;
-        console.log('parf', this.props);
         if (!this.props.parentForm) urlParams.set('recordId', id);
         // if (recordTitle) urlParams.set('recordTitle', recordTitle);
         window.history.pushState({}, "", '?' + urlParams.toString());

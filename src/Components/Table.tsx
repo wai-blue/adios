@@ -173,7 +173,7 @@ export interface TableState {
 
 export default class Table<P, S> extends Component<TableProps, TableState> {
   static defaultProps = {
-    itemsPerPage: 100,
+    itemsPerPage: 35,
     descriptionSource: 'both',
   }
 

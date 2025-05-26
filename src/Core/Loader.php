@@ -890,11 +890,13 @@ class Loader
   ////////////////////////////////////////////////
   // metody pre pracu s konfiguraciou
 
-  public function onBeforeRender() {
+  public function onBeforeRender(): void
+  {
     // to be overriden
   }
 
-  public function onAfterRender() {
+  public function onAfterRender(): void
+  {
     // to be overriden
   }
 

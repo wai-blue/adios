@@ -133,20 +133,21 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
 
   renderValueElement() {
     let value = this.state.value;
+    let valueFormatted = this.state.value;
 
     if (value) {
       switch (this.props.type) {
         case 'datetime':
-          value = moment(value).format('DD.MM.YYYY H:mm:s');
+          valueFormatted = moment(value).format('DD.MM.YYYY H:mm:s');
         break;
         case 'date':
-          value = moment(value).format('DD.MM.YYYY');
+          valueFormatted = moment(value).format('DD.MM.YYYY');
         break;
       }
 
       return <div className="flex gap-2 items-center">
         <i className="fas fa-calendar-days mr-2"></i>
-        {value}
+        {valueFormatted}
         {this.renderReadableInfo(value)}
       </div>
     } else {

@@ -3,7 +3,7 @@ import React, { Component, ChangeEvent, createRef } from 'react';
 import { setUrlParam } from "./Helper";
 import Modal, { ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
-import ModalSimple from "./ModalSimple";
+import ModalForm from "./ModalForm";
 import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
 import Swal from "sweetalert2";
@@ -706,46 +706,35 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }
 
     if (hasRecordsToDelete) {
-      return (
-        <ModalSimple
-          uid={this.props.uid + '_delete_confirm'}
-          isOpen={true} type='centered tiny'
-        >
-          <div className='modal-header'>
-            <div>
-              <div>{this.translate('Delete record', 'ADIOS\\Core\\Loader::Components\\Table')}</div>
-            </div>
-          </div>
-          <div className='modal-body'>
-            {this.translate('You are about to delete the record. Press OK to confirm.', 'ADIOS\\Core\\Loader::Components\\Table')}
-          </div>
-          <div className='modal-footer'>
-            <div className='flex justify-between'>
-              <button
-                className='btn btn-primary'
-                onClick={() => {
-                  this.deleteRecord();
-                }}
-              >
-                <span className='icon'><i className='fas fa-check'></i></span>
-                <span className='text'>{this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-              </button>
-              <button
-                className='btn btn-cancel'
-                onClick={() => {
-                  if (this.state.data) {
-                    let newData: TableData = this.state.data;
-                    for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
-                    this.setState({data: newData});
-                  }
-                }}
-              >
-                <span className='icon'><i className='fas fa-times'></i></span>
-                <span className='text'>{this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-              </button>
-            </div>
-          </div>
-        </ModalSimple>
+      return globalThis.main.showDialogDanger(
+        this.translate('You are about to delete the record. Press OK to confirm.', 'ADIOS\\Core\\Loader::Components\\Table'),
+        {
+          header: this.translate('Delete record', 'ADIOS\\Core\\Loader::Components\\Table'),
+          footer: <>
+            <button
+              className='btn btn-primary'
+              onClick={() => {
+                this.deleteRecord();
+              }}
+            >
+              <span className='icon'><i className='fas fa-check'></i></span>
+              <span className='text'>{this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
+            </button>
+            <button
+              className='btn btn-cancel'
+              onClick={() => {
+                if (this.state.data) {
+                  let newData: TableData = this.state.data;
+                  for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
+                  this.setState({data: newData});
+                }
+              }}
+            >
+              <span className='icon'><i className='fas fa-times'></i></span>
+              <span className='text'>{this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
+            </button>
+          </>
+        }
       );
     } else {
       return <></>;
@@ -754,7 +743,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderFormModal(): JSX.Element {
     if (this.state.recordId) {
-      return <ModalSimple {...this.getFormModalProps()}>{this.renderForm()}</ModalSimple>;
+      return <ModalForm {...this.getFormModalProps()}>{this.renderForm()}</ModalForm>;
     } else {
       return <></>;
     }

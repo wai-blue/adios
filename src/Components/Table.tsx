@@ -384,7 +384,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             model: this.model,
             orderBy: this.state.orderBy,
             page: this.state.page ?? 0,
-            itemsPerPage: this.state.itemsPerPage ?? 15,
+            itemsPerPage: this.state.itemsPerPage ?? 35,
             parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
             parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
             fulltextSearch: this.state.fulltextSearch,
@@ -560,7 +560,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   renderHeaderLeft(): Array<JSX.Element> {
-    return this.renderHeaderButtons();
+    return [...this.renderHeaderButtons(), this.renderFulltextSearch()]
   }
 
   renderHeaderTitle(): JSX.Element {
@@ -569,12 +569,12 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderFulltextSearch(): JSX.Element {
     if (this.state.description?.ui?.showFulltextSearch) {
-      return <>
+      return <div className="table-header-search">
         <input
           ref={this.refFulltextSearchInput}
-          className={"table-header-search " + (this.state.fulltextSearch == "" ? "" : "input-highlighted")}
+          className={"table-header-search " + (this.state.fulltextSearch == "" ? "" : "active")}
           type="search"
-          placeholder={'🔍 ' + this.translate('Start typing to search...', 'ADIOS\\Core\\Loader::Components\\Table')}
+          placeholder={this.translate('Search...', 'ADIOS\\Core\\Loader::Components\\Table')}
           value={this.state.fulltextSearch}
           onKeyUp={(event: any) => {
             if (event.keyCode == 13) {
@@ -592,7 +592,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         >
           <span className="icon"><i className="fas fa-magnifying-glass"></i></span>
         </button>
-      </>;
+      </div>;
     } else {
       return <></>;
     }
@@ -605,13 +605,18 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   renderHeader(): JSX.Element {
+    const left = this.renderHeaderLeft();
+    const right = this.renderHeaderRight();
+
     return <>
       <div className="table-header">
-        <div className="table-header-left">
-          {this.renderHeaderLeft().map((item: any, index: any) => {
-            return <div key={'header-left-' + index}>{item}</div>;
-          })}
-        </div>
+        {left.length == 0 ? null :
+          <div className="table-header-left">
+            {left.map((item: any, index: any) => {
+              return <div key={'header-left-' + index}>{item}</div>;
+            })}
+          </div>
+        }
 
         {this.state.description?.ui?.showHeaderTitle ?
           <div className="table-header-title">
@@ -620,14 +625,13 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
           : null
         }
 
-        <div className="table-header-right">
-          {this.renderHeaderRight().map((item: any, index: any) => {
-            return <div key={'header-right-' + index}>{item}</div>;
-          })}
-        </div>
-      </div>
-      <div className="table-header">
-        {this.renderFulltextSearch()}
+        {right.length == 0 ? null :
+          <div className="table-header-right">
+            {right.map((item: any, index: any) => {
+              return <div key={'header-right-' + index}>{item}</div>;
+            })}
+          </div>
+        }
       </div>
     </>
   }

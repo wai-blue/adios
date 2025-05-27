@@ -50,6 +50,8 @@
   .btn.btn-extra-large .icon { @apply text-2xl px-3.5 py-2; }
   .btn.btn-extra-large .text { @apply text-2xl px-3.5 py-2; }
 
+  .btn-bold { @apply font-bold; }
+
   .btn.btn-transparent { @apply text-gray-800 bg-transparent border border-gray-100 hover:border-gray-200 hover:bg-gray-100 dark:text-white dark:border-gray-600 dark:hover:text-slate-800; }
   .btn.btn-primary { @apply text-white bg-primary border border-primary hover:border-primary/80 hover:bg-primary/80; }
   .btn.btn-primary-outline { @apply text-primary bg-white border border-dotted border-primary hover:border-solid; }

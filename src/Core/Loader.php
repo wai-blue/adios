@@ -540,6 +540,7 @@ class Loader
 
       if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
         $this->auth->auth();
+        $this->config->filterByUser();
         if (!$this->auth->isUserInSession()) {
           $controllerObject = $this->router->createSignInController();
           $this->permission = $controllerObject->permission;

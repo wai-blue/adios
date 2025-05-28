@@ -98,9 +98,9 @@
   .btn.btn-violet-outline { @apply text-violet-800 bg-transparent border border-violet-100 hover:bg-violet-200; }
   .btn.btn-violet-outline .text { @apply !border-violet-800; }
 
-  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none w-full; }
+  .btn-list-item { @apply flex rounded-none shadow-none p-1 border-none w-full items-center; }
   .btn-list-item .text { @apply flex-1; }
-  .btn-list-item .icon { @apply self-stretch flex items-center; }
+  .btn-list-item .icon { @apply self-center flex items-center; }
 
   .btn.btn-disabled { @apply text-gray-200; opacity: 0.5 }
   
@@ -131,7 +131,7 @@
   .card-header-buttons .btn .text { @apply my-0 py-0; }
   .card-header small { @apply font-normal; }
   .card-body { @apply p-2 flex-1; }
-  .card-footer { @apply flex justify-between border-t border-slate-200 p-4; }
+  .card-footer { @apply flex justify-between border-t border-slate-200 p-4 gap-2; }
 
   .dialog { @apply rounded bg-white; }
   .dialog-header { @apply !p-4 !text-base; }

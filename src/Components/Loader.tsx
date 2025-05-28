@@ -104,6 +104,9 @@ export class ADIOS {
 
     this.lastShownDialogRef = React.createRef();
 
+    props.headerClassName = 'dialog-header ' + (props.headerClassName ?? '');
+    props.contentClassName = 'dialog-content ' + (props.contentClassName ?? '');
+
     root.render(<>
       <Dialog
         ref={this.lastShownDialogRef}
@@ -157,6 +160,33 @@ export class ADIOS {
           <span className="text">OK, I understand</span>
         </button>
       </div>
+    };
+
+    if (!props.headerClassName) props.headerClassName = defaultProps.headerClassName;
+    if (!props.contentClassName) props.contentClassName = defaultProps.contentClassName;
+    if (!props.header) props.footer = defaultProps.header;
+    if (!props.footer) props.footer = defaultProps.footer;
+
+    this.showDialog(content, props);
+  }
+
+  showDialogConfirm(content: JSX.Element, props?: any) {
+    let defaultProps = {
+      headerClassName: 'dialog-confirm-header',
+      contentClassName: 'dialog-confirm-content',
+      header: "Confirm",
+      footer: <>
+        <div className={"flex w-full justify-between"}>
+          <button className="btn btn-success" onClick={() => { this.lastShownDialogRef.current.hide(); props.onYes(); }} >
+            <span className="icon"><i className="fas fa-check"></i></span>
+            <span className="text">{props.yesText}</span>
+          </button>
+          <button className="btn btn-cancel" onClick={() => { this.lastShownDialogRef.current.hide(); props.onNo(); }} >
+            <span className="icon"><i className="fas fa-xmark"></i></span>
+            <span className="text">{props.noText}</span>
+          </button>
+        </div>
+      </>
     };
 
     if (!props.headerClassName) props.headerClassName = defaultProps.headerClassName;

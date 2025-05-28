@@ -28,7 +28,7 @@
   .p-tabview { @apply pb-2; }
   .p-tabview .p-tabview-ink-bar { @apply bg-primary; }
   .p-tabview-nav { @apply border-b border-gray-200 bg-transparent dark:border-b-slate-400; }
-  .p-tabview-panels { @apply p-1 border-l border-r border-b border-gray-200 dark:bg-slate-600 dark:border-none; }
+  .p-tabview-panels { @apply p-1 dark:bg-slate-600 dark:border-none; }
   /* .p-tabview-panels { @apply p-1; } */
   .p-tabview-nav-link { @apply mr-0.5 p-0 rounded-none border border-gray-200 border-t-gray-400 bg-transparent !no-underline font-normal hover:text-primary hover:border-t-primary dark:border-slate-600 dark:text-white dark:hover:text-white dark:hover:bg-primary/20; }
   .p-tabview-title { @apply p-3 block; }

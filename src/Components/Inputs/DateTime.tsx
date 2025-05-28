@@ -105,19 +105,54 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
     super.onChange(value);
   }
 
+  renderReadableInfo(value: any) {
+    let days = moment(value).diff(moment(), 'days');
+    return <>
+      <div className="text-gray-400">{
+        days < -365 ? "(more than a year ago)" :
+        days < -30*6 ? "(more than 6 months ago)" :
+        days < -30*3 ? "(more than 3 months ago)" :
+        days < -30 ? "(more than a month ago)" :
+        days < -14 ? "(more than 2 weeks ago)" :
+        days < -7 ? "(more than a week ago)" :
+        days < -1 ? "(" + (-days) + " days ago)" :
+        days == -1 ? "(yesterday)" :
+        days == 0 ? "(today)" :
+        days == 1 ? "(tomorrow)" :
+        days > 365 ? "(in a year)" :
+        days > 30*6 ? "(in 6-12 months)" :
+        days > 30*3 ? "(in 3-6 months)" :
+        days > 30 ? "(in 1-3 months)" :
+        days > 14 ? "(in 2-4 weeks)" :
+        days > 7 ? "(in 1-2 weeks)" :
+        days > 1 ? "(in " + days + " days)" :
+        null
+      }</div>
+    </>;
+  }
+
   renderValueElement() {
     let value = this.state.value;
+    let valueFormatted = this.state.value;
 
-    switch (this.props.type) {
-      case 'datetime':
-        value = moment(value).format('DD.MM.YYYY H:mm:s');
-      break;
-      case 'date':
-        value = moment(value).format('DD.MM.YYYY');
-      break;
+    if (value) {
+      switch (this.props.type) {
+        case 'datetime':
+          valueFormatted = moment(value).format('DD.MM.YYYY H:mm:s');
+        break;
+        case 'date':
+          valueFormatted = moment(value).format('DD.MM.YYYY');
+        break;
+      }
+
+      return <div className="flex gap-2 items-center">
+        <i className="fas fa-calendar-days mr-2"></i>
+        {valueFormatted}
+        {this.renderReadableInfo(value)}
+      </div>
+    } else {
+      return super.renderValueElement();
     }
-
-    return value;
   }
 
   renderInputElement() {
@@ -148,37 +183,36 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       break;
     }
 
-    return (
-      <>
-        <div style={{minWidth: "8em"}}>
-          <Flatpickr
-            ref={this.fp}
-            value={value}
-            onChange={(data: Date[]) => {
-              this.onChange(data[0] ?? null)
-            }}
-            className={
-              (this.state.invalid ? 'is-invalid' : '')
-              + " " + (this.props.cssClass ?? "")
-              + " " + (this.state.readonly ? "bg-muted" : "")
-            }
-            placeholder={this.props.description?.placeholder ?? defaultPlaceholder}
-            disabled={this.state.readonly}
-            options={this.options}
-          />
-        </div>
-        {this.state.readonly ? null :
-          <button
-            className="btn btn-small btn-transparent ml-2"
-            onClick={() => {
-              if (!this.fp?.current?.flatpickr) return;
-              this.fp.current.flatpickr.clear();
-            }}
-          >
-            <span className="icon"><i className="fas fa-times"></i></span>
-          </button>
-         }
-      </>
-    );
+    return <>
+      <div style={{minWidth: "8em"}}>
+        <Flatpickr
+          ref={this.fp}
+          value={value}
+          onChange={(data: Date[]) => {
+            this.onChange(data[0] ?? null)
+          }}
+          className={
+            (this.state.invalid ? 'is-invalid' : '')
+            + " " + (this.props.cssClass ?? "")
+            + " " + (this.state.readonly ? "bg-muted" : "")
+          }
+          placeholder={this.props.description?.placeholder ?? defaultPlaceholder}
+          disabled={this.state.readonly}
+          options={this.options}
+        />
+      </div>
+      {this.renderReadableInfo(this.state.value)}
+      {this.state.readonly ? null :
+        <button
+          className="btn btn-small btn-transparent ml-2"
+          onClick={() => {
+            if (!this.fp?.current?.flatpickr) return;
+            this.fp.current.flatpickr.clear();
+          }}
+        >
+          <span className="icon"><i className="fas fa-times"></i></span>
+        </button>
+        }
+    </>;
   }
 }

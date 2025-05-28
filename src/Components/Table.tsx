@@ -3,7 +3,7 @@ import React, { Component, ChangeEvent, createRef } from 'react';
 import { setUrlParam } from "./Helper";
 import Modal, { ModalProps } from "./Modal";
 import ErrorBoundary from "./ErrorBoundary";
-import ModalSimple from "./ModalSimple";
+import ModalForm from "./ModalForm";
 import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
 import Swal from "sweetalert2";
@@ -173,7 +173,7 @@ export interface TableState {
 
 export default class Table<P, S> extends Component<TableProps, TableState> {
   static defaultProps = {
-    itemsPerPage: 100,
+    itemsPerPage: 35,
     descriptionSource: 'both',
   }
 
@@ -384,7 +384,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             model: this.model,
             orderBy: this.state.orderBy,
             page: this.state.page ?? 0,
-            itemsPerPage: this.state.itemsPerPage ?? 15,
+            itemsPerPage: this.state.itemsPerPage ?? 35,
             parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
             parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
             fulltextSearch: this.state.fulltextSearch,
@@ -560,7 +560,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   renderHeaderLeft(): Array<JSX.Element> {
-    return this.renderHeaderButtons();
+    return [...this.renderHeaderButtons(), this.renderFulltextSearch()]
   }
 
   renderHeaderTitle(): JSX.Element {
@@ -569,17 +569,19 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderFulltextSearch(): JSX.Element {
     if (this.state.description?.ui?.showFulltextSearch) {
-      return <>
+      return <div className="table-header-search">
         <input
           ref={this.refFulltextSearchInput}
-          className={"table-header-search " + (this.state.fulltextSearch == "" ? "" : "input-highlighted")}
+          className={"table-header-search " + (this.state.fulltextSearch == "" ? "" : "active")}
           type="search"
-          placeholder={'🔍 ' + this.translate('Start typing to search...', 'ADIOS\\Core\\Loader::Components\\Table')}
+          placeholder={this.translate('Search...', 'ADIOS\\Core\\Loader::Components\\Table')}
           value={this.state.fulltextSearch}
           onKeyUp={(event: any) => {
             if (event.keyCode == 13) {
               this.loadData();
-              setUrlParam('q', this.state.fulltextSearch);
+              if (!this.props.parentForm) {
+                setUrlParam('q', this.state.fulltextSearch);
+              }
             }
           }}
           onChange={(event: ChangeEvent<HTMLInputElement>) => this.onFulltextSearchChange(event.target.value)}
@@ -590,7 +592,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         >
           <span className="icon"><i className="fas fa-magnifying-glass"></i></span>
         </button>
-      </>;
+      </div>;
     } else {
       return <></>;
     }
@@ -603,13 +605,18 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
   }
 
   renderHeader(): JSX.Element {
+    const left = this.renderHeaderLeft();
+    const right = this.renderHeaderRight();
+
     return <>
       <div className="table-header">
-        <div className="table-header-left">
-          {this.renderHeaderLeft().map((item: any, index: any) => {
-            return <div key={'header-left-' + index}>{item}</div>;
-          })}
-        </div>
+        {left.length == 0 ? null :
+          <div className="table-header-left">
+            {left.map((item: any, index: any) => {
+              return <div key={'header-left-' + index}>{item}</div>;
+            })}
+          </div>
+        }
 
         {this.state.description?.ui?.showHeaderTitle ?
           <div className="table-header-title">
@@ -618,14 +625,13 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
           : null
         }
 
-        <div className="table-header-right">
-          {this.renderHeaderRight().map((item: any, index: any) => {
-            return <div key={'header-right-' + index}>{item}</div>;
-          })}
-        </div>
-      </div>
-      <div className="table-header">
-        {this.renderFulltextSearch()}
+        {right.length == 0 ? null :
+          <div className="table-header-right">
+            {right.map((item: any, index: any) => {
+              return <div key={'header-right-' + index}>{item}</div>;
+            })}
+          </div>
+        }
       </div>
     </>
   }
@@ -704,46 +710,35 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     }
 
     if (hasRecordsToDelete) {
-      return (
-        <ModalSimple
-          uid={this.props.uid + '_delete_confirm'}
-          isOpen={true} type='centered tiny'
-        >
-          <div className='modal-header'>
-            <div>
-              <div>{this.translate('Delete record', 'ADIOS\\Core\\Loader::Components\\Table')}</div>
-            </div>
-          </div>
-          <div className='modal-body'>
-            {this.translate('You are about to delete the record. Press OK to confirm.', 'ADIOS\\Core\\Loader::Components\\Table')}
-          </div>
-          <div className='modal-footer'>
-            <div className='flex justify-between'>
-              <button
-                className='btn btn-primary'
-                onClick={() => {
-                  this.deleteRecord();
-                }}
-              >
-                <span className='icon'><i className='fas fa-check'></i></span>
-                <span className='text'>{this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-              </button>
-              <button
-                className='btn btn-cancel'
-                onClick={() => {
-                  if (this.state.data) {
-                    let newData: TableData = this.state.data;
-                    for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
-                    this.setState({data: newData});
-                  }
-                }}
-              >
-                <span className='icon'><i className='fas fa-times'></i></span>
-                <span className='text'>{this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-              </button>
-            </div>
-          </div>
-        </ModalSimple>
+      return globalThis.main.showDialogDanger(
+        this.translate('You are about to delete the record. Press OK to confirm.', 'ADIOS\\Core\\Loader::Components\\Table'),
+        {
+          header: this.translate('Delete record', 'ADIOS\\Core\\Loader::Components\\Table'),
+          footer: <>
+            <button
+              className='btn btn-primary'
+              onClick={() => {
+                this.deleteRecord();
+              }}
+            >
+              <span className='icon'><i className='fas fa-check'></i></span>
+              <span className='text'>{this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
+            </button>
+            <button
+              className='btn btn-cancel'
+              onClick={() => {
+                if (this.state.data) {
+                  let newData: TableData = this.state.data;
+                  for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
+                  this.setState({data: newData});
+                }
+              }}
+            >
+              <span className='icon'><i className='fas fa-times'></i></span>
+              <span className='text'>{this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
+            </button>
+          </>
+        }
       );
     } else {
       return <></>;
@@ -752,7 +747,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
 
   renderFormModal(): JSX.Element {
     if (this.state.recordId) {
-      return <ModalSimple {...this.getFormModalProps()}>{this.renderForm()}</ModalSimple>;
+      return <ModalForm {...this.getFormModalProps()}>{this.renderForm()}</ModalForm>;
     } else {
       return <></>;
     }
@@ -911,10 +906,10 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
         key={columnName}
         field={columnName}
         header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
-        filter={true}
+        filter={this.state.description?.ui?.showColumnSearch}
         showFilterMenu={false}
-        filterElement={<>
-          <div className="input-wrapper">
+        filterElement={this.state.description?.ui?.showColumnSearch ? <>
+          <div className="column-search input-wrapper">
             <div className="input-body"><div className="adios component input">
               <div className="input-element">
                 <input
@@ -931,7 +926,7 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
               </div>
             </div></div>
           </div>
-        </>}
+        </> : null}
         body={(data: any, options: any) => {
           return (
             <div
@@ -1107,9 +1102,9 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
     } else {
       if (!this.props.parentForm) {
         const urlParams = new URLSearchParams(window.location.search);
-        const recordTitle = this.findRecordById(id)._LOOKUP ?? null;
-        urlParams.set('recordId', id);
-        if (recordTitle) urlParams.set('recordTitle', recordTitle);
+        // const recordTitle = this.findRecordById(id)._LOOKUP ?? null;
+        if (!this.props.parentForm) urlParams.set('recordId', id);
+        // if (recordTitle) urlParams.set('recordTitle', recordTitle);
         window.history.pushState({}, "", '?' + urlParams.toString());
       }
 

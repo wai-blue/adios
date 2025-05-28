@@ -88,6 +88,8 @@ class Router {
             'controller' => $controller,
             'vars' => $routeVars,
           ];
+        } else {
+          $routeData = $controller;
         }
       }
     }

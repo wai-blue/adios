@@ -540,6 +540,7 @@ class Loader
 
       if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
         $this->auth->auth();
+        $this->config->filterByUser();
         if (!$this->auth->isUserInSession()) {
           $controllerObject = $this->router->createSignInController();
           $this->permission = $controllerObject->permission;
@@ -723,7 +724,7 @@ class Loader
       $jsCache = $this->renderJSCache();
       $cachingTime = 3600;
 
-      header("Content-type: text/js");
+      header("Content-type: application/x-javascript");
       header("ETag: ".md5($jsCache));
       header($headerExpires);
       header("Pragma: cache");
@@ -890,11 +891,13 @@ class Loader
   ////////////////////////////////////////////////
   // metody pre pracu s konfiguraciou
 
-  public function onBeforeRender() {
+  public function onBeforeRender(): void
+  {
     // to be overriden
   }
 
-  public function onAfterRender() {
+  public function onAfterRender(): void
+  {
     // to be overriden
   }
 

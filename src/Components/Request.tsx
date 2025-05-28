@@ -133,7 +133,7 @@ class Request {
     } else {
       console.error('ADIOS: Request @ ' + url + ' unknown error.');
       console.error(err);
-      this.fatalErrorNotification("Unknown error");
+      // this.fatalErrorNotification("Unknown error");
     }
   }
 

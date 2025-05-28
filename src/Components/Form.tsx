@@ -393,9 +393,9 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     return record;
   }
 
-  updateRecord(changedValues: any) {
+  updateRecord(changedValues: any, onSuccess?: any) {
     const record = this.normalizeRecord(this.state.record);
-    this.setState({record: deepObjectMerge(record, changedValues)});
+    this.setState({recordChanged: true, record: deepObjectMerge(record, changedValues)}, onSuccess);
   }
 
   onAfterRecordLoaded(record: any) {
@@ -417,6 +417,13 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     this.setState({
       tabs: tabs
     });
+  }
+
+  closeForm() {
+    if (this.props.onClose) {
+      this.props.onClose();
+    } else {
+    }
   }
 
   /*
@@ -577,6 +584,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       isInitialized: false,
       isInlineEditing: this.state.isInlineEditing,
       showInlineEditingButtons: false, // !this.state.isInlineEditing,
+      ...inputs[inputName]?.extendedProps,
       ...customInputProps,
       onInlineEditCancel: () => { },
       onInlineEditSave: () => { this.saveRecord(); },
@@ -780,11 +788,9 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
         data-dismiss="modal"
         aria-label="Close"
         onClick={() => {
-          if (this.props.onClose) {
-            let ok = true;
-            if (this.state.recordChanged) ok = confirm('You have unsaved changes. Are you sure to close?');
-            if (ok) this.props.onClose();
-          }
+          let ok = true;
+          if (this.state.recordChanged) ok = confirm('You have unsaved changes. Are you sure to close?');
+          if (ok) this.closeForm();
         }}
       ><span className="icon"><i className="fas fa-xmark"></i></span></button>
     );

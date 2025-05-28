@@ -95,7 +95,8 @@ class Config
     }
   }
 
-  public function save(string $path, string $value) {
+  public function save(string $path, string $value): void
+  {
     try {
       if (!empty($path)) {
         $this->app->pdo->execute("
@@ -107,7 +108,13 @@ class Config
     }
   }
 
-  public function delete($path) {
+  public function saveForUser(string $path, string $value): void
+  {
+    $this->save('user/' . $this->app->auth->getUserId() . '/' . $path, $value);
+  }
+
+  public function delete($path): void
+  {
     try {
       if (!empty($path)) {
         $this->app->pdo->execute("delete from `config` where `path` like ?", [$path . '%']);
@@ -121,7 +128,8 @@ class Config
     }
   }
 
-  public function loadFromDB() {
+  public function loadFromDB(): void
+  {
     if (!$this->app->pdo->isConnected) return;
 
     try {
@@ -143,6 +151,15 @@ class Config
       } else {
         throw $e; // forward exception to be processed by ADIOS
       }
+    }
+  }
+
+  public function filterByUser(): void
+  {
+    $idUser = $this->app->auth->getUserId();
+    if (isset($this->config['user'][$idUser]) && is_array($this->config['user'][$idUser])) {
+      $this->config = array_merge_recursive($this->config, $this->config['user'][$idUser]);
+      unset($this->config['user']);
     }
   }
 

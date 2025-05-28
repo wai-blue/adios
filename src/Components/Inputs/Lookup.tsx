@@ -10,6 +10,7 @@ interface LookupInputProps extends InputProps {
   model?: string
   endpoint?: string,
   customEndpointParams?: any,
+  urlAdd?: string,
 }
 
 interface LookupInputState extends InputState {
@@ -103,13 +104,19 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
 
   renderValueElement() {
     if (this.state.data && this.state.data[this.state.value]?._LOOKUP) {
+      let urlDetail = this.state.data[this.state.value]?._URL_DETAIL ?? '';
+
       return <>
         <a
+          className="btn btn-transparent"
           data-pr-tooltip={JSON.stringify(this.state.data[this.state.value] ?? {})}
           data-pr-position="bottom"
         >
-          {this.state.data[this.state.value]?._LOOKUP}
+          <span className="text text-primary">{this.state.data[this.state.value]?._LOOKUP}</span>
         </a>
+        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.accountUrl + "/" + urlDetail}>
+          <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
+        </a> : null}
       </>;
     } else {
       return <span className='no-value'></span>;
@@ -118,7 +125,9 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
   }
 
   renderInputElement() {
-    return (
+    let urlDetail = this.state.data[this.state.value]?._URL_DETAIL ?? '';
+
+    return <>
       <AsyncSelect
         value={{
           id: this.state.data[this.state.value]?.id ?? 0,
@@ -140,6 +149,12 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
         menuPosition="fixed"
         menuPortalTarget={document.body}
       />
-    )
+      {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.app.config.accountUrl + "/" + urlDetail}>
+        <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
+      </a> : null}
+      {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.accountUrl + "/" + this.props.urlAdd}>
+        <span className="icon"><i className="fas fa-plus"></i></span>
+      </a> : null}
+    </>;
   }
 }

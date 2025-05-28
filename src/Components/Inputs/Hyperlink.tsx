@@ -23,24 +23,27 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
 
   getStateFromProps(props: InputProps) {
     return {
-      ...this.state, // Parent state
+      ...super.getStateFromProps(props), // Parent state
       showPredefinedValues: false,
     };
   }
 
   renderValueElement() {
-    if (this.state.data && this.state.data[this.state.columnName]) {
-      return (
+    if (this.state.value) {
+      return <>
         <a
           href={this.state.value}
           target='_blank'
-          // onClick={(e) => { e.stopPropagation(); }}
+          onClick={(e) => { e.stopPropagation(); }}
           className="btn btn-blue-outline btn-small"
         >
           <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
           <span className="text">{this.state.value ? this.state.value : ''}</span>
         </a>
-      );
+        <button className="btn btn-transparent btn-small ml-2">
+          <span className="icon"><i className="fa-solid fa-pencil"></i></span>
+        </button>
+      </>;
     } else {
       return <span className="no-value"></span>;
     }

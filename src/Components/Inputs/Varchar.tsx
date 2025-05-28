@@ -27,7 +27,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
     return {
       ...this.state, // Parent state
       data: [],
-      showPredefinedValues: false,
+      showPredefinedValues: true,
     };
   }
 
@@ -102,7 +102,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
       else return <AsyncSelect {...selectProps} />;
     } else {
     
-      return <>
+      return <div className="flex gap-2 w-full">
         <input
           type='text'
           value={this.state.value ?? ''}
@@ -124,17 +124,17 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
                 }}
               >
                 <option value=''></option>
-                {this.props.description?.predefinedValues.map((item: string) => {
-                  return <option value={item}>{item}</option>
+                {this.props.description?.predefinedValues.map((item: string, index: any) => {
+                  return <option key={index} value={item}>{item}</option>
                 })}
               </select>
             </div>
           :
-            <button className="mt-1 btn btn-small btn-transparent" onClick={() => { this.setState({showPredefinedValues: true}); }}>
-              <span className="text text-xs">Choose from predefined options...</span>
+            <button className="mt-1 btn btn-transparent" onClick={() => { this.setState({showPredefinedValues: true}); }}>
+              <span className="text">Choose from predefined options...</span>
             </button>
         : null}
-      </>;
+      </div>;
     }
   }
 }

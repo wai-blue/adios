@@ -201,7 +201,6 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
           options={this.options}
         />
       </div>
-      {this.renderReadableInfo(this.state.value)}
       {this.state.readonly ? null :
         <button
           className="btn btn-small btn-transparent ml-2"
@@ -212,7 +211,8 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
         >
           <span className="icon"><i className="fas fa-times"></i></span>
         </button>
-        }
+      }
+      {this.renderReadableInfo(this.state.value)}
     </>;
   }
 }

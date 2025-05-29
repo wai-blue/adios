@@ -1,7 +1,7 @@
 @layer adios {
 
   /* HTML tags */
-  html { @apply !font-sans text-gray-800 dark:bg-slate-800; }
+  html { @apply !font-sans text-gray-800 dark:bg-gray-950; }
 
   a { @apply hover:underline }
   a[role=button] { @apply text-primary bg-white cursor-pointer m-2 inline-block font-bold text-sm p-2 border border-gray-50 hover:no-underline hover:bg-gray-50; }
@@ -18,7 +18,7 @@
 
   /* SPECIAL components, idetified by # id */
   aside#default-sidebar { @apply flex fixed top-0 left-0 z-10 pt-12 h-full transition-transform -translate-x-full md:translate-x-0; }
-  aside#default-sidebar > nav { @apply bg-primary p-1 flex gap-0.5 flex-col w-36 dark:bg-slate-600 dark:border-r dark:border-r-slate-400; }
+  aside#default-sidebar > nav { @apply bg-primary p-1 flex gap-0.5 flex-col w-36 dark:bg-slate-900 dark:border-r dark:border-r-slate-800; }
   aside#default-sidebar > nav .btn { @apply w-full rounded bg-primary hover:bg-white/20 dark:bg-transparent dark:hover:bg-primary; }
   aside#default-sidebar > nav .btn .icon { @apply w-6 text-sm text-left flex justify-center content-center flex-wrap border-none bg-transparent; }
   aside#default-sidebar > nav .btn .text { @apply border-none text-base; }
@@ -33,7 +33,7 @@
   aside#default-sidebar > div > ul > li > ul > li > ul > li > ul > li > ul > li { @apply ml-4 text-sm; } /* lvl-5 */
 
   nav#default-navbar { @apply bg-white fixed w-full z-20 top-0 start-0; }
-  nav#default-navbar > div { @apply flex flex-wrap items-center w-[100vw] justify-between m-0 p-2 dark:bg-slate-600 dark:border-b dark:border-b-slate-400; }
+  nav#default-navbar > div { @apply flex flex-wrap items-center w-[100vw] justify-between m-0 p-2 dark:bg-gray-900 dark:border-b dark:border-b-slate-700; }
   nav#default-navbar .btn { @apply !shadow-none; }
 
   div#sign-in-screen { @apply w-full pt-4 md:pt-0 md:h-screen flex flex-col items-center justify-center; }
@@ -44,7 +44,7 @@
   div#sign-in-screen > .inner > .form > .title { @apply text-center; }
   div#sign-in-screen > .inner > .form > .content > input { @apply border border-gray-300 rounded-sm w-full p-4 mb-1; }
 
-  div#app-main-content { @apply sm:ml-0 md:ml-64 mt-12 px-3 dark:bg-slate-800; }
+  div#app-main-content { @apply sm:ml-0 md:ml-64 mt-12 px-3 dark:bg-gray-950; }
   div#app-main-content.sidebar-only-nav { @apply md:ml-36; }
 }
 

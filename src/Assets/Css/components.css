@@ -8,11 +8,12 @@
   .adios.component.table .table-header-left { @apply w-full flex flex-1 gap-1 items-center; }
   .adios.component.table .table-header-title { @apply flex-1 text-left text-primary text-center text-2xl mr-2 dark:text-white; }
   .adios.component.table .table-header-right { @apply flex flex-1 text-center gap-1 justify-end; }
-  .adios.component.table .table-header-search { @apply flex flex-4 gap-2 w-full p-1 dark:border-slate-600 dark:bg-slate-800; }
+  .adios.component.table .table-header-search { @apply flex flex-4 gap-2 w-full p-1 dark:border-slate-600 dark:bg-slate-950; }
   .adios.component.table .table-header-search.active { @apply bg-yellow-50; }
-  .adios.component.table .table-body { @apply border border-slate-200 dark:border-slate-600; }
+  .adios.component.table .table-body { @apply border border-slate-200 dark:border-none; }
   .adios.component.table .table-body tr { @apply border border-transparent divide-x hover:bg-gray-100; box-sizing: border-box; }
-  .adios.component.table .table-body tr:hover td { @apply bg-gray-100 dark:bg-slate-600; }
+  .adios.component.table .table-body tr:hover td { @apply bg-gray-100 dark:bg-slate-800; }
+  .adios.component.table .table-body thead th td { @apply p-0.5; margin: 1px; }
   .adios.component.table .table-body thead th td { @apply p-0.5; margin: 1px; }
   .adios.component.table .table-body tbody tr td { @apply p-0.5; margin: 1px; }
   /* .adios.component.table .table-body tbody tr td > div { @apply; } */
@@ -37,13 +38,13 @@
   .adios.component.table .table-cell-content.column-datetime { @apply text-right; }
   .adios.component.table .table-cell-content.column-boolean { @apply text-center; }
 
-  .adios.component.table .column-search .input-element { @apply bg-white; }
+  .adios.component.table .column-search .input-element { @apply bg-white dark:bg-slate-800; }
 
   .adios.component.input { @apply inline-flex justify-between items-center w-full; }
   
   .adios.component.input input,
   .adios.component.input textarea,
-  .adios.component.input select { @apply border border-slate-200 flex flex-1 rounded-sm w-full p-0.5; }
+  .adios.component.input select { @apply border border-slate-200 flex flex-1 rounded-sm w-full p-0.5 dark:border-slate-500; }
 
   .adios.component.input.int input { @apply max-w-[160px]; }
   .adios.component.input.date input { @apply max-w-[160px]; }

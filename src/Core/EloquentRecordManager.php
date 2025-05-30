@@ -7,6 +7,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   protected $guarded = [];
   public $timestamps = false;
   public static $snakeAttributes = false;
+  
 
   public ?\ADIOS\Core\Loader $app;
   public ?\ADIOS\Core\Model $model;

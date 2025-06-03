@@ -99,6 +99,11 @@ class Auth {
     else return [];
   }
 
+  public function userHasRole(int $idRole): bool
+  {
+    return in_array($idRole, $this->getUserRoles());
+  }
+
   public function getUserId(): int
   {
     return (int) ($this->user['id'] ?? 0);

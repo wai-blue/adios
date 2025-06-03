@@ -181,7 +181,7 @@ class Model
     ];
   }
 
-  public function createSqlTable()
+  public function getSqlCreateTableCommands(): array
   {
 
     $columns = $this->columns;
@@ -201,11 +201,23 @@ class Model
 
     $createSql = substr($createSql, 0, -2) . ") ENGINE = {$this->sqlEngine}";
 
+    $commands = [];
+    $commands[] = "SET foreign_key_checks = 0";
+    $commands[] = "drop table if exists `{$this->table}`";
+    $commands[] = $createSql;
+    $commands[] = "SET foreign_key_checks = 1";
+
+    return $commands;
+
+  }
+
+  public function createSqlTable()
+  {
+
     $this->app->pdo->startTransaction();
-    $this->app->pdo->execute("SET foreign_key_checks = 0");
-    $this->app->pdo->execute("drop table if exists `{$this->table}`");
-    $this->app->pdo->execute($createSql);
-    $this->app->pdo->execute("SET foreign_key_checks = 1");
+    foreach ($this->getSqlCreateTableCommands() as $command) {
+      $this->app->pdo->execute($command);
+    }
     $this->app->pdo->commit();
   }
 
@@ -386,6 +398,11 @@ class Model
 
   //////////////////////////////////////////////////////////////////
   // definition of columns
+
+  public function hasColumn(string $column): bool
+  {
+    return in_array($column, array_keys($this->getColumns()));
+  }
 
   /** @return array<string, \ADIOS\Core\Db\Column> */
   public function describeColumns(): array

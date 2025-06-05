@@ -9,7 +9,7 @@ class Save extends \ADIOS\Core\ApiController {
   function __construct(\ADIOS\Core\Loader $app, array $params = []) {
     parent::__construct($app, $params);
     $model = $this->app->urlParamAsString('model');
-    $this->permission = $model . ':Create';
+    // $this->permission = $model . ':Create';
     $this->model = $this->app->getModel($model);
   }
 

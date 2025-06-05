@@ -218,7 +218,9 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     if (!$permissions[1]) {
       // cannot read
       $record = [];
-    } else {
+    };
+
+    if ($record != []) {
       $record = $this->recordEncryptIds($record);
       $record['_PERMISSIONS'] = $permissions;
       $record['_RELATIONS'] = array_keys($this->model->relations);

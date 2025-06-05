@@ -45,6 +45,11 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     $this->maxReadLevel = $maxReadLevel;
   }
 
+  public function getPermissions(array $record): array
+  {
+    $permissions = [true, true, true, true];
+  }
+
   /**
    * prepareReadQuery
    * @param mixed $query Leave empty for default behaviour.
@@ -188,6 +193,16 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       $page
     )->toArray();
 
+    foreach ($data['data'] as $key => $record) {
+      $permissions = $this->getPermissions($record);
+      if (!$permissions[1]) {
+        // cannot read
+        unset($data['data'][$key]);
+      } else {
+        $data['data'][$key]['_PERMISSIONS'] = $permissions;
+      }
+    }
+
     // Laravel pagination
     if (!is_array($data)) $data = [];
     if (!is_array($data['data'])) $data['data'] = [];
@@ -199,8 +214,15 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     $record = $query->first()?->toArray();
     if (!is_array($record)) $record = [];
 
-    $record = $this->recordEncryptIds($record);
-    $record['_RELATIONS'] = array_keys($this->model->relations);
+    $permissions = $this->getPermissions($record);
+    if (!$permissions[1]) {
+      // cannot read
+      $record = [];
+    } else {
+      $record = $this->recordEncryptIds($record);
+      $record['_PERMISSIONS'] = $permissions;
+      $record['_RELATIONS'] = array_keys($this->model->relations);
+    }
     // if (count($this->relationsToRead) > 0) {
     //   $record['_RELATIONS'] = array_values(array_intersect($record['_RELATIONS'], $this->relationsToRead));
     // }
@@ -270,6 +292,12 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
   public function recordDelete(int|string $id): int
   {
+    $record = $this->recordRead($this->where('id', $id));
+    $permissions = $this->getPermissions($record);
+    if (!$permissions[3]) { // cannot delete
+      throw new \ADIOS\Core\Exceptions\NotEnoughPermissionsException("Cannot delete. Not enough permissions.");
+    }
+
     $this->where('id', $id)->delete();
     return 1; // TODO: return $rowsAffected
   }
@@ -280,9 +308,17 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     $id = (int) ($record['id'] ?? 0);
     $isCreate = ($id <= 0);
 
-    $this->app->permissions->check($this->model->fullName . ($isCreate ? ':Create' : ':Update'));
+    // $this->app->permissions->check($this->model->fullName . ($isCreate ? ':Create' : ':Update'));
 
     // $this->app->pdo->beginTransaction();
+
+    $permissions = $this->getPermissions($record);
+    if (
+      ($id < 0 && !$permissions[0]) // cannot create
+      || ($id >= 0 && !$permissions[2]) // cannot update
+    ) {
+      throw new \ADIOS\Core\Exceptions\NotEnoughPermissionsException("Cannot save. Not enough permissions.");
+    }
 
     $originalRecord = $record;
     $savedRecord = $record;

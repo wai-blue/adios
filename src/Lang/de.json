@@ -41,7 +41,7 @@
         "Your email": "Email",
         "Password": "Passwort",
         "Invalid email or password.": "Ungültige E-Mail oder ungültiges Passwort.",
-        "Forgot password?": ""
+        "Forgot password?": "Passwort vergessen?"
     },
     "Controllers\\ForgotPassword": {
         "Email": "",

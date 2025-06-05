@@ -6,7 +6,8 @@
         "You are about to delete the record. Press OK to confirm.": "Určite chcete zmazať záznam? Stlačte OK pre potvrdenie.",
         "No, do not delete": "Nie, nemazať",
         "Yes, delete": "Áno, zmazať",
-        "No data.": "Žiadne záznamy."
+        "No data.": "Žiadne záznamy.",
+        "Search...": "Hľadať..."
     },
     "Components\\Form": {
         "Edit": "Upraviť",
@@ -42,7 +43,7 @@
         "Your email": "Email",
         "Password": "Heslo",
         "Invalid email or password.": "Neplatné meno alebo heslo.",
-        "Forgot password?": ""
+        "Forgot password?": "Zabudnuté heslo?"
     },
     "Controllers\\ForgotPassword": {
         "Email": "",

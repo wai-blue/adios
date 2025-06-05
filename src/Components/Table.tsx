@@ -6,7 +6,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import ModalForm from "./ModalForm";
 import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
-import Swal from "sweetalert2";
+import TranslatedComponent from "./TranslatedComponent";
 
 import {
   DataTable,
@@ -24,9 +24,8 @@ import { InputFactory } from "./InputFactory";
 import { dateToEUFormat, datetimeToEUFormat } from "./Inputs/DateTime";
 
 
-import { adiosError, deepObjectMerge } from "./Helper";
+import { deepObjectMerge } from "./Helper";
 import request from "./Request";
-import { components } from 'react-select';
 
 export interface TableEndpoint {
   describeTable: string,
@@ -171,13 +170,15 @@ export interface TableState {
   customEndpointParams: any,
 }
 
-export default class Table<P, S> extends Component<TableProps, TableState> {
+export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
   static defaultProps = {
     itemsPerPage: 35,
     descriptionSource: 'both',
   }
 
+  props: TableProps;
   state: TableState;
+
   model: string;
   translationContext: string = 'table';
   refFulltextSearchInput: any = null;
@@ -951,9 +952,14 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
       field='__actions'
       header=''
       body={(data: any, options: any) => {
-        return <>
-          {!this.state.readonly && this.state.description?.permissions?.canDelete ?
-            data._toBeDeleted_
+        const R = this.findRecordById(data.id);
+
+        let canDelete = !this.state.readonly && this.state.description?.permissions?.canDelete;
+
+        if (R._PERMISSIONS && !R._PERMISSIONS[3]) canDelete = false;
+
+        if (canDelete) {
+          return data._toBeDeleted_
             ? <button
               className="btn btn-small btn-cancel"
               onClick={(e) => {
@@ -989,8 +995,10 @@ export default class Table<P, S> extends Component<TableProps, TableState> {
             >
               <span className="icon"><i className="fas fa-trash-alt"></i></span>
             </button>
-          : null}
-        </>;
+          ;
+        } else {
+          return null;
+        }
       }}
       style={{ width: 'auto' }}
     ></Column>);

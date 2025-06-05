@@ -192,7 +192,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   getPermissionsFromDescription(record?: any) {
     let permissions = this.props.description?.permissions ? this.props.description?.permissions : {
-      canCreate: (record && record._PERMISSIONS ? record._PERMISSIONS[0] : false),
+      canCreate: (record && record._PERMISSIONS ? record._PERMISSIONS[0] : true),
       canRead: (record && record._PERMISSIONS ? record._PERMISSIONS[1] : false),
       canUpdate: (record && record._PERMISSIONS ? record._PERMISSIONS[2] : false),
       canDelete: (record && record._PERMISSIONS ? record._PERMISSIONS[3] :  false),
@@ -307,12 +307,13 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   setRecord(record: any) {
     record = this.onAfterRecordLoaded(record);
-    let p =this.getPermissionsFromDescription(record);
+    let p = this.getPermissionsFromDescription(record);
     console.log('setrecord', record, p);
     this.setState({
       isInitialized: true,
       record: record,
       permissions: p,
+      readonly: !(p.canUpdate || p.canCreate),
     }, () => {
       this.onAfterFormInitialized();
     });
@@ -671,14 +672,15 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   renderSaveButton(): JSX.Element {
     let id = this.state.id ? this.state.id : 0;
+    let showButton = 
+      this.state.description?.ui?.showSaveButton
+      && (id <= 0 && this.state.permissions.canCreate || id > 0 && this.state.permissions.canUpdate)
+    ;
 
     return <>
-      {this.state.description?.ui?.showSaveButton && this.state.permissions.canUpdate ? <button
+      {showButton ? <button
         onClick={() => this.saveRecord()}
-        className={
-          "btn btn-add "
-          + (id <= 0 && this.state.permissions?.canCreate || id > 0 && this.state.permissions.canUpdate ? "d-block" : "d-none")
-        }
+        className="btn btn-add"
       >
         {this.state.updatingRecord
           ? (

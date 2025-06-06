@@ -23,6 +23,7 @@ export default class File extends Input<FileInputProps, FileInputState> {
     this.state = {
       ...this.state, // Parent state
       files: [],
+      isInitialized: true,
     };
   }
 

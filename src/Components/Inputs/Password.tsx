@@ -26,6 +26,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
       ...this.state,
       value: '',
       visible: false,
+      isInitialized: true,
     };
 
     this.refInput1 = React.createRef();

@@ -25,6 +25,7 @@ export default class Mailto extends Varchar<InputProps, MailtoInputState> {
     return {
       ...this.state, // Parent state
       showPredefinedValues: false,
+      isInitialized: true,
     };
   }
 

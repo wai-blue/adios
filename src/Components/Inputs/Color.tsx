@@ -9,6 +9,15 @@ export default class Color extends Input<InputProps, InputState> {
     id: uuid.v4(),
   }
 
+  constructor(props: InputProps) {
+    super(props);
+
+    this.state = {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
+  }
+
   renderValueElement(): JSX.Element {
     if (this.state.value) {
       return <span style={{backgroundColor: this.state.value}}>&nbsp;&nbsp;&nbsp;&nbsp;</span>

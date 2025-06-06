@@ -8,6 +8,15 @@ export default class Textarea extends Input<InputProps, InputState> {
     id: uuid.v4(),
   }
 
+  constructor(props: InputProps) {
+    super(props);
+
+    this.state = {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
+  }
+
   renderInputElement() {
     return (
       <textarea

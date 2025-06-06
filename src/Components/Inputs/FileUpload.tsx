@@ -51,6 +51,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
     this.state = {
       ...this.state,
       files: files,
+      isInitialized: true,
       endpoint: globalThis.app.config.accountUrl + '/components/inputs/fileupload/upload?__IS_AJAX__=1'
         + (props.folderPath ? '&folderPath=' + props.folderPath : '')
         + (props.renamePattern ? '&renamePattern=' + props.renamePattern : '')

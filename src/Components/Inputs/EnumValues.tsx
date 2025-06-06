@@ -26,6 +26,15 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
         props.parentForm.setState({record: record});
       }
     }
+
+    this.state = this.getStateFromProps(props);
+  }
+
+  getStateFromProps(props: InputProps) {
+    return {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
   }
 
   _renderOption(key: string|number): JSX.Element {

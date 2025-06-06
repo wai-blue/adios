@@ -226,6 +226,10 @@ export class Input<P extends InputProps, S extends InputState> extends Component
     );
   }
 
+  renderLoadingInfo() {
+    return <div className="badge badge-warning">[loading]</div>;
+  }
+
   renderInputElement() {
     return <input type="text" value={this.state.value ?? ''} readOnly={this.state.readonly}></input>;
   }
@@ -237,6 +241,8 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   }
 
   render() {
+    if (!this.state.isInitialized) return this.renderLoadingInfo();
+
     try {
       globalThis.app.setTranslationContext(this.translationContext);
 

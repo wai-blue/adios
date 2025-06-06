@@ -12,6 +12,15 @@ export default class Int extends Input<IntInputProps, InputState> {
     id: uuid.v4(),
   }
 
+  constructor(props: InputProps) {
+    super(props);
+
+    this.state = {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
+  }
+
   renderInputElement() {
     const decimals = this.props.description?.decimals ?? 0;
     return <>

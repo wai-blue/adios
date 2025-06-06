@@ -539,7 +539,7 @@ class Loader
       }
 
       if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
-        $this->auth->auth();
+        $this->auth->auth($this->urlParamAsBool('auth-persist'));
         $this->config->filterByUser();
         if (!$this->auth->isUserInSession()) {
           $controllerObject = $this->router->createSignInController();

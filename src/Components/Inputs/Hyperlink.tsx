@@ -25,6 +25,7 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
     return {
       ...super.getStateFromProps(props), // Parent state
       showPredefinedValues: false,
+      isInitialized: true,
     };
   }
 

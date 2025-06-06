@@ -128,6 +128,32 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     return $query;
   }
 
+  /**
+   * prepareLookupQuery
+   * @param string $searc What string to lookup for
+   */
+  public function prepareLookupQuery(string $search): mixed
+  {
+    $query = $this;
+
+    if (!empty($search)) {
+      $query->where(function($q) use ($search) {
+        foreach ($this->model->columnNames() as $columnName) {
+          $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $search . '%');
+        }
+      });
+    }
+
+    $selectRaw = [];
+    $selectRaw[] = '*';
+    $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->model->table, $this->model->getLookupSqlValue()) . ') as _LOOKUP';
+    $selectRaw[] = '"" as _LOOKUP_CLASS';
+
+    $query = $query->selectRaw(join(',', $selectRaw));
+
+    return $query;
+  }
+
   public function addFulltextSearchToQuery(mixed $query, string $fulltextSearch): mixed
   {
     if (!empty($fulltextSearch)) {

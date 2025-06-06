@@ -17,21 +17,16 @@ class Lookup extends \ADIOS\Core\ApiController {
 
   public function response(): array
   {
-    $query = $this->model->record->prepareReadQuery();
-
     $search = $this->app->urlParamAsString('search');
-    if (!empty($search)) {
-      $query->where(function($q) use ($search) {
-        foreach ($this->model->columnNames() as $columnName) {
-          $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $search . '%');
-        }
-      });
-    }
+    $query = $this->model->record->prepareLookupQuery($search);
 
-    $data = $query->get()->toArray();
+    $dataRaw = $query->get()->toArray();
+    $data = [];
 
-    if (is_array($data)) {
-      foreach ($data as $key => $value) {
+    if (is_array($dataRaw)) {
+      foreach ($dataRaw as $key => $value) {
+        $data[$key]['_LOOKUP'] = $value['_LOOKUP'];
+        if (!empty($value['_LOOKUP_CLASS'])) $data[$key]['_LOOKUP_CLASS'] = $value['_LOOKUP_CLASS'];
         if (isset($value['id'])) {
           $data[$key]['id'] = \ADIOS\Core\Helper::encrypt($value['id']);
         }

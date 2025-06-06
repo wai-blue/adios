@@ -11,6 +11,15 @@ export default class Boolean extends Input<InputProps, InputState> {
 
   constructor(props: InputProps) {
     super(props);
+
+    this.state = this.getStateFromProps(props);
+  }
+
+  getStateFromProps(props: InputProps) {
+    return {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
   }
 
   toggleValue(value: any): any {

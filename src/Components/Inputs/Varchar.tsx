@@ -28,6 +28,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
       ...this.state, // Parent state
       data: [],
       showPredefinedValues: true,
+      isInitialized: true,
     };
   }
 

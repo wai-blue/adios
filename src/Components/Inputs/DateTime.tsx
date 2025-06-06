@@ -83,7 +83,17 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
         };
       break;
     }
+
+    this.state = this.getStateFromProps(props);
   }
+
+  getStateFromProps(props: InputProps) {
+    return {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
+  }
+
 
   onChange(value: any) {
     if (value === null) {
@@ -108,7 +118,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
   renderReadableInfo(value: any) {
     let days = moment(value).diff(moment(), 'days');
     return <>
-      <div className="text-gray-400">{
+      <div className="text-blue-400">{
         days < -365 ? "(more than a year ago)" :
         days < -30*6 ? "(more than 6 months ago)" :
         days < -30*3 ? "(more than 3 months ago)" :

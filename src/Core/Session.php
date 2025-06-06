@@ -22,14 +22,21 @@ class Session
     return $this->salt;
   }
 
-  public function start(): void
+  public function start(array $options = []): void
   {
     if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
       session_id();
       session_name($this->salt);
-      session_start();
+      session_start($options);
 
       define('_SESSION_ID', session_id());
+    }
+  }
+
+  public function stop(): void
+  {
+    if (session_status() == PHP_SESSION_ACTIVE) {
+      session_write_close();
     }
   }
 

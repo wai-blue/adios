@@ -52,7 +52,7 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
     $this->app->session->set('oauthAccessToken', $accessToken);
   }
 
-  public function auth()
+  public function auth(bool $persist): void
   {
     // $this->app->logger->info('Keycloak: auth()');
     $accessToken = $this->getAccessToken();

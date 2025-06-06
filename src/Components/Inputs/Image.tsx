@@ -21,6 +21,7 @@ export default class Image extends Input<InputProps, ImageInputState> {
       ...this.state, // Parent state
       images: [],
       showImageLarge: false,
+      isInitialized: true,
     };
   }
 

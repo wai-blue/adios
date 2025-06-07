@@ -93,16 +93,21 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
         $lookupTableName = $lookupModel->getFullTableSqlName();
         $joinAlias = 'join_' . $columnName;
 
-        $selectRaw[] = "(" .
-          str_replace("{%TABLE%}", $joinAlias, $lookupModel->getLookupSqlValue())
-          . ") as `_LOOKUP[{$columnName}]`"
+        // $selectRaw[] = "(" .
+        //   str_replace("{%TABLE%}", $joinAlias, $lookupModel->getLookupSqlValue())
+        //   . ") as `_LOOKUP[{$columnName}]`"
+        // ;
+        $selectRaw[] =
+          "(select _LOOKUP from ("
+          . $lookupModel->record->prepareLookupQuery('')->toSql()
+          . ") dummy where `id` = `{$this->table}`.`{$columnName}`) as `_LOOKUP[{$columnName}]`"
         ;
 
         $joins[] = [
           $lookupDatabase . '.' . $lookupTableName . ' as ' . $joinAlias,
           $joinAlias.'.id',
           '=',
-          $this->model->table.'.'.$columnName
+          $this->table.'.'.$columnName
         ];
       }
     }
@@ -145,8 +150,8 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     }
 
     $selectRaw = [];
-    $selectRaw[] = '*';
-    $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->model->table, $this->model->getLookupSqlValue()) . ') as _LOOKUP';
+    $selectRaw[] = $this->table . '.id';
+    $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->model->getLookupSqlValue()) . ') as _LOOKUP';
     $selectRaw[] = '"" as _LOOKUP_CLASS';
 
     $query = $query->selectRaw(join(',', $selectRaw));

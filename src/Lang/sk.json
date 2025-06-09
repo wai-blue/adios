@@ -6,7 +6,8 @@
         "You are about to delete the record. Press OK to confirm.": "Určite chcete zmazať záznam? Stlačte OK pre potvrdenie.",
         "No, do not delete": "Nie, nemazať",
         "Yes, delete": "Áno, zmazať",
-        "No data.": "Žiadne záznamy."
+        "No data.": "Žiadne záznamy.",
+        "Search...": "Hľadať..."
     },
     "Components\\Form": {
         "Edit": "Upraviť",
@@ -34,7 +35,9 @@
     "root": {
         "You cannot delete record that is linked with another records. Delete the linked records first.": "Nie je možné zmazať záznam, ktorý je prepojený s inými záznamami. Vymažte najprv prepojené záznamy.",
         "Show error details": "Zobraziť podrobnosti chyby",
-        "`{{ colTitle }}` is required.": "`{{ colTitle }}` je povinný."
+        "`{{ colTitle }}` is required.": "`{{ colTitle }}` je povinný.",
+        "Column 'is_archived' in where clause is ambiguous": "",
+        "Column 'price' in field list is ambiguous": ""
     },
     "Controllers\\SignIn": {
         "Keep signed in": "Zostať prihlásený",
@@ -42,7 +45,7 @@
         "Your email": "Email",
         "Password": "Heslo",
         "Invalid email or password.": "Neplatné meno alebo heslo.",
-        "Forgot password?": ""
+        "Forgot password?": "Zabudnuté heslo?"
     },
     "Controllers\\ForgotPassword": {
         "Email": "",

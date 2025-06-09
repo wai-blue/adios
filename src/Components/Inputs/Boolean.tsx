@@ -11,17 +11,28 @@ export default class Boolean extends Input<InputProps, InputState> {
 
   constructor(props: InputProps) {
     super(props);
+
+    this.state = this.getStateFromProps(props);
+  }
+
+  getStateFromProps(props: InputProps) {
+    return {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
   }
 
   toggleValue(value: any): any {
-    if (value == '1') return '0';
+    if (value == 1) return 0;
+    else if (value == '1') return '0';
     else if (value == 'Y') return 'N';
     else if (value == 'true') return 'false';
-    else if (value === true) return false;
+    else if (value == true) return false;
+    else if (value == 0) return 1;
     else if (value == '0') return '1';
     else if (value == 'N') return 'Y';
     else if (value == 'false') return 'true';
-    else if (value === false) return true;
+    else if (value == false) return true;
     else if (value == null) return true;
     else if (value == '') return true;
   }
@@ -52,6 +63,7 @@ export default class Boolean extends Input<InputProps, InputState> {
         onChange={(e) => {
           this.onChange(this.toggleValue(this.state.value));
         }}
+        ref={this.refInput}
       />
     </>;
   }

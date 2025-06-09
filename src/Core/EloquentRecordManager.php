@@ -7,6 +7,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   protected $guarded = [];
   public $timestamps = false;
   public static $snakeAttributes = false;
+  
 
   public ?\ADIOS\Core\Loader $app;
   public ?\ADIOS\Core\Model $model;
@@ -42,6 +43,11 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   public function setMaxReadLevel(array $maxReadLevel): void
   {
     $this->maxReadLevel = $maxReadLevel;
+  }
+
+  public function getPermissions(array $record): array
+  {
+    $permissions = [true, true, true, true];
   }
 
   /**
@@ -87,16 +93,21 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
         $lookupTableName = $lookupModel->getFullTableSqlName();
         $joinAlias = 'join_' . $columnName;
 
-        $selectRaw[] = "(" .
-          str_replace("{%TABLE%}", $joinAlias, $lookupModel->getLookupSqlValue())
-          . ") as `_LOOKUP[{$columnName}]`"
+        // $selectRaw[] = "(" .
+        //   str_replace("{%TABLE%}", $joinAlias, $lookupModel->getLookupSqlValue())
+        //   . ") as `_LOOKUP[{$columnName}]`"
+        // ;
+        $selectRaw[] =
+          "(select _LOOKUP from ("
+          . $lookupModel->record->prepareLookupQuery('')->toSql()
+          . ") dummy where `id` = `{$this->table}`.`{$columnName}`) as `_LOOKUP[{$columnName}]`"
         ;
 
         $joins[] = [
           $lookupDatabase . '.' . $lookupTableName . ' as ' . $joinAlias,
           $joinAlias.'.id',
           '=',
-          $this->model->table.'.'.$columnName
+          $this->table.'.'.$columnName
         ];
       }
     }
@@ -118,6 +129,32 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     foreach ($joins as $join) {
       $query->leftJoin($join[0], $join[1], $join[2], $join[3]);
     }
+
+    return $query;
+  }
+
+  /**
+   * prepareLookupQuery
+   * @param string $searc What string to lookup for
+   */
+  public function prepareLookupQuery(string $search): mixed
+  {
+    $query = $this;
+
+    if (!empty($search)) {
+      $query = $query->where(function($q) use ($search) {
+        foreach ($this->model->columnNames() as $columnName) {
+          $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $search . '%');
+        }
+      });
+    }
+
+    $selectRaw = [];
+    $selectRaw[] = $this->table . '.id';
+    $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->model->getLookupSqlValue()) . ') as _LOOKUP';
+    $selectRaw[] = '"" as _LOOKUP_CLASS';
+
+    $query = $query->selectRaw(join(',', $selectRaw));
 
     return $query;
   }
@@ -187,6 +224,16 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       $page
     )->toArray();
 
+    foreach ($data['data'] as $key => $record) {
+      $permissions = $this->getPermissions($record);
+      if (!$permissions[1]) {
+        // cannot read
+        unset($data['data'][$key]);
+      } else {
+        $data['data'][$key]['_PERMISSIONS'] = $permissions;
+      }
+    }
+
     // Laravel pagination
     if (!is_array($data)) $data = [];
     if (!is_array($data['data'])) $data['data'] = [];
@@ -198,8 +245,17 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     $record = $query->first()?->toArray();
     if (!is_array($record)) $record = [];
 
-    $record = $this->recordEncryptIds($record);
-    $record['_RELATIONS'] = array_keys($this->model->relations);
+    $permissions = $this->getPermissions($record);
+    if (!$permissions[1]) {
+      // cannot read
+      $record = [];
+    };
+
+    if ($record != []) {
+      $record = $this->recordEncryptIds($record);
+      $record['_PERMISSIONS'] = $permissions;
+      $record['_RELATIONS'] = array_keys($this->model->relations);
+    }
     // if (count($this->relationsToRead) > 0) {
     //   $record['_RELATIONS'] = array_values(array_intersect($record['_RELATIONS'], $this->relationsToRead));
     // }
@@ -269,6 +325,12 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
   public function recordDelete(int|string $id): int
   {
+    $record = $this->recordRead($this->where('id', $id));
+    $permissions = $this->getPermissions($record);
+    if (!$permissions[3]) { // cannot delete
+      throw new \ADIOS\Core\Exceptions\NotEnoughPermissionsException("Cannot delete. Not enough permissions.");
+    }
+
     $this->where('id', $id)->delete();
     return 1; // TODO: return $rowsAffected
   }
@@ -279,9 +341,17 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     $id = (int) ($record['id'] ?? 0);
     $isCreate = ($id <= 0);
 
-    $this->app->permissions->check($this->model->fullName . ($isCreate ? ':Create' : ':Update'));
+    // $this->app->permissions->check($this->model->fullName . ($isCreate ? ':Create' : ':Update'));
 
     // $this->app->pdo->beginTransaction();
+
+    $permissions = $this->getPermissions($record);
+    if (
+      ($id < 0 && !$permissions[0]) // cannot create
+      || ($id >= 0 && !$permissions[2]) // cannot update
+    ) {
+      throw new \ADIOS\Core\Exceptions\NotEnoughPermissionsException("Cannot save. Not enough permissions.");
+    }
 
     $originalRecord = $record;
     $savedRecord = $record;

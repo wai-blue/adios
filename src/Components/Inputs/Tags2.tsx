@@ -149,24 +149,23 @@ export default class Tags2 extends Input<Tags2InputProps, Tags2InputState> {
   }
 
   renderInputElement() {
-    return (
-      <Select
-        defaultValue={this.convertValueToOptionList(this.state.value)}
-        isMulti
-        options={this.state.options}
-        className="adios-lookup"
-        onChange={(selectedOptions: any) => {
-          const value: Array<any> = [];
-          for (let i in selectedOptions) {
-            value.push({
-              id: selectedOptions[i].id ?? -1,
-              [this.props.targetColumn]: {_useMasterRecordId_: true},
-              [this.props.sourceColumn]: selectedOptions[i].value,
-            });
-          }
-          this.onChange(value);
-        }}
-      />
-    )
+    return <Select
+      ref={this.refInput}
+      defaultValue={this.convertValueToOptionList(this.state.value)}
+      isMulti
+      options={this.state.options}
+      className="adios-lookup"
+      onChange={(selectedOptions: any) => {
+        const value: Array<any> = [];
+        for (let i in selectedOptions) {
+          value.push({
+            id: selectedOptions[i].id ?? -1,
+            [this.props.targetColumn]: {_useMasterRecordId_: true},
+            [this.props.sourceColumn]: selectedOptions[i].value,
+          });
+        }
+        this.onChange(value);
+      }}
+    />;
   }
 }

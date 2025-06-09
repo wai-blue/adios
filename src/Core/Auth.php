@@ -64,7 +64,7 @@ class Auth {
     exit;
   }
 
-  public function auth()
+  public function auth(bool $persist): void
   {
     // to be overriden
   }
@@ -97,6 +97,11 @@ class Auth {
     if (isset($this->user['ROLES']) && is_array($this->user['ROLES'])) return $this->user['ROLES'];
     else if (isset($this->user['roles']) && is_array($this->user['roles'])) return $this->user['roles'];
     else return [];
+  }
+
+  public function userHasRole(int $idRole): bool
+  {
+    return in_array($idRole, $this->getUserRoles());
   }
 
   public function getUserId(): int

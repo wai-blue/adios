@@ -194,6 +194,7 @@ export default class Tags extends Input<TagsInputProps, TagsInputState> {
 
     return (
       <ReactTags
+        ref={this.refInput}
         tags={this.state.tags}
         labelField={this.props.params.dataKey}
         handleDelete={(tagIndex: number) => this.onTagDelete(tagIndex)}

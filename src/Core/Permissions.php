@@ -129,7 +129,7 @@ class Permissions {
   }
 
   public function check(string $permission) {
-    if (!$this->granted($permission)) {
+    if (!$this->granted($permission) && !$this->granted(str_replace('\\', '/', $permission))) {
       throw new \ADIOS\Core\Exceptions\NotEnoughPermissionsException("Not enough permissions ({$permission}).");
     }
   }

@@ -11,7 +11,7 @@ class Delete extends \ADIOS\Core\ApiController {
     parent::__construct($app, $params);
 
     $model = $this->app->urlParamAsString('model');
-    $this->permission = $model . ':Read';
+    // $this->permission = $model . ':Read';
     $this->model = $this->app->getModel($model);
   }
 

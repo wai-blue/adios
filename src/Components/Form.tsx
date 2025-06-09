@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import * as uuid from 'uuid';
 
-import Notification from "./Notification";
 import { ProgressBar } from 'primereact/progressbar';
 import { Tooltip } from 'primereact/tooltip';
 import request from "./Request";
 
-import Swal, {SweetAlertOptions} from "sweetalert2";
-
 import { adiosError, deepObjectMerge } from "./Helper";
 
-import Table from "./Table";
+import TranslatedComponent from "./TranslatedComponent";
 import { InputProps } from "./Input";
 import { InputFactory } from "./InputFactory";
 
@@ -122,13 +119,18 @@ export interface FormState {
   invalidRecordId: boolean,
 
   recordChanged: boolean,
+
+  permissions: FormPermissions,
 }
 
-export default class Form<P, S> extends Component<FormProps, FormState> {
+export default class Form<P, S> extends TranslatedComponent<FormProps, FormState> {
   static defaultProps = {
     uid: '_form_' + uuid.v4().replace('-', '_'),
     descriptionSource: 'both',
   }
+
+  props: FormProps;
+  state: FormState;
 
   newState: any;
 
@@ -168,12 +170,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       description: props.description ?? {
         inputs: {},
         defaultValues: {},
-        permissions: {
-          canCreate: false,
-          canRead: false,
-          canUpdate: false,
-          canDelete: false,
-        },
+        permissions: this.getPermissionsFromDescription(),
         ui: {},
       },
       content: props.content,
@@ -189,7 +186,19 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
       customEndpointParams: props.customEndpointParams ?? {},
       recordChanged: false,
       deleteButtonDisabled: false,
+      permissions: this.getPermissionsFromDescription()
     };
+  }
+
+  getPermissionsFromDescription(record?: any) {
+    let permissions = this.props.description?.permissions ? this.props.description?.permissions : {
+      canCreate: (record && record._PERMISSIONS ? record._PERMISSIONS[0] : true),
+      canRead: (record && record._PERMISSIONS ? record._PERMISSIONS[1] : false),
+      canUpdate: (record && record._PERMISSIONS ? record._PERMISSIONS[2] : false),
+      canDelete: (record && record._PERMISSIONS ? record._PERMISSIONS[3] :  false),
+    };
+
+    return permissions;
   }
 
 
@@ -228,10 +237,6 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     this.loadFormDescription();
   }
 
-  translate(orig: string, context?: string): string {
-    return globalThis.app.translate(orig, context ?? this.translationContext);
-  }
-
   getEndpointUrl(action: string) {
     return this.state.endpoint[action] ?? '';
   }
@@ -267,7 +272,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
         this.setState({
           description: description,
-          readonly: !(description.permissions?.canUpdate || description.permissions?.canCreate),
+          readonly: !(this.state.permissions.canUpdate || this.state.permissions.canCreate),
         }, () => {
           if (this.state.id !== -1) {
             this.loadRecord();
@@ -302,7 +307,14 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   setRecord(record: any) {
     record = this.onAfterRecordLoaded(record);
-    this.setState({isInitialized: true, record: record}, () => {
+    let p = this.getPermissionsFromDescription(record);
+
+    this.setState({
+      isInitialized: true,
+      record: record,
+      permissions: p,
+      readonly: !(p.canUpdate || p.canCreate),
+    }, () => {
       this.onAfterFormInitialized();
     });
   }
@@ -660,14 +672,15 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   renderSaveButton(): JSX.Element {
     let id = this.state.id ? this.state.id : 0;
+    let showButton = 
+      this.state.description?.ui?.showSaveButton
+      && (id <= 0 && this.state.permissions.canCreate || id > 0 && this.state.permissions.canUpdate)
+    ;
 
     return <>
-      {this.state.description?.ui?.showSaveButton && this.state.description?.permissions?.canUpdate ? <button
+      {showButton ? <button
         onClick={() => this.saveRecord()}
-        className={
-          "btn btn-add "
-          + (id <= 0 && this.state.description?.permissions?.canCreate || id > 0 && this.state.description?.permissions?.canUpdate ? "d-block" : "d-none")
-        }
+        className="btn btn-add"
       >
         {this.state.updatingRecord
           ? (
@@ -697,7 +710,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
-      {this.state.description?.ui?.showCopyButton && this.state.description?.permissions?.canCreate ? <button
+      {this.state.description?.ui?.showCopyButton && this.state.permissions.canCreate ? <button
         onClick={() => this.copyRecord()}
         className={"btn btn-transparent"}
       >
@@ -708,10 +721,8 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
   }
 
   renderDeleteButton(): JSX.Element {
-    let id = this.state.id ? this.state.id : 0;
-
     return <>
-      {this.state.updatingRecord && this.state.description?.ui?.showDeleteButton && this.state.description?.permissions?.canDelete ? <button
+      {this.state.updatingRecord && this.state.description?.ui?.showDeleteButton && this.state.permissions.canDelete ? <button
         onClick={() => {
           if (!this.state.deleteButtonDisabled) {
             if (this.state.deletingRecord) this.deleteRecord();
@@ -770,7 +781,7 @@ export default class Form<P, S> extends Component<FormProps, FormState> {
 
   renderEditButton(): JSX.Element {
     return <>
-      {this.state.description?.permissions?.canUpdate ? <button
+      {this.state.permissions.canUpdate ? <button
         onClick={() => this.setState({ isInlineEditing: true })}
         className="btn btn-edit"
       >

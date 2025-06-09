@@ -17,6 +17,15 @@ export default class Table extends Input<TableInputProps, TableInputState> {
     id: uuid.v4(),
   }
 
+  constructor(props: InputProps) {
+    super(props);
+
+    this.state = {
+      ...this.state, // Parent state
+      isInitialized: true,
+    };
+  }
+
   renderInputElement() {
     const CHILDREN = React.Children.map(this.props.children, (child) => {
       return React.cloneElement(child, {

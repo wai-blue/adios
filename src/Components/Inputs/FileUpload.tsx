@@ -31,7 +31,6 @@ interface UploadResponse {
 }
 
 export default class FileUpload extends Input<FileUploadInputProps, FileUploadInputState> {
-  fileUploadPrimeRef: RefObject<FileUploadPrime>;
 
   static defaultProps = {
     inputClassName: 'file-upload',
@@ -51,13 +50,13 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
     this.state = {
       ...this.state,
       files: files,
+      isInitialized: true,
       endpoint: globalThis.app.config.accountUrl + '/components/inputs/fileupload/upload?__IS_AJAX__=1'
         + (props.folderPath ? '&folderPath=' + props.folderPath : '')
         + (props.renamePattern ? '&renamePattern=' + props.renamePattern : '')
         + (props.accept ? '&accept=' + props.accept : '')
     };
 
-    this.fileUploadPrimeRef = createRef<FileUploadPrime>();
   }
 
   onSuccess(event: FileUploadUploadEvent) {
@@ -145,7 +144,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
 
   clearUploadFiles() {
     setTimeout(() => {
-      this.fileUploadPrimeRef.current?.clear();
+      this.refInput.current?.clear();
     }, 100);
   }
 
@@ -227,7 +226,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
         )}
         <div className="card">
           <FileUploadPrime
-            ref={this.fileUploadPrimeRef}
+            ref={this.refInput}
             name="upload[]"
             auto={true}
             multiple={this.props.multiselect ?? true}

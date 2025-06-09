@@ -40,6 +40,7 @@
         "Sign in": "Přihlásit se",
         "Your email": "Email",
         "Password": "Heslo",
-        "Invalid email or password.": "Neplatné jméno nebo heslo."
+        "Invalid email or password.": "Neplatné jméno nebo heslo.",
+        "Forgot password?": "Zapomenuté heslo?"
     }
 }

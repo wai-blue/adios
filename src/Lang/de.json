@@ -6,7 +6,8 @@
         "You are about to delete the record. Press OK to confirm.": "Möchten Sie den Eintrag wirklich löschen? Drücken Sie zur Bestätigung die OK-Taste..",
         "No, do not delete": "Nein, nicht löschen",
         "Yes, delete": "Ja, löschen",
-        "No data.": "Keine Einträge."
+        "No data.": "Keine Einträge.",
+        "Search...": ""
     },
     "Components\\Form": {
         "Edit": "Upraviť",

@@ -204,8 +204,8 @@
 
   .modal.theme-secondary { @apply border-secondary; }
   .modal.theme-secondary > .modal-inner { @apply border-secondary; }
-  .modal.theme-secondary > .modal-header { @apply border-b-secondary/20 bg-secondary/5 text-secondary; }
-  .modal.theme-secondary > .modal-header-title h2 { @apply text-secondary; }
+  .modal.theme-secondary > .modal-inner > .modal-header { @apply border-b-secondary/20 bg-secondary/5 text-secondary; }
+  .modal.theme-secondary > .modal-inner > .modal-header > .modal-header-title h2 { @apply text-secondary; }
 
   /* .modal.right .modal.right { @apply w-[95%] margin-right: 0.5em; margin-top: 2em; height: calc(100% - 2.5em); } */
 

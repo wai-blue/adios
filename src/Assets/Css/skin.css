@@ -20,6 +20,7 @@
 
   .badge { @apply text-sm p-1 bg-slate-300 text-slate-800 rounded inline m-0.5; }
   .badge.badge-large { @apply text-lg m-1 py-1 px-2; }
+  .badge.badge-small { @apply text-xs m-1 py-0.5 px-0.5; }
   .badge-info { @apply text-blue-800 bg-blue-50; }
   .badge-danger { @apply text-red-800 bg-red-50; }
   .badge-success { @apply text-green-800 bg-green-50; }

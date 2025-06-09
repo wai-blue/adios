@@ -35,7 +35,9 @@
     "root": {
         "You cannot delete record that is linked with another records. Delete the linked records first.": "Nie je možné zmazať záznam, ktorý je prepojený s inými záznamami. Vymažte najprv prepojené záznamy.",
         "Show error details": "Zobraziť podrobnosti chyby",
-        "`{{ colTitle }}` is required.": "`{{ colTitle }}` je povinný."
+        "`{{ colTitle }}` is required.": "`{{ colTitle }}` je povinný.",
+        "Column 'is_archived' in where clause is ambiguous": "",
+        "Column 'price' in field list is ambiguous": ""
     },
     "Controllers\\SignIn": {
         "Keep signed in": "Zostať prihlásený",

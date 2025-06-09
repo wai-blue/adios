@@ -16,8 +16,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
     type: 'text',
   }
 
-  refInput1;
-  refInput2;
+  refInputConfirm: any;
 
   constructor(props: PasswordInputProps) {
     super(props);
@@ -29,13 +28,12 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
       isInitialized: true,
     };
 
-    this.refInput1 = React.createRef();
-    this.refInput2 = React.createRef();
+    this.refInputConfirm = React.createRef();
   }
 
   onChange() {
-    const val1 = this.refInput1.current.value;
-    const val2 = this.refInput2.current.value;
+    const val1 = this.refInput.current.value;
+    const val2 = this.refInputConfirm.current.value;
     super.onChange([val1, val2]);
   }
 
@@ -50,9 +48,9 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
     return <>
       <div className={"block pr-2"}>
         <input
+          ref={this.refInput}
           type={this.state.visible ? 'text' : 'password'}
           value={password1}
-          ref={this.refInput1}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange()}
           placeholder={this.translate("New password", 'ADIOS\\Core\\Loader::Components\\Inputs\\Password')}
           className={
@@ -66,7 +64,7 @@ export default class Password extends Input<PasswordInputProps, PasswordInputSta
         <input
           type={this.state.visible ? 'text' : 'password'}
           value={password2}
-          ref={this.refInput2}
+          ref={this.refInputConfirm}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange()}
           placeholder={this.translate("Confirm new password", 'ADIOS\\Core\\Loader::Components\\Inputs\\Password')}
           className={

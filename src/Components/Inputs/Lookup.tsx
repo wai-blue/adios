@@ -131,6 +131,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
 
     return <>
       <AsyncSelect
+        ref={this.refInput}
         value={{
           id: this.state.data[this.state.value]?.id ?? 0,
           _LOOKUP: this.state.data[this.state.value]?._LOOKUP ?? '',

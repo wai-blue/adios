@@ -66,16 +66,18 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   state: S;
   translationContext: string = 'input';
 
-  inputWrapperHtmlRef: any;
-  inputElementHtmlRef: any;
-  valueElementHtmlRef: any;
+  refInputWrapper: any;
+  refInputElement: any;
+  refValueElement: any;
+  refInput: any;
 
   constructor(props: P) {
     super(props);
 
-    this.inputWrapperHtmlRef = React.createRef();
-    this.inputElementHtmlRef = React.createRef();
-    this.valueElementHtmlRef = React.createRef();
+    this.refInputWrapper = React.createRef();
+    this.refInputElement = React.createRef();
+    this.refValueElement = React.createRef();
+    this.refInput = React.createRef();
 
     globalThis.app.reactElements[this.props.uid] = this;
 
@@ -231,7 +233,12 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   }
 
   renderInputElement() {
-    return <input type="text" value={this.state.value ?? ''} readOnly={this.state.readonly}></input>;
+    return <input
+      type="text"
+      value={this.state.value ?? ''}
+      readOnly={this.state.readonly}
+      ref={this.refInput}
+    ></input>;
   }
 
   renderValueElement() {
@@ -247,7 +254,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
       globalThis.app.setTranslationContext(this.translationContext);
 
       return (
-        <div ref={this.inputWrapperHtmlRef} className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
+        <div ref={this.refInputWrapper} className={this.getClassName() + (this.state.isInlineEditing ? ' editing' : '')}><div className="inner">
           {this.state.isInlineEditing
             ? <>
               <input
@@ -259,7 +266,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
                 className="value bg-light"
                 readOnly={true}
               ></input>
-              <div ref={this.inputElementHtmlRef} className="input-element">
+              <div ref={this.refInputElement} className="input-element">
                 {this.renderInputElement()}
                 {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
               </div>
@@ -286,7 +293,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
               }
             </>
             : <>
-              <div ref={this.valueElementHtmlRef} className="value-element" onClick={() => { this.inlineEditEnable(); }}>
+              <div ref={this.refValueElement} className="value-element" onClick={() => { this.inlineEditEnable(); }}>
                 {this.renderValueElement()}
                 {this.props.description?.unit ? <div className="input-unit">{this.props.description.unit}</div> : null}
               </div>

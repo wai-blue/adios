@@ -39,6 +39,7 @@ export default class Select extends Input<SelectInputProps, InputState> {
 
     return (
       <select
+        ref={this.refInput}
         value={this.state.value ?? 0}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.onChange(e.target.value)}
         className={

@@ -60,8 +60,6 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
   constructor(props: DateTimeInputProps) {
     super(props);
 
-    this.fp = React.createRef();
-
     switch (props.type) {
       case 'datetime':
         this.options = {...this.options, enableTime: true, showMonths: 2, dateFormat: 'd.m.Y H:m:s'};
@@ -196,7 +194,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
     return <>
       <div style={{minWidth: "8em"}}>
         <Flatpickr
-          ref={this.fp}
+          ref={this.refInput}
           value={value}
           onChange={(data: Date[]) => {
             this.onChange(data[0] ?? null)
@@ -215,8 +213,8 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
         <button
           className="btn btn-small btn-transparent ml-2"
           onClick={() => {
-            if (!this.fp?.current?.flatpickr) return;
-            this.fp.current.flatpickr.clear();
+            if (!this.refInput?.current?.flatpickr) return;
+            this.refInput.current.flatpickr.clear();
           }}
         >
           <span className="icon"><i className="fas fa-times"></i></span>

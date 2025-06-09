@@ -308,7 +308,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   setRecord(record: any) {
     record = this.onAfterRecordLoaded(record);
     let p = this.getPermissionsFromDescription(record);
-    console.log('setrecord', record, p);
+
     this.setState({
       isInitialized: true,
       record: record,

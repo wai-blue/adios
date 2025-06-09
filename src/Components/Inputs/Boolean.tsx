@@ -63,6 +63,7 @@ export default class Boolean extends Input<InputProps, InputState> {
         onChange={(e) => {
           this.onChange(this.toggleValue(this.state.value));
         }}
+        ref={this.refInput}
       />
     </>;
   }

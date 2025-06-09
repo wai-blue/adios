@@ -105,6 +105,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
     
       return <div className="flex gap-2 w-full">
         <input
+          ref={this.refInput}
           type='text'
           value={this.state.value ?? ''}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange(e.currentTarget.value)}

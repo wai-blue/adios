@@ -73,6 +73,7 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
     if (this.props.uiStyle == 'select') {
       return <>
         <select
+          ref={this.refInput}
           value={value}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.onChange(e.target.value)}
           className={
@@ -86,7 +87,7 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
         </select>
       </>;
     } else if (this.props.uiStyle == 'buttons') {
-      return <div className="btn-group">{Object.keys(this.props.enumValues).map((key: string|number) => {
+      return <div ref={this.refInput} className="btn-group">{Object.keys(this.props.enumValues).map((key: string|number) => {
         const enumValue = this.props.enumValues ? (this.props.enumValues[key] ?? '') : '';
         const enumCssClass = this.props.enumCssClasses ? (this.props.enumCssClasses[key] ?? '') : '';
         return <>

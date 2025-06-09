@@ -82,6 +82,7 @@ export default class Image extends Input<InputProps, ImageInputState> {
     return <>
       {this.renderImage()}
       <ImageUploading
+        ref={this.refInput}
         value={this.state.value && this.state.value['fileData'] != null
           ? [this.state.value]
           : []

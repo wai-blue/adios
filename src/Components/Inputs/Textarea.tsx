@@ -18,20 +18,19 @@ export default class Textarea extends Input<InputProps, InputState> {
   }
 
   renderInputElement() {
-    return (
-      <textarea
-        value={this.state.value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => this.onChange(e.currentTarget.value)}
-        aria-describedby="passwordHelpInline"
-        rows={5}
-        placeholder={this.props.description?.placeholder}
-        className={
-          (this.props.cssClass ?? "")
-          + " " + (this.state.invalid ? 'invalid' : '')
-          + " " + (this.state.readonly ? "readonly" : "")
-        }
-        disabled={this.state.readonly}
-      />
-    );
+    return <textarea
+      ref={this.refInput}
+      value={this.state.value}
+      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => this.onChange(e.currentTarget.value)}
+      aria-describedby="passwordHelpInline"
+      rows={5}
+      placeholder={this.props.description?.placeholder}
+      className={
+        (this.props.cssClass ?? "")
+        + " " + (this.state.invalid ? 'invalid' : '')
+        + " " + (this.state.readonly ? "readonly" : "")
+      }
+      disabled={this.state.readonly}
+    />;
   }
 }

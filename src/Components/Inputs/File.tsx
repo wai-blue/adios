@@ -87,6 +87,7 @@ export default class File extends Input<FileInputProps, FileInputState> {
       {this.renderValueElement()}
       {this.state.readonly ? null : <>
         <ImageUploading
+          ref={this.refInput}
           value={this.state.value && this.state.value['fileData'] != null
             ? [this.state.value]
             : []

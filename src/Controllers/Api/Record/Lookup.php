@@ -34,7 +34,7 @@ class Lookup extends \ADIOS\Core\ApiController {
           $data[$key]['_URL_DETAIL'] = str_replace('{%ID%}', $value['id'], $this->model->lookupUrlDetail);
         }
         if (!empty($this->model->lookupUrlAdd)) {
-          $data[$key]['_URL_ADD'] = $this->this->model->lookupUrlAdd;
+          $data[$key]['_URL_ADD'] = $this->model->lookupUrlAdd;
         }
       }
     }

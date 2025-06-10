@@ -674,10 +674,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     } else {
 
       let recordToDelete: any = null;
+      let indexRecordToDelete: any = 0;
 
       for (let i in this.state.data?.data) {
         if (this.state.data?.data[i]._toBeDeleted_) {
           recordToDelete = this.state.data?.data[i];
+          indexRecordToDelete = i;
           break;
         }
       }
@@ -694,7 +696,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             hash: recordToDelete._idHash_ ?? '',
           },
           (response: any) => {
-            this.loadData();
+            let data = this.state.data;
+            if (data) delete data.data[indexRecordToDelete]._toBeDeleted_;
+            this.setState({data: data}, () => {
+              this.loadData();
+            });
           }
         );
       }
@@ -711,34 +717,23 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
 
     if (hasRecordsToDelete) {
-      return globalThis.main.showDialogDanger(
+      return globalThis.main.showDialogConfirm(
         this.translate('You are about to delete the record. Press OK to confirm.', 'ADIOS\\Core\\Loader::Components\\Table'),
         {
+          headerClassName: 'dialog-danger-header',
+          contentClassName: 'dialog-danger-content',
           header: this.translate('Delete record', 'ADIOS\\Core\\Loader::Components\\Table'),
-          footer: <>
-            <button
-              className='btn btn-primary'
-              onClick={() => {
-                this.deleteRecord();
-              }}
-            >
-              <span className='icon'><i className='fas fa-check'></i></span>
-              <span className='text'>{this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-            </button>
-            <button
-              className='btn btn-cancel'
-              onClick={() => {
-                if (this.state.data) {
-                  let newData: TableData = this.state.data;
-                  for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
-                  this.setState({data: newData});
-                }
-              }}
-            >
-              <span className='icon'><i className='fas fa-times'></i></span>
-              <span className='text'>{this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-            </button>
-          </>
+          yesText: this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table'),
+          yesButtonClass: 'btn-danger',
+          onYes: () => { this.deleteRecord(); },
+          noText: this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table'),
+          onNo: () => {
+            if (this.state.data) {
+              let newData: TableData = this.state.data;
+              for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
+              this.setState({data: newData});
+            }
+          },
         }
       );
     } else {

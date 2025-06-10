@@ -56,6 +56,7 @@ class Model
   public ?string $lookupSqlValue = NULL;
 
   public ?string $lookupUrlDetail = '';
+  public ?string $lookupUrlAdd = '';
 
   /**
    * If set to TRUE, the SQL table will not contain the ID autoincrement column

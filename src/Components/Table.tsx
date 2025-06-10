@@ -1148,10 +1148,54 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   }
 
   onOrderByChange(orderBy?: TableOrderBy | null, stateParams?: any) {
-    this.setState({
-      ...stateParams,
-      orderBy: orderBy,
-    }, () => this.loadData());
+    const getValue = (item) => {
+      const val = item;
+      if (typeof val === 'string' && /^\d{1,3}(\.\d{3})*(,\d+)?$/.test(val)) {
+        return parseFloat(val.replace(/\./g, '').replace(',', '.'));
+      }
+      if (!isNaN(val)) {
+        return Number(val);
+      }
+      return val;
+    };
+
+    if (this.props.data) {
+      let data = this.props.data;
+      if (orderBy.direction == "asc") {
+        console.log(data.data)
+
+        data.data.sort((a, b) => {
+          const valA = getValue(a[orderBy.field]);
+          const valB = getValue(b[orderBy.field]);
+
+          if (valA < valB) return -1;
+          if (valA > valB) return 1;
+          return 0;
+        });
+
+
+      } else {
+        data.data.sort((a, b) => {
+          const valA = getValue(a[orderBy.field]);
+          const valB = getValue(b[orderBy.field]);
+
+          if (valA < valB) return 1;
+          if (valA > valB) return -1;
+          return 0;
+        });
+
+      }
+      this.setState({
+        ...stateParams,
+        orderBy: orderBy,
+        data: data
+      });
+    } else {
+      this.setState({
+        ...stateParams,
+        orderBy: orderBy,
+      }, () => this.loadData());
+    }
   }
 
   onFulltextSearchChange(fulltextSearch: string) {

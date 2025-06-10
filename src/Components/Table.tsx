@@ -826,8 +826,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           case 'file':
             if (!cellContent) cellValueElement = <i className="fas fa-image" style={{color: '#e3e6f0'}}></i>
             else {
-              cellValueElement = <a href={globalThis.app.config.uploadUrl + "/" + cellContent} target='_blank' onClick={(e) => { e.stopPropagation(); }}>
-                {cellContent}
+              cellValueElement = <a
+                href={globalThis.app.config.uploadUrl + "/" + cellContent}
+                target='_blank'
+                onClick={(e) => { e.stopPropagation(); }}
+                className='btn btn-primary-outline btn-small'
+              >
+                <span className='icon'><i className='fa-solid fa-up-right-from-square'></i></span>
+                <span className='text'>{cellContent}</span>
               </a>;
             }
           break;

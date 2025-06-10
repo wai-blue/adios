@@ -58,7 +58,6 @@ export default class File extends Input<FileInputProps, FileInputState> {
   }
 
   getFileName(): string {
-  console.log('gfn', this.state.value);
     if (this.state.value.fileName) {
       return this.state.value.fileName;
     } else if (this.state.value) {
@@ -74,7 +73,7 @@ export default class File extends Input<FileInputProps, FileInputState> {
         href={this.getFileUrl()}
         target='_blank'
         onClick={(e) => { e.stopPropagation(); }}
-        className="btn btn-transparent btn-small"
+        className="btn btn-primary-outline btn-small"
       >
         <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
         <span className="text">{this.getFileName()}</span>

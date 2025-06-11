@@ -41,7 +41,7 @@ class DefaultProvider extends \ADIOS\Core\Auth {
     ;
   }
 
-  public function auth(bool $persist): void
+  public function auth(): void
   {
 
     $userModel = $this->createUserModel();
@@ -90,15 +90,6 @@ class DefaultProvider extends \ADIOS\Core\Auth {
         }
       }
     }
-
-    if ($persist) {
-      $this->app->session->stop();
-      $this->app->session->start([
-        'cookie_lifetime' => 86400, // 7 days
-        'gc_maxlifetime' => 86400, // 7 days
-      ]);
-    }
-
 
   }
 }

@@ -64,7 +64,7 @@ class Auth {
     exit;
   }
 
-  public function auth(bool $persist): void
+  public function auth(): void
   {
     // to be overriden
   }

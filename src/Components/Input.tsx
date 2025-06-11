@@ -28,7 +28,7 @@ export interface InputProps {
   inputName?: string,
   inputClassName?: string,
   value?: any,
-  onChange?: (value: any) => void,
+  onChange?: (input: any, value: any) => void,
   readonly?: boolean,
   invalid?: boolean,
   cssClass?: string,
@@ -177,7 +177,7 @@ export class Input<P extends InputProps, S extends InputState> extends Component
   onChange(value: any) {
     this.setState({value: value}, () => {
       if (typeof this.props.onChange == 'function') {
-        this.props.onChange(value);
+        this.props.onChange(this, value);
       }
     });
   }

@@ -86,7 +86,7 @@ export interface FormProps {
   descriptionSource?: 'props' | 'request' | 'both',
   endpoint?: FormEndpoint,
 
-  onChange?: () => void,
+  onChange?: (input: any, value: any) => void,
   onClose?: () => void,
   onSaveCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
   onCopyCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
@@ -600,12 +600,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       ...customInputProps,
       onInlineEditCancel: () => { },
       onInlineEditSave: () => { this.saveRecord(); },
-      onChange: (value: any) => {
+      onChange: (input: any, value: any) => {
         let record = {...this.state.record};
         record[inputName] = value;
         this.setState({record: record, recordChanged: true}, () => {
-          if (this.props.onChange) this.props.onChange();
-          if (customInputProps && customInputProps.onChange) customInputProps.onChange();
+          if (this.props.onChange) this.props.onChange(input, value);
+          if (customInputProps && customInputProps.onChange) customInputProps.onChange(input, value);
         });
       },
     };
@@ -887,38 +887,36 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     try {
       globalThis.app.setTranslationContext(this.translationContext);
 
-      let warningsOrErrors = this.renderWarningsOrErrors();
+      const warningsOrErrors = this.renderWarningsOrErrors();
 
-      if (warningsOrErrors) return warningsOrErrors;
-      else {
+      const formTitle = this.renderTitle();
+      const formContent = (warningsOrErrors ? warningsOrErrors : this.renderContent());
+      const formFooter = this.renderFooter();
+      const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
+      const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
-        let formTitle = this.renderTitle();
-        let formContent = this.renderContent();
-        let formFooter = this.renderFooter();
-
-        if (this.props.showInModal) {
-          return <>
-            <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
-              <div className="modal-header-left">{this.renderHeaderLeft()}</div>
-              <div className="modal-header-title">{formTitle}</div>
-              <div className="modal-header-right">{this.renderHeaderRight()}</div>
+      if (this.props.showInModal) {
+        return <>
+          <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
+            <div className="modal-header-left">{headerLeft}</div>
+            <div className="modal-header-title">{formTitle}</div>
+            <div className="modal-header-right">{headerRight}</div>
+          </div>
+          <div className="modal-body">{formContent}</div>
+          {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+        </>;
+      } else {
+        return <>
+          <div id={"adios-form-" + this.props.uid} className="adios component form">
+            <div className="form-header">
+              <div className="form-header-left">{headerLeft}</div>
+              <div className="form-header-title">{formTitle}</div>
+              <div className="form-header-right">{headerRight}</div>
             </div>
-            <div className="modal-body">{formContent}</div>
-            {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
-          </>;
-        } else {
-          return <>
-            <div id={"adios-form-" + this.props.uid} className="adios component form">
-              <div className="form-header">
-                <div className="form-header-left">{this.renderHeaderLeft()}</div>
-                <div className="form-header-title">{formTitle}</div>
-                <div className="form-header-right">{this.renderHeaderRight()}</div>
-              </div>
-              <div className="form-body">{formContent}</div>
-              {formFooter ? <div className="form-footer">{formFooter}</div> : null}
-            </div>
-          </>;
-        }
+            <div className="form-body">{formContent}</div>
+            {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+          </div>
+        </>;
       }
     } catch(e) {
       console.error('Failed to render form.');

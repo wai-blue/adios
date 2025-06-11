@@ -49,7 +49,7 @@ export interface InputState {
   invalid: boolean,
   value: any,
   origValue: any,
-  onChange: (value: any) => void,
+  onChange: (input: any, value: any) => void,
   cssClass: string,
   isInitialized: boolean,
   isInlineEditing: boolean,

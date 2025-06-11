@@ -878,7 +878,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         return InputFactory({
           ...inputProps,
           onInlineEditCancel: () => { op.current?.hide(); },
-          onChange: (value: any) => {
+          onChange: (input: any, value: any) => {
             if (this.state.data) {
               let data: TableData = this.state.data;
               data.data[rowIndex][columnName] = value;

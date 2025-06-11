@@ -102,7 +102,7 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
       if (this.props.description?.autocomplete.creatable) return <AsyncCreatable {...selectProps} />;
       else return <AsyncSelect {...selectProps} />;
     } else {
-    
+
       return <div className="flex gap-2 w-full">
         <input
           ref={this.refInput}
@@ -119,8 +119,8 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
         />
         {this.props.description?.predefinedValues ?
           this.state.showPredefinedValues ?
-            <div className="mt-1">
-              <select
+            <div>
+              <select className='h-full'
                 onChange={(e) => {
                   this.onChange(e.currentTarget.value);
                 }}

@@ -678,29 +678,21 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     ;
 
     return <>
-      {showButton ? <button
-        onClick={() => this.saveRecord()}
-        className="btn btn-add"
-      >
+      {showButton ? <button onClick={() => this.saveRecord()} className="btn btn-add">
         {this.state.updatingRecord
-          ? (
-            <>
-              <span className="icon"><i className="fas fa-save"></i></span>
-              <span className="text">
-                {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'ADIOS\\Core\\Loader::Components\\Form')}
-                {this.state.recordChanged ? ' *' : ''}
-              </span>
-            </>
-          )
-          : (
-            <>
-              <span className="icon"><i className="fas fa-plus"></i></span>
-              <span className="text">
-                {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}
-                {this.state.recordChanged ? ' *' : ''}
-              </span>
-            </>
-          )
+          ? <>
+            <span className="icon"><i className="fas fa-save"></i></span>
+            <span className="text">
+              {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'ADIOS\\Core\\Loader::Components\\Form')}
+              {this.state.recordChanged ? ' *' : ''}
+            </span>
+          </> : <>
+            <span className="icon"><i className="fas fa-plus"></i></span>
+            <span className="text">
+              {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}
+              {this.state.recordChanged ? ' *' : ''}
+            </span>
+          </>
         }
       </button> : null}
     </>;
@@ -808,14 +800,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   renderHeaderLeft(): JSX.Element {
-    return <>
-      {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
-    </>;
+    return <>{this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}</>;
   }
 
   renderHeaderRight(): JSX.Element {
     return <>
-      {this.state.isInlineEditing ? this.renderDeleteButton() : null}
+      {this.renderDeleteButton()}
       {this.props.showInModal ? this.renderCloseButton() : null}
     </>;
   }
@@ -846,8 +836,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderTitle(): JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
-          ? this.translate('Record', 'ADIOS\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
-          : this.translate('New record', 'ADIOS\\Core\\Loader::Components\\Form')
+        ? this.translate('Record', 'ADIOS\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
+        : this.translate('New record', 'ADIOS\\Core\\Loader::Components\\Form')
       )
     ;
 

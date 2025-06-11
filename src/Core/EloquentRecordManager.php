@@ -313,13 +313,15 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   public function recordCreate(array $record): array
   {
     unset($record['id']);
-    $record['id'] = $this->create($record)->id;
+    $normalizedRecord = $this->recordNormalize($record);
+    $record['id'] = $this->create($normalizedRecord)->id;
     return $record;
   }
 
   public function recordUpdate(array $record): array
   {
-    $this->find((int) ($record['id'] ?? 0))->update($record);
+    $normalizedRecord = $this->recordNormalize($record);
+    $this->find((int) ($record['id'] ?? 0))->update($normalizedRecord);
     return $record;
   }
 
@@ -353,21 +355,18 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       throw new \ADIOS\Core\Exceptions\NotEnoughPermissionsException("Cannot save. Not enough permissions.");
     }
 
-    $originalRecord = $record;
+    if ($id <= 0) $originalRecord = [];
+    else $originalRecord = $this->where($this->table . '.id', $id)->first()?->toArray();
+
     $savedRecord = $record;
-    if ($idMasterRecord == 0) {
-      $this->recordValidate($savedRecord);
-    }
-    $savedRecord = $this->recordNormalize($savedRecord);
+    if ($idMasterRecord == 0) $this->recordValidate($savedRecord);
 
     try {
 
       $columns = $this->model->getColumns();
 
       foreach ($savedRecord as $key => $value) {
-        if (!isset($columns[$key])) {
-          unset($savedRecord[$key]);
-        } else if ($value['_useMasterRecordId_'] ?? false) {
+        if (isset($columns[$key]) && is_array($value) && $value['_useMasterRecordId_'] ?? false) {
           $savedRecord[$key] = $idMasterRecord;
         }
       }

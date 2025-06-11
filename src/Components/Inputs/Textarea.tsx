@@ -21,7 +21,8 @@ export default class Textarea extends Input<InputProps, InputState> {
     return <textarea
       ref={this.refInput}
       value={this.state.value}
-      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => this.onChange(e.currentTarget.value)}
+      onChange={(e) => this.setState({value: e.currentTarget.value})}
+      onBlur={(e) => this.onChange(e.currentTarget.value)}
       aria-describedby="passwordHelpInline"
       rows={5}
       placeholder={this.props.description?.placeholder}

@@ -108,7 +108,8 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
           ref={this.refInput}
           type='text'
           value={this.state.value ?? ''}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange(e.currentTarget.value)}
+          onChange={(e) => this.setState({value: e.currentTarget.value})}
+          onBlur={(e) => this.onChange(e.currentTarget.value)}
           placeholder={this.props.placeholder}
           className={
             (this.state.invalid ? 'is-invalid' : '')

@@ -28,7 +28,8 @@ export default class Int extends Input<IntInputProps, InputState> {
       type="number"
       value={this.state.value}
       onKeyDown={(evt) => evt.key === 'e' && evt.preventDefault()}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange(e.currentTarget.value.replace('e', ''))}
+      onChange={(e) => this.setState({value: e.currentTarget.value.replace('e', '')})}
+      onBlur={(e) => this.onChange(e.currentTarget.value.replace('e', ''))}
       placeholder={this.props.description?.placeholder ?? '0' + (decimals > 0 ? '.' + '0'.repeat(decimals) : '')}
       className={
         "form-control"

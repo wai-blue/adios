@@ -579,7 +579,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     // delete customInputPropsWithoutOnchange.onChange;
 
     let value = null;
-    if (record[inputName]) value = record[inputName];
+    if (record.id > 0) value = record[inputName];
     else value = formDescription.defaultValues ? formDescription.defaultValues[inputName] : null;
 
     return {

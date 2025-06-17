@@ -99,7 +99,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
         // ;
         $selectRaw[] =
           "(select _LOOKUP from ("
-          . $lookupModel->record->prepareLookupQuery('')->toSql()
+          . $lookupModel->record->prepareLookupQuery('')->toRawSql()
           . ") dummy where `id` = `{$this->table}`.`{$columnName}`) as `_LOOKUP[{$columnName}]`"
         ;
 
@@ -161,6 +161,8 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
   public function prepareLookupData(array $dataRaw): array
   {
+    $data = [];
+
     foreach ($dataRaw as $key => $value) {
       $data[$key]['_LOOKUP'] = $value['_LOOKUP'];
       if (!empty($value['_LOOKUP_CLASS'])) $data[$key]['_LOOKUP_CLASS'] = $value['_LOOKUP_CLASS'];
@@ -169,9 +171,6 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       }
       if (!empty($this->model->lookupUrlDetail)) {
         $data[$key]['_URL_DETAIL'] = str_replace('{%ID%}', $value['id'], $this->model->lookupUrlDetail);
-      }
-      if (!empty($this->model->lookupUrlAdd)) {
-        $data[$key]['_URL_ADD'] = $this->model->lookupUrlAdd;
       }
     }
 

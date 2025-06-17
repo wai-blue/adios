@@ -81,8 +81,8 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
       context: this.props.context,
       formRecord: formRecord,
       __IS_AJAX__: '1',
-      ...this.props.customEndpointParams,
       ...(this.props.parentForm?.state.customEndpointParams ?? {}),
+      ...this.props.customEndpointParams,
     };
   }
 

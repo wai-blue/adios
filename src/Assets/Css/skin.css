@@ -40,6 +40,7 @@
   .btn.btn-small { @apply h-auto; }
   .btn .icon { @apply h-full items-center px-2 py-1 justify-center border-slate-200; }
   .btn .text { @apply h-full items-center px-2 py-1 break-words; max-height: 3.5rem; overflow: hidden; }
+  .btn .shortcut { @apply flex-1 text-right mr-1 text-xs text-gray-400; max-height: 3.5rem; overflow: hidden; }
 
   .btn.btn-no-border { @apply !border-none; }
 

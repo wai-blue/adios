@@ -547,7 +547,9 @@ class Loader
           $controllerObject = $this->router->createSignInController();
           $this->permission = $controllerObject->permission;
         }
+      }
 
+      if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
         $this->permissions->check($this->permission);
       }
 

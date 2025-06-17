@@ -385,7 +385,9 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       $columns = $this->model->getColumns();
 
       foreach ($savedRecord as $key => $value) {
-        if (isset($columns[$key]) && is_array($value) && $value['_useMasterRecordId_'] ?? false) {
+        $useMasterRecordId = false;
+        if (isset($value['_useMasterRecordId_'])) $useMasterRecordId = $value['_useMasterRecordId_'];
+        if (isset($columns[$key]) && is_array($value) && $useMasterRecordId) {
           $savedRecord[$key] = $idMasterRecord;
         }
       }

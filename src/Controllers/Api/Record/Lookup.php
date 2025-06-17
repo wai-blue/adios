@@ -24,19 +24,7 @@ class Lookup extends \ADIOS\Core\ApiController {
     $data = [];
 
     if (is_array($dataRaw)) {
-      foreach ($dataRaw as $key => $value) {
-        $data[$key]['_LOOKUP'] = $value['_LOOKUP'];
-        if (!empty($value['_LOOKUP_CLASS'])) $data[$key]['_LOOKUP_CLASS'] = $value['_LOOKUP_CLASS'];
-        if (isset($value['id'])) {
-          $data[$key]['id'] = \ADIOS\Core\Helper::encrypt($value['id']);
-        }
-        if (!empty($this->model->lookupUrlDetail)) {
-          $data[$key]['_URL_DETAIL'] = str_replace('{%ID%}', $value['id'], $this->model->lookupUrlDetail);
-        }
-        if (!empty($this->model->lookupUrlAdd)) {
-          $data[$key]['_URL_ADD'] = $this->model->lookupUrlAdd;
-        }
-      }
+      $data = $this->model->record->prepareLookupData($dataRaw);
     }
 
     return \ADIOS\Core\Helper::keyBy('id', $data);

@@ -150,13 +150,32 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     }
 
     $selectRaw = [];
-    $selectRaw[] = $this->table . '.id';
+    $selectRaw[] = $this->table . '.*';
     $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->model->getLookupSqlValue()) . ') as _LOOKUP';
     $selectRaw[] = '"" as _LOOKUP_CLASS';
 
     $query = $query->selectRaw(join(',', $selectRaw));
 
     return $query;
+  }
+
+  public function prepareLookupData(array $dataRaw): array
+  {
+    foreach ($dataRaw as $key => $value) {
+      $data[$key]['_LOOKUP'] = $value['_LOOKUP'];
+      if (!empty($value['_LOOKUP_CLASS'])) $data[$key]['_LOOKUP_CLASS'] = $value['_LOOKUP_CLASS'];
+      if (isset($value['id'])) {
+        $data[$key]['id'] = \ADIOS\Core\Helper::encrypt($value['id']);
+      }
+      if (!empty($this->model->lookupUrlDetail)) {
+        $data[$key]['_URL_DETAIL'] = str_replace('{%ID%}', $value['id'], $this->model->lookupUrlDetail);
+      }
+      if (!empty($this->model->lookupUrlAdd)) {
+        $data[$key]['_URL_ADD'] = $this->model->lookupUrlAdd;
+      }
+    }
+
+    return $data;
   }
 
   public function addFulltextSearchToQuery(mixed $query, string $fulltextSearch): mixed

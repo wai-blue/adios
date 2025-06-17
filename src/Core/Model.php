@@ -509,7 +509,11 @@ class Model
     $description->inputs = [];
     foreach ($columnNames as $columnName) {
       if ($columnName == 'id') continue;
-      $description->inputs[$columnName] = $this->describeInput($columnName);
+      $inputDesc = $this->describeInput($columnName);
+      $description->inputs[$columnName] = $inputDesc;
+      if ($inputDesc->getDefaultValue() !== null) {
+        $description->defaultValues[$columnName] = $inputDesc->getDefaultValue();
+      }
     }
 
     $description->permissions = [

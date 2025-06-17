@@ -96,6 +96,7 @@ abstract class Column implements \JsonSerializable
     if (!empty($this->getUnit())) $description->setUnit($this->getUnit());
     if (!empty($this->getFormat())) $description->setFormat($this->getFormat());
     if (!empty($this->getTableCellRenderer())) $description->setTableCellRenderer($this->getTableCellRenderer());
+    if ($this->defaultValue !== null) $description->setDefaultValue($this->defaultValue);
     $description->setEnumValues($this->enumValues);
     $description->setPredefinedValues($this->predefinedValues);
     return $description;

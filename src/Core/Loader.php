@@ -520,6 +520,10 @@ class Loader
         $controllerClassName = $this->getControllerClassName($this->controller);
       }
 
+      // authenticate user, if any
+      $this->auth->auth();
+      $this->config->filterByUser();
+
       // Create the object for the controller
       $controllerObject = new $controllerClassName($this);
 
@@ -539,15 +543,11 @@ class Loader
       }
 
       if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
-        $this->auth->auth();
-        $this->config->filterByUser();
         if (!$this->auth->isUserInSession()) {
           $controllerObject = $this->router->createSignInController();
           $this->permission = $controllerObject->permission;
         }
-      }
 
-      if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
         $this->permissions->check($this->permission);
       }
 

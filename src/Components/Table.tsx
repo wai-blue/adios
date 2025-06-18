@@ -60,6 +60,7 @@ export interface TableUi {
   showHeader?: boolean,
   showFooter?: boolean,
   showFilter?: boolean,
+  showSidebarFilter?: boolean,
   showHeaderTitle?: boolean,
   //showPaging?: boolean,
   //showControls?: boolean,
@@ -641,6 +642,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return <></>;
   }
 
+  renderSidebarFilter(): JSX.Element {
+    return <></>;
+  }
+
   renderFooter(): JSX.Element {
     return <></>;
   }
@@ -1033,10 +1038,16 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
             {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
-            <div className="table-body" id={"adios-table-body-" + this.props.uid}>
-              <DataTable {...this.getTableProps()}>
-                {this.renderColumns()}
-              </DataTable>
+            <div className="flex gap-2">
+              <div className="table-sidebar-filter">
+                {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
+              </div>
+
+              <div className="table-body" id={"adios-table-body-" + this.props.uid}>
+                <DataTable {...this.getTableProps()}>
+                  {this.renderColumns()}
+                </DataTable>
+              </div>
             </div>
           </div>
         </ErrorBoundary>

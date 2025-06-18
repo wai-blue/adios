@@ -14,6 +14,7 @@ class Table implements \JsonSerializable
     'showHeader' => true,
     'showFooter' => true,
     'showFilter' => true,
+    'showSidebarFilter' => true,
     'showHeaderTitle' => true,
   ];
 

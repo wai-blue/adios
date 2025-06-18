@@ -488,18 +488,14 @@ class Loader
       // First, try the new routing principle with httpGet
       $routeData = $this->router->parseRoute(\ADIOS\Core\Router::HTTP_GET, $this->route);
 
-      if (empty($routeData['controller'])) {
-        return '';
-      } else {
-        $this->controller = $routeData['controller'];
-        $this->permission = '';
+      $this->controller = $routeData['controller'];
+      $this->permission = '';
 
-        $routeVars = $routeData['vars'];
-        $this->router->setRouteVars($routeVars);
+      $routeVars = $routeData['vars'];
+      $this->router->setRouteVars($routeVars);
 
-        foreach ($routeVars as $varName => $varValue) {
-          $this->params[$varName] = $varValue;
-        }
+      foreach ($routeVars as $varName => $varValue) {
+        $this->params[$varName] = $varValue;
       }
 
       if ($this->isUrlParam('sign-out')) {
@@ -513,7 +509,7 @@ class Loader
 
       // Check if controller exists and if it can be used
       if (empty($this->controller)) {
-        $controllerClassName = \ADIOS\Core\Controller::class;
+        $controllerClassName = $this->router->createNotFoundController();
       } else if (!$this->controllerExists($this->controller)) {
         throw new \ADIOS\Core\Exceptions\ControllerNotFound($this->controller);
       } else {

@@ -259,6 +259,16 @@ class Router {
     return $controller;
   }
 
+  public function createNotFoundController(): \ADIOS\Core\Controller
+  {
+    $controller = new \ADIOS\Core\Controller($this->app);
+    $controller->requiresUserAuthentication = FALSE;
+    $controller->hideDefaultDesktop = TRUE;
+    $controller->translationContext = 'ADIOS\\Core\\Loader::Controllers\\NotFound';
+    $controller->setView('@app/Views/NotFound.twig');
+    return $controller;
+  }
+
   public function createResetPasswordController(): \ADIOS\Core\Controller
   {
     return new \ADIOS\Core\Controller($this->app);

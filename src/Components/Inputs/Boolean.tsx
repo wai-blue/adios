@@ -39,11 +39,11 @@ export default class Boolean extends Input<InputProps, InputState> {
 
   isChecked(value: any): boolean {
     return (
-      this.props.value == '1'
-      || this.props.value == 'Y'
-      || this.props.value > 0
-      || this.props.value == 'true'
-      || this.props.value === true
+      value == '1'
+      || value == 'Y'
+      || value > 0
+      || value == 'true'
+      || value === true
     );
   }
 

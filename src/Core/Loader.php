@@ -147,7 +147,7 @@ class Loader
 
         // start session
 
-        $this->session->start();
+        $this->session->start($this->urlParamAsBool('session-persist'));
 
         $this->config->loadFromDB();
 
@@ -520,6 +520,10 @@ class Loader
         $controllerClassName = $this->getControllerClassName($this->controller);
       }
 
+      // authenticate user, if any
+      $this->auth->auth();
+      $this->config->filterByUser();
+
       // Create the object for the controller
       $controllerObject = new $controllerClassName($this);
 
@@ -539,8 +543,6 @@ class Loader
       }
 
       if (!$this->testMode && $controllerObject->requiresUserAuthentication) {
-        $this->auth->auth($this->urlParamAsBool('auth-persist'));
-        $this->config->filterByUser();
         if (!$this->auth->isUserInSession()) {
           $controllerObject = $this->router->createSignInController();
           $this->permission = $controllerObject->permission;

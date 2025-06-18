@@ -86,7 +86,7 @@ export interface FormProps {
   descriptionSource?: 'props' | 'request' | 'both',
   endpoint?: FormEndpoint,
 
-  onChange?: () => void,
+  onChange?: (input: any, value: any) => void,
   onClose?: () => void,
   onSaveCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
   onCopyCallback?: (form: Form<FormProps, FormState>, saveResponse: any) => void,
@@ -170,7 +170,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       description: props.description ?? {
         inputs: {},
         defaultValues: {},
-        permissions: this.getPermissionsFromDescription(),
+        permissions: this.calculatePermissions(),
         ui: {},
       },
       content: props.content,
@@ -186,21 +186,52 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       customEndpointParams: props.customEndpointParams ?? {},
       recordChanged: false,
       deleteButtonDisabled: false,
-      permissions: this.getPermissionsFromDescription()
+      permissions: this.calculatePermissions()
     };
   }
 
-  getPermissionsFromDescription(record?: any) {
-    let permissions = this.props.description?.permissions ? this.props.description?.permissions : {
-      canCreate: (record && record._PERMISSIONS ? record._PERMISSIONS[0] : true),
-      canRead: (record && record._PERMISSIONS ? record._PERMISSIONS[1] : false),
-      canUpdate: (record && record._PERMISSIONS ? record._PERMISSIONS[2] : false),
-      canDelete: (record && record._PERMISSIONS ? record._PERMISSIONS[3] :  false),
-    };
+  calculatePermissions(customPermissions?: any) {
+    const record = this.state?.record;
+    let permissions = { canCreate: false, canRead: false, canUpdate: false, canDelete: false };
+
+    if (record && record._PERMISSIONS) {
+      permissions.canCreate = record._PERMISSIONS[0];
+      permissions.canRead = record._PERMISSIONS[1];
+      permissions.canUpdate = record._PERMISSIONS[2];
+      permissions.canDelete = record._PERMISSIONS[3];
+    }
+
+    if (this.state?.description?.permissions) {
+      const p = this.state.description.permissions;
+      if (p.canCreate) permissions.canCreate = p.canCreate;
+      if (p.canRead) permissions.canRead = p.canRead;
+      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+      if (p.canDelete) permissions.canDelete = p.canDelete;
+      console.log('state.perm', permissions);
+    }
+
+    if (this.props?.description?.permissions) {
+      const p = this.props.description.permissions;
+      if (p.canCreate) permissions.canCreate = p.canCreate;
+      if (p.canRead) permissions.canRead = p.canRead;
+      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+      if (p.canDelete) permissions.canDelete = p.canDelete;
+      console.log('props.perm', permissions);
+    }
+
+    if (customPermissions) {
+      const p = customPermissions;
+      if (p.canCreate) permissions.canCreate = p.canCreate;
+      if (p.canRead) permissions.canRead = p.canRead;
+      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+      if (p.canDelete) permissions.canDelete = p.canDelete;
+      console.log('cust.perm', permissions);
+    }
+
+    console.log(permissions);
 
     return permissions;
   }
-
 
   /**
    * This function trigger if something change, for Form id of record
@@ -269,10 +300,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
         description = this.onAfterLoadFormDescription(description);
+        const newPermissions = this.calculatePermissions(description?.permissions);
 
         this.setState({
           description: description,
-          readonly: !(this.state.permissions.canUpdate || this.state.permissions.canCreate),
+          readonly: !(newPermissions.canUpdate || newPermissions.canCreate),
+          permissions: newPermissions,
         }, () => {
           if (this.state.id !== -1) {
             this.loadRecord();
@@ -307,7 +340,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   setRecord(record: any) {
     record = this.onAfterRecordLoaded(record);
-    let p = this.getPermissionsFromDescription(record);
+    let p = this.calculatePermissions();
 
     this.setState({
       isInitialized: true,
@@ -579,7 +612,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     // delete customInputPropsWithoutOnchange.onChange;
 
     let value = null;
-    if (record[inputName]) value = record[inputName];
+    if (record.id > 0) value = record[inputName];
     else value = formDescription.defaultValues ? formDescription.defaultValues[inputName] : null;
 
     return {
@@ -600,12 +633,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       ...customInputProps,
       onInlineEditCancel: () => { },
       onInlineEditSave: () => { this.saveRecord(); },
-      onChange: (value: any) => {
+      onChange: (input: any, value: any) => {
         let record = {...this.state.record};
         record[inputName] = value;
         this.setState({record: record, recordChanged: true}, () => {
-          if (this.props.onChange) this.props.onChange();
-          if (customInputProps && customInputProps.onChange) customInputProps.onChange();
+          if (this.props.onChange) this.props.onChange(input, value);
+          if (customInputProps && customInputProps.onChange) customInputProps.onChange(input, value);
         });
       },
     };
@@ -678,29 +711,21 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     ;
 
     return <>
-      {showButton ? <button
-        onClick={() => this.saveRecord()}
-        className="btn btn-add"
-      >
+      {showButton ? <button onClick={() => this.saveRecord()} className="btn btn-add">
         {this.state.updatingRecord
-          ? (
-            <>
-              <span className="icon"><i className="fas fa-save"></i></span>
-              <span className="text">
-                {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'ADIOS\\Core\\Loader::Components\\Form')}
-                {this.state.recordChanged ? ' *' : ''}
-              </span>
-            </>
-          )
-          : (
-            <>
-              <span className="icon"><i className="fas fa-plus"></i></span>
-              <span className="text">
-                {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}
-                {this.state.recordChanged ? ' *' : ''}
-              </span>
-            </>
-          )
+          ? <>
+            <span className="icon"><i className="fas fa-save"></i></span>
+            <span className="text">
+              {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'ADIOS\\Core\\Loader::Components\\Form')}
+              {this.state.recordChanged ? ' *' : ''}
+            </span>
+          </> : <>
+            <span className="icon"><i className="fas fa-plus"></i></span>
+            <span className="text">
+              {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}
+              {this.state.recordChanged ? ' *' : ''}
+            </span>
+          </>
         }
       </button> : null}
     </>;
@@ -808,14 +833,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   renderHeaderLeft(): JSX.Element {
-    return <>
-      {this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}
-    </>;
+    return <>{this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}</>;
   }
 
   renderHeaderRight(): JSX.Element {
     return <>
-      {this.state.isInlineEditing ? this.renderDeleteButton() : null}
+      {this.renderDeleteButton()}
       {this.props.showInModal ? this.renderCloseButton() : null}
     </>;
   }
@@ -846,8 +869,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   renderTitle(): JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
-          ? this.translate('Record', 'ADIOS\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
-          : this.translate('New record', 'ADIOS\\Core\\Loader::Components\\Form')
+        ? this.translate('Record', 'ADIOS\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
+        : this.translate('New record', 'ADIOS\\Core\\Loader::Components\\Form')
       )
     ;
 
@@ -887,38 +910,36 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     try {
       globalThis.app.setTranslationContext(this.translationContext);
 
-      let warningsOrErrors = this.renderWarningsOrErrors();
+      const warningsOrErrors = this.renderWarningsOrErrors();
 
-      if (warningsOrErrors) return warningsOrErrors;
-      else {
+      const formTitle = this.renderTitle();
+      const formContent = (warningsOrErrors ? warningsOrErrors : this.renderContent());
+      const formFooter = this.renderFooter();
+      const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
+      const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
-        let formTitle = this.renderTitle();
-        let formContent = this.renderContent();
-        let formFooter = this.renderFooter();
-
-        if (this.props.showInModal) {
-          return <>
-            <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
-              <div className="modal-header-left">{this.renderHeaderLeft()}</div>
-              <div className="modal-header-title">{formTitle}</div>
-              <div className="modal-header-right">{this.renderHeaderRight()}</div>
+      if (this.props.showInModal) {
+        return <>
+          <div className={"modal-header " + this.state.description?.ui?.headerClassName ?? ''}>
+            <div className="modal-header-left">{headerLeft}</div>
+            <div className="modal-header-title">{formTitle}</div>
+            <div className="modal-header-right">{headerRight}</div>
+          </div>
+          <div className="modal-body">{formContent}</div>
+          {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
+        </>;
+      } else {
+        return <>
+          <div id={"adios-form-" + this.props.uid} className="adios component form">
+            <div className="form-header">
+              <div className="form-header-left">{headerLeft}</div>
+              <div className="form-header-title">{formTitle}</div>
+              <div className="form-header-right">{headerRight}</div>
             </div>
-            <div className="modal-body">{formContent}</div>
-            {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
-          </>;
-        } else {
-          return <>
-            <div id={"adios-form-" + this.props.uid} className="adios component form">
-              <div className="form-header">
-                <div className="form-header-left">{this.renderHeaderLeft()}</div>
-                <div className="form-header-title">{formTitle}</div>
-                <div className="form-header-right">{this.renderHeaderRight()}</div>
-              </div>
-              <div className="form-body">{formContent}</div>
-              {formFooter ? <div className="form-footer">{formFooter}</div> : null}
-            </div>
-          </>;
-        }
+            <div className="form-body">{formContent}</div>
+            {formFooter ? <div className="form-footer">{formFooter}</div> : null}
+          </div>
+        </>;
       }
     } catch(e) {
       console.error('Failed to render form.');

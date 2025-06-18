@@ -22,11 +22,17 @@ class Session
     return $this->salt;
   }
 
-  public function start(array $options = []): void
+  public function start(bool $persist, array $options = []): void
   {
     if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
       session_id();
       session_name($this->salt);
+
+      if ($persist) {
+        $options['cookie_lifetime'] = 86400; // 7 days
+        $options['gc_maxlifetime'] = 86400; // 7 days
+      }
+
       session_start($options);
 
       define('_SESSION_ID', session_id());

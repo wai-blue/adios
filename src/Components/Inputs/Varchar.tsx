@@ -102,13 +102,14 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
       if (this.props.description?.autocomplete.creatable) return <AsyncCreatable {...selectProps} />;
       else return <AsyncSelect {...selectProps} />;
     } else {
-    
+
       return <div className="flex gap-2 w-full">
         <input
           ref={this.refInput}
           type='text'
           value={this.state.value ?? ''}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onChange(e.currentTarget.value)}
+          onChange={(e) => this.setState({value: e.currentTarget.value})}
+          onBlur={(e) => this.onChange(e.currentTarget.value)}
           placeholder={this.props.placeholder}
           className={
             (this.state.invalid ? 'is-invalid' : '')
@@ -119,8 +120,8 @@ export default class Varchar<P, S> extends Input<InputProps, VarcharInputState> 
         />
         {this.props.description?.predefinedValues ?
           this.state.showPredefinedValues ?
-            <div className="mt-1">
-              <select
+            <div>
+              <select className='h-full'
                 onChange={(e) => {
                   this.onChange(e.currentTarget.value);
                 }}

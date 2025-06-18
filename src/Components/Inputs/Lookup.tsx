@@ -81,8 +81,8 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
       context: this.props.context,
       formRecord: formRecord,
       __IS_AJAX__: '1',
-      ...this.props.customEndpointParams,
       ...(this.props.parentForm?.state.customEndpointParams ?? {}),
+      ...this.props.customEndpointParams,
     };
   }
 
@@ -108,11 +108,15 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
       let value = this.state.data[this.state.value];
       let urlDetail = value._URL_DETAIL ?? '';
 
+      let style = {};
+      if (value._LOOKUP_COLOR) style['borderLeft'] = '0.5em solid ' + value._LOOKUP_COLOR;
+
       return <>
         <a
           className="btn btn-transparent"
           data-pr-tooltip={JSON.stringify(value ?? {})}
           data-pr-position="bottom"
+          style={style}
         >
           <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
         </a>

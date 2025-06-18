@@ -20,6 +20,7 @@ abstract class Column implements \JsonSerializable
   protected string $description = '';
   protected mixed $defaultValue = null;
   protected array $enumValues = [];
+  protected array $enumCssClasses = [];
   protected array $predefinedValues = [];
   protected string $colorScale = '';
   protected string $cssClass = '';
@@ -69,6 +70,9 @@ abstract class Column implements \JsonSerializable
   public function getEnumValues(): array { return $this->enumValues; }
   public function setEnumValues(array $enumValues): Column { $this->enumValues = $enumValues; return $this; }
 
+  public function getEnumCssClasses(): array { return $this->enumCssClasses; }
+  public function setEnumCssClasses(array $enumCssClasses): Column { $this->enumCssClasses = $enumCssClasses; return $this; }
+
   public function getPredefinedValues(): array { return $this->predefinedValues; }
   public function setPredefinedValues(array $predefinedValues): Column { $this->predefinedValues = $predefinedValues; return $this; }
 
@@ -96,7 +100,9 @@ abstract class Column implements \JsonSerializable
     if (!empty($this->getUnit())) $description->setUnit($this->getUnit());
     if (!empty($this->getFormat())) $description->setFormat($this->getFormat());
     if (!empty($this->getTableCellRenderer())) $description->setTableCellRenderer($this->getTableCellRenderer());
+    if ($this->defaultValue !== null) $description->setDefaultValue($this->defaultValue);
     $description->setEnumValues($this->enumValues);
+    $description->setEnumCssClasses($this->enumCssClasses);
     $description->setPredefinedValues($this->predefinedValues);
     return $description;
   }
@@ -119,6 +125,7 @@ abstract class Column implements \JsonSerializable
     ];
 
     if (count($this->enumValues) > 0) $column['enumValues'] = $this->enumValues;
+    if (count($this->enumCssClasses) > 0) $column['enumCssClasses'] = $this->enumCssClasses;
     if (count($this->predefinedValues) > 0) $column['predefinedValues'] = $this->predefinedValues;
 
     return $column;

@@ -99,7 +99,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
         // ;
         $selectRaw[] =
           "(select _LOOKUP from ("
-          . $lookupModel->record->prepareLookupQuery('')->toSql()
+          . $lookupModel->record->prepareLookupQuery('')->toRawSql()
           . ") dummy where `id` = `{$this->table}`.`{$columnName}`) as `_LOOKUP[{$columnName}]`"
         ;
 
@@ -150,13 +150,32 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     }
 
     $selectRaw = [];
-    $selectRaw[] = $this->table . '.id';
+    $selectRaw[] = $this->table . '.*';
     $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->model->getLookupSqlValue()) . ') as _LOOKUP';
     $selectRaw[] = '"" as _LOOKUP_CLASS';
 
     $query = $query->selectRaw(join(',', $selectRaw));
 
     return $query;
+  }
+
+  public function prepareLookupData(array $dataRaw): array
+  {
+    $data = [];
+
+    foreach ($dataRaw as $key => $value) {
+      $data[$key]['_LOOKUP'] = $value['_LOOKUP'];
+      if (!empty($value['_LOOKUP_CLASS'])) $data[$key]['_LOOKUP_CLASS'] = $value['_LOOKUP_CLASS'];
+      if (!empty($value['color'])) $data[$key]['_LOOKUP_COLOR'] = $value['color'];
+      if (isset($value['id'])) {
+        $data[$key]['id'] = \ADIOS\Core\Helper::encrypt($value['id']);
+      }
+      if (!empty($this->model->lookupUrlDetail)) {
+        $data[$key]['_URL_DETAIL'] = str_replace('{%ID%}', $value['id'], $this->model->lookupUrlDetail);
+      }
+    }
+
+    return $data;
   }
 
   public function addFulltextSearchToQuery(mixed $query, string $fulltextSearch): mixed
@@ -313,13 +332,15 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   public function recordCreate(array $record): array
   {
     unset($record['id']);
-    $record['id'] = $this->create($record)->id;
+    $normalizedRecord = $this->recordNormalize($record);
+    $record['id'] = $this->create($normalizedRecord)->id;
     return $record;
   }
 
   public function recordUpdate(array $record): array
   {
-    $this->find((int) ($record['id'] ?? 0))->update($record);
+    $normalizedRecord = $this->recordNormalize($record);
+    $this->find((int) ($record['id'] ?? 0))->update($normalizedRecord);
     return $record;
   }
 
@@ -353,21 +374,20 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       throw new \ADIOS\Core\Exceptions\NotEnoughPermissionsException("Cannot save. Not enough permissions.");
     }
 
-    $originalRecord = $record;
+    if ($id <= 0) $originalRecord = [];
+    else $originalRecord = $this->where($this->table . '.id', $id)->first()?->toArray();
+
     $savedRecord = $record;
-    if ($idMasterRecord == 0) {
-      $this->recordValidate($savedRecord);
-    }
-    $savedRecord = $this->recordNormalize($savedRecord);
+    if ($idMasterRecord == 0) $this->recordValidate($savedRecord);
 
     try {
 
       $columns = $this->model->getColumns();
 
       foreach ($savedRecord as $key => $value) {
-        if (!isset($columns[$key])) {
-          unset($savedRecord[$key]);
-        } else if ($value['_useMasterRecordId_'] ?? false) {
+        $useMasterRecordId = false;
+        if (isset($value['_useMasterRecordId_'])) $useMasterRecordId = $value['_useMasterRecordId_'];
+        if (isset($columns[$key]) && is_array($value) && $useMasterRecordId) {
           $savedRecord[$key] = $idMasterRecord;
         }
       }

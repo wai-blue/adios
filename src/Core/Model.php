@@ -56,6 +56,7 @@ class Model
   public ?string $lookupSqlValue = NULL;
 
   public ?string $lookupUrlDetail = '';
+  public ?string $lookupUrlAdd = '';
 
   /**
    * If set to TRUE, the SQL table will not contain the ID autoincrement column
@@ -508,7 +509,11 @@ class Model
     $description->inputs = [];
     foreach ($columnNames as $columnName) {
       if ($columnName == 'id') continue;
-      $description->inputs[$columnName] = $this->describeInput($columnName);
+      $inputDesc = $this->describeInput($columnName);
+      $description->inputs[$columnName] = $inputDesc;
+      if ($inputDesc->getDefaultValue() !== null) {
+        $description->defaultValues[$columnName] = $inputDesc->getDefaultValue();
+      }
     }
 
     $description->permissions = [

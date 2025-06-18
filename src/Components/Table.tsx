@@ -60,6 +60,7 @@ export interface TableUi {
   showHeader?: boolean,
   showFooter?: boolean,
   showFilter?: boolean,
+  showSidebarFilter?: boolean,
   showHeaderTitle?: boolean,
   //showPaging?: boolean,
   //showControls?: boolean,
@@ -641,6 +642,10 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return <></>;
   }
 
+  renderSidebarFilter(): JSX.Element {
+    return <></>;
+  }
+
   renderFooter(): JSX.Element {
     return <></>;
   }
@@ -674,10 +679,12 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     } else {
 
       let recordToDelete: any = null;
+      let indexRecordToDelete: any = 0;
 
       for (let i in this.state.data?.data) {
         if (this.state.data?.data[i]._toBeDeleted_) {
           recordToDelete = this.state.data?.data[i];
+          indexRecordToDelete = i;
           break;
         }
       }
@@ -694,7 +701,11 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             hash: recordToDelete._idHash_ ?? '',
           },
           (response: any) => {
-            this.loadData();
+            let data = this.state.data;
+            if (data) delete data.data[indexRecordToDelete]._toBeDeleted_;
+            this.setState({data: data}, () => {
+              this.loadData();
+            });
           }
         );
       }
@@ -711,34 +722,23 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
 
     if (hasRecordsToDelete) {
-      return globalThis.main.showDialogDanger(
+      return globalThis.main.showDialogConfirm(
         this.translate('You are about to delete the record. Press OK to confirm.', 'ADIOS\\Core\\Loader::Components\\Table'),
         {
+          headerClassName: 'dialog-danger-header',
+          contentClassName: 'dialog-danger-content',
           header: this.translate('Delete record', 'ADIOS\\Core\\Loader::Components\\Table'),
-          footer: <>
-            <button
-              className='btn btn-primary'
-              onClick={() => {
-                this.deleteRecord();
-              }}
-            >
-              <span className='icon'><i className='fas fa-check'></i></span>
-              <span className='text'>{this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-            </button>
-            <button
-              className='btn btn-cancel'
-              onClick={() => {
-                if (this.state.data) {
-                  let newData: TableData = this.state.data;
-                  for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
-                  this.setState({data: newData});
-                }
-              }}
-            >
-              <span className='icon'><i className='fas fa-times'></i></span>
-              <span className='text'>{this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table')}</span>
-            </button>
-          </>
+          yesText: this.translate('Yes, delete', 'ADIOS\\Core\\Loader::Components\\Table'),
+          yesButtonClass: 'btn-danger',
+          onYes: () => { this.deleteRecord(); },
+          noText: this.translate('No, do not delete', 'ADIOS\\Core\\Loader::Components\\Table'),
+          onNo: () => {
+            if (this.state.data) {
+              let newData: TableData = this.state.data;
+              for (let i in newData.data) delete newData.data[i]._toBeDeleted_;
+              this.setState({data: newData});
+            }
+          },
         }
       );
     } else {
@@ -831,8 +831,14 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
           case 'file':
             if (!cellContent) cellValueElement = <i className="fas fa-image" style={{color: '#e3e6f0'}}></i>
             else {
-              cellValueElement = <a href={globalThis.app.config.uploadUrl + "/" + cellContent} target='_blank' onClick={(e) => { e.stopPropagation(); }}>
-                {cellContent}
+              cellValueElement = <a
+                href={globalThis.app.config.uploadUrl + "/" + cellContent}
+                target='_blank'
+                onClick={(e) => { e.stopPropagation(); }}
+                className='btn btn-primary-outline btn-small'
+              >
+                <span className='icon'><i className='fa-solid fa-up-right-from-square'></i></span>
+                <span className='text'>{cellContent}</span>
               </a>;
             }
           break;
@@ -877,7 +883,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         return InputFactory({
           ...inputProps,
           onInlineEditCancel: () => { op.current?.hide(); },
-          onChange: (value: any) => {
+          onChange: (input: any, value: any) => {
             if (this.state.data) {
               let data: TableData = this.state.data;
               data.data[rowIndex][columnName] = value;
@@ -891,6 +897,56 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       } else {
         return cellValueElement;
       }
+    }
+  }
+
+  renderActionsColumn(data: any, options: any) {
+    const R = this.findRecordById(data.id);
+
+    let canDelete = !this.state.readonly && this.state.description?.permissions?.canDelete;
+
+    if (R._PERMISSIONS && !R._PERMISSIONS[3]) canDelete = false;
+
+    if (canDelete) {
+      return data._toBeDeleted_
+        ? <button
+          className="btn btn-small btn-cancel"
+          onClick={(e) => {
+            e.preventDefault();
+            delete this.findRecordById(data.id)._toBeDeleted_;
+            this.setState({data: this.state.data}, () => {
+              if (this.props.onDeleteSelectionChange) {
+                this.props.onDeleteSelectionChange(this);
+              }
+            });
+          }}
+        >
+          <span className="icon"><i className="fas fa-times"></i></span>
+        </button>
+        : <button
+          className="btn btn-small btn-danger"
+          title={this.translate('Delete', 'ADIOS\\Core\\Loader::Components\\Table')}
+          onClick={(e) => {
+            e.preventDefault();
+
+            if (data.id < 0) {
+              this.deleteRecordById(data.id);
+            } else {
+              this.findRecordById(data.id)._toBeDeleted_ = true;
+            }
+
+            this.setState({data: this.state.data}, () => {
+              if (this.props.onDeleteSelectionChange) {
+                this.props.onDeleteSelectionChange(this);
+              }
+            });
+          }}
+        >
+          <span className="icon"><i className="fas fa-trash-alt"></i></span>
+        </button>
+      ;
+    } else {
+      return null;
     }
   }
 
@@ -951,55 +1007,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       key='__actions'
       field='__actions'
       header=''
-      body={(data: any, options: any) => {
-        const R = this.findRecordById(data.id);
-
-        let canDelete = !this.state.readonly && this.state.description?.permissions?.canDelete;
-
-        if (R._PERMISSIONS && !R._PERMISSIONS[3]) canDelete = false;
-
-        if (canDelete) {
-          return data._toBeDeleted_
-            ? <button
-              className="btn btn-small btn-cancel"
-              onClick={(e) => {
-                e.preventDefault();
-                delete this.findRecordById(data.id)._toBeDeleted_;
-                this.setState({data: this.state.data}, () => {
-                  if (this.props.onDeleteSelectionChange) {
-                    this.props.onDeleteSelectionChange(this);
-                  }
-                });
-              }}
-            >
-              <span className="icon"><i className="fas fa-times"></i></span>
-            </button>
-            : <button
-              className="btn btn-small btn-danger"
-              title={this.translate('Delete', 'ADIOS\\Core\\Loader::Components\\Table')}
-              onClick={(e) => {
-                e.preventDefault();
-
-                if (data.id < 0) {
-                  this.deleteRecordById(data.id);
-                } else {
-                  this.findRecordById(data.id)._toBeDeleted_ = true;
-                }
-
-                this.setState({data: this.state.data}, () => {
-                  if (this.props.onDeleteSelectionChange) {
-                    this.props.onDeleteSelectionChange(this);
-                  }
-                });
-              }}
-            >
-              <span className="icon"><i className="fas fa-trash-alt"></i></span>
-            </button>
-          ;
-        } else {
-          return null;
-        }
-      }}
+      body={(data: any, options: any) => this.renderActionsColumn(data, options)}
       style={{ width: 'auto' }}
     ></Column>);
 
@@ -1030,10 +1038,16 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
             {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
-            <div className="table-body" id={"adios-table-body-" + this.props.uid}>
-              <DataTable {...this.getTableProps()}>
-                {this.renderColumns()}
-              </DataTable>
+            <div className="flex gap-2">
+              <div className="table-sidebar-filter">
+                {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
+              </div>
+
+              <div className="table-body" id={"adios-table-body-" + this.props.uid}>
+                <DataTable {...this.getTableProps()}>
+                  {this.renderColumns()}
+                </DataTable>
+              </div>
             </div>
           </div>
         </ErrorBoundary>
@@ -1164,7 +1178,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       return val;
     };
 
-    if (this.props.data) {
+    if (orderBy && this.props.data) {
       let data = this.props.data;
       if (orderBy.direction == "asc") {
         console.log(data.data)

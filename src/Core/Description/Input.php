@@ -93,6 +93,7 @@ class Input implements \JsonSerializable
     if (!empty($this->enumValues)) $json['enumValues'] = $this->enumValues;
     if (!empty($this->enumCssClasses)) $json['enumCssClasses'] = $this->enumCssClasses;
     if (!empty($this->predefinedValues)) $json['predefinedValues'] = $this->predefinedValues;
+    if (!empty($this->defaultValue)) $json['defaultValue'] = $this->defaultValue;
 
     foreach ($this->properties as $name => $property) {
       $json[$name] = $property->jsonSerialize();

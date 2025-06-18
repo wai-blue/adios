@@ -17,7 +17,7 @@ class Password extends \ADIOS\Core\Db\Column\Varchar
         return password_hash($value[0], PASSWORD_DEFAULT);
       }
     } else {
-      return null;
+      return $value;
     }
   }
 

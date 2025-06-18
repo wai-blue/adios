@@ -170,7 +170,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       description: props.description ?? {
         inputs: {},
         defaultValues: {},
-        permissions: this.getPermissionsFromDescription(),
+        permissions: this.calculatePermissions(),
         ui: {},
       },
       content: props.content,
@@ -186,21 +186,52 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       customEndpointParams: props.customEndpointParams ?? {},
       recordChanged: false,
       deleteButtonDisabled: false,
-      permissions: this.getPermissionsFromDescription()
+      permissions: this.calculatePermissions()
     };
   }
 
-  getPermissionsFromDescription(record?: any) {
-    let permissions = this.props.description?.permissions ? this.props.description?.permissions : {
-      canCreate: (record && record._PERMISSIONS ? record._PERMISSIONS[0] : true),
-      canRead: (record && record._PERMISSIONS ? record._PERMISSIONS[1] : false),
-      canUpdate: (record && record._PERMISSIONS ? record._PERMISSIONS[2] : false),
-      canDelete: (record && record._PERMISSIONS ? record._PERMISSIONS[3] :  false),
-    };
+  calculatePermissions(customPermissions?: any) {
+    const record = this.state?.record;
+    let permissions = { canCreate: false, canRead: false, canUpdate: false, canDelete: false };
+
+    if (record && record._PERMISSIONS) {
+      permissions.canCreate = record._PERMISSIONS[0];
+      permissions.canRead = record._PERMISSIONS[1];
+      permissions.canUpdate = record._PERMISSIONS[2];
+      permissions.canDelete = record._PERMISSIONS[3];
+    }
+
+    if (this.state?.description?.permissions) {
+      const p = this.state.description.permissions;
+      if (p.canCreate) permissions.canCreate = p.canCreate;
+      if (p.canRead) permissions.canRead = p.canRead;
+      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+      if (p.canDelete) permissions.canDelete = p.canDelete;
+      console.log('state.perm', permissions);
+    }
+
+    if (this.props?.description?.permissions) {
+      const p = this.props.description.permissions;
+      if (p.canCreate) permissions.canCreate = p.canCreate;
+      if (p.canRead) permissions.canRead = p.canRead;
+      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+      if (p.canDelete) permissions.canDelete = p.canDelete;
+      console.log('props.perm', permissions);
+    }
+
+    if (customPermissions) {
+      const p = customPermissions;
+      if (p.canCreate) permissions.canCreate = p.canCreate;
+      if (p.canRead) permissions.canRead = p.canRead;
+      if (p.canUpdate) permissions.canUpdate = p.canUpdate;
+      if (p.canDelete) permissions.canDelete = p.canDelete;
+      console.log('cust.perm', permissions);
+    }
+
+    console.log(permissions);
 
     return permissions;
   }
-
 
   /**
    * This function trigger if something change, for Form id of record
@@ -269,10 +300,12 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         // const defaultValues = deepObjectMerge(this.state.description.defaultValues ?? {}, description.defaultValues);
 
         description = this.onAfterLoadFormDescription(description);
+        const newPermissions = this.calculatePermissions(description?.permissions);
 
         this.setState({
           description: description,
-          readonly: !(this.state.permissions.canUpdate || this.state.permissions.canCreate),
+          readonly: !(newPermissions.canUpdate || newPermissions.canCreate),
+          permissions: newPermissions,
         }, () => {
           if (this.state.id !== -1) {
             this.loadRecord();
@@ -307,7 +340,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
   setRecord(record: any) {
     record = this.onAfterRecordLoaded(record);
-    let p = this.getPermissionsFromDescription(record);
+    let p = this.calculatePermissions();
 
     this.setState({
       isInitialized: true,

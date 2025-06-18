@@ -895,6 +895,56 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
+  renderActionsColumn(data: any, options: any) {
+    const R = this.findRecordById(data.id);
+
+    let canDelete = !this.state.readonly && this.state.description?.permissions?.canDelete;
+
+    if (R._PERMISSIONS && !R._PERMISSIONS[3]) canDelete = false;
+
+    if (canDelete) {
+      return data._toBeDeleted_
+        ? <button
+          className="btn btn-small btn-cancel"
+          onClick={(e) => {
+            e.preventDefault();
+            delete this.findRecordById(data.id)._toBeDeleted_;
+            this.setState({data: this.state.data}, () => {
+              if (this.props.onDeleteSelectionChange) {
+                this.props.onDeleteSelectionChange(this);
+              }
+            });
+          }}
+        >
+          <span className="icon"><i className="fas fa-times"></i></span>
+        </button>
+        : <button
+          className="btn btn-small btn-danger"
+          title={this.translate('Delete', 'ADIOS\\Core\\Loader::Components\\Table')}
+          onClick={(e) => {
+            e.preventDefault();
+
+            if (data.id < 0) {
+              this.deleteRecordById(data.id);
+            } else {
+              this.findRecordById(data.id)._toBeDeleted_ = true;
+            }
+
+            this.setState({data: this.state.data}, () => {
+              if (this.props.onDeleteSelectionChange) {
+                this.props.onDeleteSelectionChange(this);
+              }
+            });
+          }}
+        >
+          <span className="icon"><i className="fas fa-trash-alt"></i></span>
+        </button>
+      ;
+    } else {
+      return null;
+    }
+  }
+
   renderColumns(): JSX.Element[] {
     let columns: JSX.Element[] = [];
 
@@ -952,55 +1002,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       key='__actions'
       field='__actions'
       header=''
-      body={(data: any, options: any) => {
-        const R = this.findRecordById(data.id);
-
-        let canDelete = !this.state.readonly && this.state.description?.permissions?.canDelete;
-
-        if (R._PERMISSIONS && !R._PERMISSIONS[3]) canDelete = false;
-
-        if (canDelete) {
-          return data._toBeDeleted_
-            ? <button
-              className="btn btn-small btn-cancel"
-              onClick={(e) => {
-                e.preventDefault();
-                delete this.findRecordById(data.id)._toBeDeleted_;
-                this.setState({data: this.state.data}, () => {
-                  if (this.props.onDeleteSelectionChange) {
-                    this.props.onDeleteSelectionChange(this);
-                  }
-                });
-              }}
-            >
-              <span className="icon"><i className="fas fa-times"></i></span>
-            </button>
-            : <button
-              className="btn btn-small btn-danger"
-              title={this.translate('Delete', 'ADIOS\\Core\\Loader::Components\\Table')}
-              onClick={(e) => {
-                e.preventDefault();
-
-                if (data.id < 0) {
-                  this.deleteRecordById(data.id);
-                } else {
-                  this.findRecordById(data.id)._toBeDeleted_ = true;
-                }
-
-                this.setState({data: this.state.data}, () => {
-                  if (this.props.onDeleteSelectionChange) {
-                    this.props.onDeleteSelectionChange(this);
-                  }
-                });
-              }}
-            >
-              <span className="icon"><i className="fas fa-trash-alt"></i></span>
-            </button>
-          ;
-        } else {
-          return null;
-        }
-      }}
+      body={(data: any, options: any) => this.renderActionsColumn(data, options)}
       style={{ width: 'auto' }}
     ></Column>);
 
@@ -1165,7 +1167,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       return val;
     };
 
-    if (this.props.data) {
+    if (orderBy && this.props.data) {
       let data = this.props.data;
       if (orderBy.direction == "asc") {
         console.log(data.data)

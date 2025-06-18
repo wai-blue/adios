@@ -166,6 +166,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     foreach ($dataRaw as $key => $value) {
       $data[$key]['_LOOKUP'] = $value['_LOOKUP'];
       if (!empty($value['_LOOKUP_CLASS'])) $data[$key]['_LOOKUP_CLASS'] = $value['_LOOKUP_CLASS'];
+      if (!empty($value['color'])) $data[$key]['_LOOKUP_COLOR'] = $value['color'];
       if (isset($value['id'])) {
         $data[$key]['id'] = \ADIOS\Core\Helper::encrypt($value['id']);
       }

@@ -843,7 +843,21 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
             }
           break;
           case 'lookup':
-            cellValueElement = data['_LOOKUP[' + columnName + ']'] ?? '';
+            let className = data['_LOOKUP_CLASS[' + columnName + ']'];
+            let color = data['_LOOKUP_COLOR[' + columnName + ']'];
+
+            let style = {};
+
+            if (color) {
+              style['borderLeft'] = '0.5em solid ' + color;
+              style['marginLeft'] = '0.5em';
+              style['paddingLeft'] = '0.5em';
+            }
+            cellValueElement =
+              <span className={className} style={style}>
+              {data['_LOOKUP[' + columnName + ']'] ?? ''}
+              </span>
+            ;
           break;
           case 'enum':
             const enumValues = column.enumValues;

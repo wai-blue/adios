@@ -102,6 +102,16 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
           . $lookupModel->record->prepareLookupQuery('')->toRawSql()
           . ") dummy where `id` = `{$this->table}`.`{$columnName}`) as `_LOOKUP[{$columnName}]`"
         ;
+        $selectRaw[] =
+          "(select _LOOKUP_CLASS from ("
+          . $lookupModel->record->prepareLookupQuery('')->toRawSql()
+          . ") dummy where `id` = `{$this->table}`.`{$columnName}`) as `_LOOKUP_CLASS[{$columnName}]`"
+        ;
+        $selectRaw[] =
+          "(select _LOOKUP_COLOR from ("
+          . $lookupModel->record->prepareLookupQuery('')->toRawSql()
+          . ") dummy where `id` = `{$this->table}`.`{$columnName}`) as `_LOOKUP_COLOR[{$columnName}]`"
+        ;
 
         $joins[] = [
           $lookupDatabase . '.' . $lookupTableName . ' as ' . $joinAlias,
@@ -154,6 +164,12 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     $selectRaw[] = '(' . str_replace('{%TABLE%}', $this->table, $this->model->getLookupSqlValue()) . ') as _LOOKUP';
     $selectRaw[] = '"" as _LOOKUP_CLASS';
 
+    if ($this->model->hasColumn('color')) {
+      $selectRaw[] = 'color as _LOOKUP_COLOR';
+    } else {
+      $selectRaw[] = '"" as _LOOKUP_COLOR';
+    }
+
     $query = $query->selectRaw(join(',', $selectRaw));
 
     return $query;
@@ -166,7 +182,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     foreach ($dataRaw as $key => $value) {
       $data[$key]['_LOOKUP'] = $value['_LOOKUP'];
       if (!empty($value['_LOOKUP_CLASS'])) $data[$key]['_LOOKUP_CLASS'] = $value['_LOOKUP_CLASS'];
-      if (!empty($value['color'])) $data[$key]['_LOOKUP_COLOR'] = $value['color'];
+      if (!empty($value['_LOOKUP_COLOR'])) $data[$key]['_LOOKUP_COLOR'] = $value['_LOOKUP_COLOR'];
       if (isset($value['id'])) {
         $data[$key]['id'] = \ADIOS\Core\Helper::encrypt($value['id']);
       }

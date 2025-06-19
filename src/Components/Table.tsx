@@ -1057,7 +1057,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
                 {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
               </div>
 
-              <div className="table-body" id={"adios-table-body-" + this.props.uid}>
+              <div className="table-body grow" id={"adios-table-body-" + this.props.uid}>
                 <DataTable {...this.getTableProps()}>
                   {this.renderColumns()}
                 </DataTable>

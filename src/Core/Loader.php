@@ -1060,6 +1060,12 @@ class Loader
     else return $defaultValue;
   }
 
+  public function uploadedFile(string $paramName, array $defaultValue = null): null|array
+  {
+    if (isset($this->uploadedFiles[$paramName])) return $this->uploadedFiles[$paramName];
+    else return $defaultValue;
+  }
+
   public function getLanguage(): string
   {
     $user = (isset($this->auth) ? $this->auth->getUserFromSession() : []);

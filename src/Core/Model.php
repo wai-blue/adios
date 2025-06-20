@@ -90,7 +90,7 @@ class Model
     $this->columns = $this->describeColumns();
 
     $recordManagerClass = $this->recordManagerClass;
-    if (!empty($recordManagerClass) && $this->app->pdo->isConnected) {
+    if (!empty($recordManagerClass) && $this->isDatabaseConnected()) {
       $this->record = $this->initRecordManager();
       $this->record->model = $this;
       $this->record->app = $this->app;
@@ -114,12 +114,14 @@ class Model
   public function initRecordManager(): null|object
   {
     $recordManagerClass = $this->recordManagerClass;
-    if (!empty($recordManagerClass) && $this->app->pdo->isConnected) {
-      $record = new $recordManagerClass();
-    } else {
-      $record = null;
-    }
-    return $record;
+    $recordManager = new $recordManagerClass();
+    $recordManager->model = $this;
+    return $recordManager;
+  }
+
+  public function isDatabaseConnected(): bool
+  {
+    return $this->app->pdo->isConnected;
   }
 
   /**
@@ -598,7 +600,7 @@ class Model
    * @param array<string, mixed> $savedRecord
    * @return array<string, mixed>
    */
-  public function onAfterCreate(array $originalRecord, array $savedRecord): array
+  public function onAfterCreate(array $savedRecord): array
   {
     return $savedRecord;
   }

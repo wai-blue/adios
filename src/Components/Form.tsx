@@ -207,7 +207,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       if (p.canRead) permissions.canRead = p.canRead;
       if (p.canUpdate) permissions.canUpdate = p.canUpdate;
       if (p.canDelete) permissions.canDelete = p.canDelete;
-      console.log('state.perm', permissions);
     }
 
     if (this.props?.description?.permissions) {
@@ -216,7 +215,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       if (p.canRead) permissions.canRead = p.canRead;
       if (p.canUpdate) permissions.canUpdate = p.canUpdate;
       if (p.canDelete) permissions.canDelete = p.canDelete;
-      console.log('props.perm', permissions);
     }
 
     if (customPermissions) {
@@ -225,10 +223,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       if (p.canRead) permissions.canRead = p.canRead;
       if (p.canUpdate) permissions.canUpdate = p.canUpdate;
       if (p.canDelete) permissions.canDelete = p.canDelete;
-      console.log('cust.perm', permissions);
     }
-
-    console.log(permissions);
 
     return permissions;
   }

@@ -30,7 +30,7 @@ interface RecordManagerInterface {
   public function recordEncryptIds(array $record): array;
   public function recordDecryptIds(array $record): array;
   public function recordCreate(array $record): array;
-  public function recordUpdate(array $record): array;
+  public function recordUpdate(array $record, array $originalRecord = []): array;
   public function recordDelete(int|string $id): int;
   public function recordSave(array $record, int $idMasterRecord = 0): array;
 

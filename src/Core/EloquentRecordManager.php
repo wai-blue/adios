@@ -347,21 +347,28 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
   public function recordCreate(array $record): array
   {
+    $record = $this->model->onBeforeCreate($record);
     unset($record['id']);
     $normalizedRecord = $this->recordNormalize($record);
     $record['id'] = $this->create($normalizedRecord)->id;
+    $record = $this->model->onAfterCreate($record);
     return $record;
   }
 
-  public function recordUpdate(array $record): array
+  public function recordUpdate(array $record, array $originalRecord = []): array
   {
+    $originalRecord = $record;
+    $record = $this->model->onBeforeUpdate($record);
     $normalizedRecord = $this->recordNormalize($record);
     $this->find((int) ($record['id'] ?? 0))->update($normalizedRecord);
+    $record = $this->model->onAfterUpdate($originalRecord, $record);
     return $record;
   }
 
   public function recordDelete(int|string $id): int
   {
+    $this->model->onBeforeDelete((int) $id);
+
     $record = $this->recordRead($this->where('id', $id));
     $permissions = $this->getPermissions($record);
     if (!$permissions[3]) { // cannot delete
@@ -369,6 +376,9 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     }
 
     $this->where('id', $id)->delete();
+
+    $this->model->onAfterDelete((int) $id);
+
     return 1; // TODO: return $rowsAffected
   }
 
@@ -409,18 +419,12 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       }
 
       if ((bool) ($record['_toBeDeleted_'] ?? false)) {
-        $this->model->onBeforeDelete((int) $id);
         $this->recordDelete((int) $savedRecord['id']);
-        $this->model->onAfterDelete((int) $id);
         return [];
       } else if ($isCreate) {
-        $savedRecord = $this->model->onBeforeCreate($savedRecord);
         $savedRecord = $this->recordCreate($savedRecord);
-        $savedRecord = $this->model->onAfterCreate($originalRecord, $savedRecord);
       } else {
-        $savedRecord = $this->model->onBeforeUpdate($savedRecord);
-        $savedRecord = $this->recordUpdate($savedRecord);
-        $savedRecord = $this->model->onAfterUpdate($originalRecord, $savedRecord);
+        $savedRecord = $this->recordUpdate($savedRecord, $originalRecord);
       }
 
       foreach ($this->model->relations as $relName => $relDefinition) {

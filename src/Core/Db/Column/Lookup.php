@@ -9,7 +9,6 @@ class Lookup extends \ADIOS\Core\Db\Column
 
   protected string $type = 'lookup';
   protected string $sqlDataType = 'int(8)';
-  protected string $lookupModel = '';
   protected string $rawSqlDefinition = 'NULL default NULL';
 
   protected bool $disableForeignKey = false;
@@ -26,21 +25,11 @@ class Lookup extends \ADIOS\Core\Db\Column
     $this->foreignKeyOnUpdate = $foreignKeyBehaviour;
   }
 
-  public function getLookupModel(): string { return $this->lookupModel; }
-  public function setLookupModel(string $lookupModel): Lookup { $this->lookupModel = $lookupModel; return $this; }
-
   public function setFkOnDelete(string $fkOnDelete): Lookup { $this->foreignKeyOnDelete = $fkOnDelete; return $this; }
   public function setFkOnUpdate(string $fkOnUpdate): Lookup { $this->foreignKeyOnUpdate = $fkOnUpdate; return $this; }
 
   public function getAutocomplete(): Autocomplete { return $this->autocomplete; }
   public function setAutocomplete(Autocomplete $autocomplete): Varchar { $this->autocomplete = $autocomplete; return $this; }
-
-  public function describeInput(): \ADIOS\Core\Description\Input
-  {
-    $description = parent::describeInput();
-    if (!empty($this->getLookupModel())) $description->setLookupModel($this->getLookupModel());
-    return $description;
-  }
 
   public function jsonSerialize(): array
   {

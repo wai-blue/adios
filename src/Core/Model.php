@@ -87,7 +87,6 @@ class Model
     $reflection = new \ReflectionClass($this);
 
     $this->app = $app;
-    $this->columns = $this->describeColumns();
 
     $recordManagerClass = $this->recordManagerClass;
     if (!empty($recordManagerClass) && $this->isDatabaseConnected()) {
@@ -96,18 +95,19 @@ class Model
       $this->record->app = $this->app;
     }
 
-    $this->fullName = str_replace("\\", "/", $reflection->getName());
+    $this->fullName = $reflection->getName();
 
     if (empty($this->translationContext)) {
       $this->translationContext = trim(str_replace('/', '\\', $this->fullName), '\\');
     }
 
-    $tmp = explode("/", $this->fullName);
+    $tmp = explode("\\", $this->fullName);
     $this->shortName = end($tmp);
-
 
     $currentVersion = (int)$this->getCurrentInstalledVersion();
     $lastVersion = $this->getLastAvailableVersion();
+
+    $this->columns = $this->describeColumns();
 
   }
 
@@ -124,6 +124,11 @@ class Model
     return $this->app->pdo->isConnected;
   }
 
+  public function getConfigFullPath(string $configName): string
+  {
+    return 'models/' . $this->fullName . '/' . $configName;
+  }
+
   /**
    * Retrieves value of configuration parameter.
    *
@@ -131,8 +136,39 @@ class Model
    */
   public function getConfig(string $configName): string
   {
-    return $this->app->config->getAsString('models/' . str_replace("/", "-", $this->fullName) . '/' . $configName);
+    return $this->app->config->getAsString($this->getConfigFullPath($configName));
   }
+
+  /**
+   * Retrieves value of configuration parameter.
+   *
+   * @return void
+   */
+  public function getConfigAsString(string $configName): string
+  {
+    return $this->app->config->getAsString($this->getConfigFullPath($configName));
+  }
+
+  /**
+   * Retrieves value of configuration parameter.
+   *
+   * @return void
+   */
+  public function getConfigAsInteger(string $configName): int
+  {
+    return $this->app->config->getAsInteger($this->getConfigFullPath($configName));
+  }
+
+  /**
+   * Retrieves value of configuration parameter.
+   *
+   * @return void
+   */
+  public function getConfigAsArray(string $configName): array
+  {
+    return $this->app->config->getAsArray($this->getConfigFullPath($configName));
+  }
+
 
   /**
    * Shorthand for ADIOS core translate() function. Uses own language dictionary.

@@ -875,7 +875,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>
   }
 
-  renderWarningsOrErrors() {
+  renderWarningsOrErrors(): null|JSX.Element {
     if (this.state.recordDeleted) {
       return <>
         <div className="alert alert-danger m-1">
@@ -899,6 +899,8 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         </div>
       </>
     }
+
+    return null;
   }
 
   render() {

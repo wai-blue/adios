@@ -8,7 +8,7 @@
   .adios.component.table .table-header-left { @apply w-full flex flex-1 gap-1 items-center; }
   .adios.component.table .table-header-title { @apply flex-1 text-left text-primary text-center text-2xl mr-2 dark:text-white; }
   .adios.component.table .table-header-right { @apply flex flex-1 text-center gap-1 justify-end; }
-  .adios.component.table .table-header-search { @apply flex flex-4 gap-2 w-full p-1 dark:border-slate-600 dark:bg-slate-950; }
+  .adios.component.table .table-header-search { @apply flex flex-4 gap-2 w-full p-1 border-slate-200 rounded-none dark:border-slate-600 dark:bg-slate-950; }
   .adios.component.table .table-header-search.active { @apply bg-yellow-50; }
   .adios.component.table .table-body { @apply border border-slate-200 dark:border-none; }
   .adios.component.table .table-body tr { @apply border border-transparent divide-x hover:bg-gray-100; box-sizing: border-box; }

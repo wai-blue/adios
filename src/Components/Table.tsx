@@ -62,17 +62,13 @@ export interface TableUi {
   showFilter?: boolean,
   showSidebarFilter?: boolean,
   showHeaderTitle?: boolean,
-  //showPaging?: boolean,
-  //showControls?: boolean,
-  //showAddButton?: boolean,
   showNoDataAddButton?: boolean,
-  //showPrintButton?: boolean,
-  //showSearchButton?: boolean,
-  //showExportCsvButton?: boolean,
-  //showImportCsvButton?: boolean,
   showFulltextSearch?: boolean,
   showColumnSearch?: boolean,
   emptyMessage?: any,
+  defaultFilters?: any,
+  customFilters?: any,
+  moreActions?: any,
 }
 
 export interface TableDescription {
@@ -127,6 +123,7 @@ export interface TableProps {
   className?: string,
   fulltextSearch?: string,
   columnSearch?: any,
+  defaultFilters?: any,
 }
 
 // Laravel pagination
@@ -169,6 +166,7 @@ export interface TableState {
   async: boolean,
   readonly: boolean,
   customEndpointParams: any,
+  defaultFilters: any,
 }
 
 export default class Table<P, S> extends TranslatedComponent<TableProps, TableState> {
@@ -224,6 +222,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
       customEndpointParams: this.props.customEndpointParams ?? {},
       fulltextSearch: props.fulltextSearch ?? '',
       columnSearch: props.columnSearch ?? {},
+      defaultFilters: props.defaultFilters ?? {},
     };
 
     if (props.description) state.description = props.description;
@@ -283,6 +282,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
   getEndpointParams(): any {
     return {
       model: this.model,
+      defaultFilters: this.state.defaultFilters,
       parentRecordId: this.props.parentRecordId ? this.props.parentRecordId : 0,
       parentFormModel: this.props.parentFormModel ? this.props.parentFormModel : '',
       tag: this.props.tag,
@@ -555,14 +555,65 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     );
   }
 
+  showMoreActionsButton(): boolean {
+    if (!this.state.readonly && this.state.description?.ui?.showHeader && this.state?.description?.ui?.moreActions) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  renderMoreActionsButton(): JSX.Element {
+    if (this.state?.description?.ui?.moreActions) {
+     return <button className="btn btn-dropdown btn-transparent">
+        <span className="icon"><i className="fas fa-cog"></i></span>
+        <span className="menu">
+          <div className="btn-list text-nowrap">
+            {this.state?.description?.ui?.moreActions.map((action, index) => {
+              const type = action.type ?? '';
+
+              if (type == 'link') {
+                return <a key={index} className="btn btn-transparent" href={action.href}>
+                  <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                  <span className="text">{action.title}</span>
+                </a>;
+              }
+
+              if (type == 'stateChange') {
+                return <div
+                  key={index}
+                  className="btn btn-transparent"
+                  onClick={() => {
+                    let newState = this.state;
+                    newState[action.state] = action.value;
+                    this.setState(newState);
+                  }}
+                >
+                  <span className="icon"><i className="fas fa-grip-lines"></i></span>
+                  <span className="text">{action.title}</span>
+                </div>;
+              }
+            })}
+          </div>
+        </span>
+      </button>
+    } else {
+      return <></>;
+    }
+  }
+
   renderHeaderButtons(): Array<JSX.Element> {
     let buttons: Array<JSX.Element> = [];
     if (this.showAddButton()) buttons.push(this.renderAddButton());
+    if (this.showMoreActionsButton()) buttons.push(this.renderMoreActionsButton());
     return buttons;
   }
 
   renderHeaderLeft(): Array<JSX.Element> {
-    return [...this.renderHeaderButtons(), this.renderFulltextSearch()]
+    return [
+      ...this.renderHeaderButtons(),
+      this.renderFulltextSearch(),
+    ]
   }
 
   renderHeaderTitle(): JSX.Element {
@@ -1028,6 +1079,35 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return columns;
   }
 
+  renderContent(): JSX.Element {
+    return <>
+      {this.renderFormModal()}
+      {this.state.isUsedAsInput ? null : this.renderDeleteConfirmModal()}
+
+      <div
+        id={"adios-table-" + this.props.uid}
+        className={
+          "adios component table" + (this.props.className ? " " + this.props.className : "") + (this.state.loadingData ? " loading" : "")
+        }
+      >
+        {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
+        {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
+
+        <div className="flex gap-2">
+          <div className="table-sidebar-filter">
+            {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
+          </div>
+
+          <div className="table-body grow" id={"adios-table-body-" + this.props.uid}>
+            <DataTable {...this.getTableProps()}>
+              {this.renderColumns()}
+            </DataTable>
+          </div>
+        </div>
+      </div>
+    </>;
+  }
+
   render() {
     try {
       globalThis.app.setTranslationContext(this.translationContext);
@@ -1038,34 +1118,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
       const fallback: any = <div className="alert alert-danger">Failed to render table. Check console for error log.</div>
 
-      return (
-        <ErrorBoundary fallback={fallback}>
-          {this.renderFormModal()}
-          {this.state.isUsedAsInput ? null : this.renderDeleteConfirmModal()}
-
-          <div
-            id={"adios-table-" + this.props.uid}
-            className={
-              "adios component table" + (this.props.className ? " " + this.props.className : "") + (this.state.loadingData ? " loading" : "")
-            }
-          >
-            {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
-            {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
-
-            <div className="flex gap-2">
-              <div className="table-sidebar-filter">
-                {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
-              </div>
-
-              <div className="table-body grow" id={"adios-table-body-" + this.props.uid}>
-                <DataTable {...this.getTableProps()}>
-                  {this.renderColumns()}
-                </DataTable>
-              </div>
-            </div>
-          </div>
-        </ErrorBoundary>
-      );
+      return <ErrorBoundary fallback={fallback}>{this.renderContent()}</ErrorBoundary>;
     } catch(e) {
       console.error('Failed to render table.');
       console.error(e);

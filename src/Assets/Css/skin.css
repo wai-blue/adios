@@ -108,7 +108,7 @@
   .btn.btn-disabled { @apply text-gray-200; opacity: 0.5 }
   
   .btn.btn-dropdown { @apply items-baseline relative; }
-  .btn.btn-dropdown > .menu { @apply cursor-default invisible absolute; left: 50%; top: 100%; }
+  .btn.btn-dropdown > .menu { @apply cursor-default invisible absolute bg-white shadow-lg; left: 0%; top: 110%; z-index: 9999999; }
   .btn.btn-dropdown > .menu > .list { @apply divide-none  mt-1 bg-white shadow-xl rounded absolute z-10; }
   .btn.btn-dropdown:focus-within { @apply bg-gray-100 text-gray-800 border-gray-100; }
   .btn.btn-dropdown:focus-within > .menu { @apply visible; }

@@ -47,7 +47,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
   public function getPermissions(array $record): array
   {
-    $permissions = [true, true, true, true];
+    return [true, true, true, true];
   }
 
   /**

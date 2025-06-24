@@ -573,7 +573,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               const type = action.type ?? '';
 
               if (type == 'link') {
-                return <a key={index} className="btn btn-transparent" href={action.href}>
+                return <a key={index} className="btn btn-transparent btn-list-item" href={action.href}>
                   <span className="icon"><i className="fas fa-grip-lines"></i></span>
                   <span className="text">{action.title}</span>
                 </a>;
@@ -582,7 +582,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
               if (type == 'stateChange') {
                 return <div
                   key={index}
-                  className="btn btn-transparent"
+                  className="btn btn-transparent btn-list-item"
                   onClick={() => {
                     let newState = this.state;
                     newState[action.state] = action.value;

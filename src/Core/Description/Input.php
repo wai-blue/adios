@@ -18,6 +18,7 @@ class Input implements \JsonSerializable
   protected string $reactComponent = '';
   protected string $lookupModel = '';
   protected array $extendedProps = [];
+  protected array $examples = [];
   protected array $enumValues = [];
   protected array $enumCssClasses = [];
   protected array $predefinedValues = [];
@@ -63,6 +64,9 @@ class Input implements \JsonSerializable
 
   public function getExtendedProps(): array { return $this->extendedProps; }
   public function setExtendedProps(array $extendedProps): Input { $this->extendedProps = $extendedProps; return $this; }
+
+  public function getExamples(): array { return $this->examples; }
+  public function setExamples(array $examples): Input { $this->examples = $examples; return $this; }
 
   public function getEnumValues(): array { return $this->enumValues; }
   public function setEnumValues(array $enumValues): Input { $this->enumValues = $enumValues; return $this; }

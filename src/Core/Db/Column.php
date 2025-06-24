@@ -19,6 +19,7 @@ abstract class Column implements \JsonSerializable
   protected string $format = '';
   protected string $description = '';
   protected mixed $defaultValue = null;
+  protected array $examples = [];
   protected array $enumValues = [];
   protected array $enumCssClasses = [];
   protected array $predefinedValues = [];
@@ -71,6 +72,9 @@ abstract class Column implements \JsonSerializable
   public function getDescription(): string { return $this->description; }
   public function setDescription(string $description): Column { $this->description = $description; return $this; }
 
+  public function getExamples(): array { return $this->examples; }
+  public function setExamples(array $examples): Column { $this->examples = $examples; return $this; }
+
   public function getEnumValues(): array { return $this->enumValues; }
   public function setEnumValues(array $enumValues): Column { $this->enumValues = $enumValues; return $this; }
 
@@ -109,6 +113,7 @@ abstract class Column implements \JsonSerializable
     if (!empty($this->getTableCellRenderer())) $description->setTableCellRenderer($this->getTableCellRenderer());
     if (!empty($this->getLookupModel())) $description->setLookupModel($this->getLookupModel());
     if ($this->defaultValue !== null) $description->setDefaultValue($this->defaultValue);
+    $description->setExamples($this->examples);
     $description->setEnumValues($this->enumValues);
     $description->setEnumCssClasses($this->enumCssClasses);
     $description->setPredefinedValues($this->predefinedValues);
@@ -128,6 +133,7 @@ abstract class Column implements \JsonSerializable
     if (isset($columnConfig['unit'])) $this->setUnit($columnConfig['unit']);
     if (isset($columnConfig['format'])) $this->setFormat($columnConfig['format']);
     if (isset($columnConfig['defaultValue'])) $this->setDefaultValue($columnConfig['defaultValue']);
+    if (isset($columnConfig['examples'])) $this->setExamples($columnConfig['examples']);
     if (isset($columnConfig['enumValues'])) $this->setEnumValues($columnConfig['enumValues']);
     if (isset($columnConfig['enumCssClasses'])) $this->setEnumCssClasses($columnConfig['enumCssClasses']);
     if (isset($columnConfig['predefinedValues'])) $this->setPredefinedValues($columnConfig['predefinedValues']);

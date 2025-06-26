@@ -617,6 +617,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       description: inputDescription,
       value: value,
       invalid: this.state.invalidInputs[inputName] ?? false,
+      cssClass: inputs[inputName]?.cssClass,
       readonly: this.props.readonly || inputs[inputName]?.readonly || inputs[inputName]?.disabled,
       uid: this.props.uid + '_' + uuid.v4(),
       parentForm: this,

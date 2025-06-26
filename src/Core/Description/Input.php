@@ -23,6 +23,7 @@ class Input implements \JsonSerializable
   protected array $enumCssClasses = [];
   protected array $predefinedValues = [];
   protected mixed $defaultValue = null;
+  protected string $cssClass = '';
 
   protected array $properties = [];
 
@@ -80,6 +81,9 @@ class Input implements \JsonSerializable
   public function getDefaultValue(): mixed { return $this->defaultValue; }
   public function setDefaultValue(mixed $defaultValue): Input { $this->defaultValue = $defaultValue; return $this; }
 
+  public function getCssClass(): string { return $this->cssClass; }
+  public function setCssClass(string $cssClass): Input { $this->cssClass = $cssClass; return $this; }
+
   public function jsonSerialize(): array
   {
     $json = ['type' => $this->type];
@@ -97,6 +101,7 @@ class Input implements \JsonSerializable
     if (!empty($this->enumCssClasses)) $json['enumCssClasses'] = $this->enumCssClasses;
     if (!empty($this->predefinedValues)) $json['predefinedValues'] = $this->predefinedValues;
     if (!empty($this->defaultValue)) $json['defaultValue'] = $this->defaultValue;
+    if (!empty($this->cssClass)) $json['cssClass'] = $this->cssClass;
 
     foreach ($this->properties as $pName => $pValue) {
       $json[$pName] = (string) $pName;

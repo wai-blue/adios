@@ -27,6 +27,7 @@ abstract class Column implements \JsonSerializable
   protected string $cssClass = '';
   protected string $tableCellRenderer = '';
   protected string $lookupModel = '';
+  protected string $reactComponent = '';
 
   protected array $properties = [];
 
@@ -38,6 +39,9 @@ abstract class Column implements \JsonSerializable
 
   public function getProperty(string $pName): mixed { return $this->properties[$pName] ?? null; }
   public function setProperty(string $pName, mixed $pValue): Column { $this->properties[$pName] = $pValue; return $this; }
+
+  public function getReactComponent(): string { return $this->reactComponent; }
+  public function setReactComponent(string $reactComponent): Column { $this->reactComponent = $reactComponent; return $this; }
 
   public function getType(): string { return $this->type; }
   public function setType(string $type): Column { $this->type = $type; return $this; }
@@ -104,6 +108,8 @@ abstract class Column implements \JsonSerializable
     $description = new \ADIOS\Core\Description\Input();
     $description->setType($this->getType());
     if (!empty($this->getTitle())) $description->setTitle($this->getTitle());
+    if (!empty($this->getReactComponent())) $description->setReactComponent($this->getReactComponent());
+    if (!empty($this->getCssClass())) $description->setCssClass($this->getCssClass());
     if (!empty($this->getPlaceholder())) $description->setPlaceholder($this->getPlaceholder());
     if (!empty($this->getReadonly())) $description->setReadonly($this->getReadonly());
     if (!empty($this->getRequired())) $description->setRequired($this->getRequired());
@@ -126,6 +132,7 @@ abstract class Column implements \JsonSerializable
   public function loadFromArray(array $columnConfig): Column
   {
     if (isset($columnConfig['title'])) $this->setTitle($columnConfig['title']);
+    if (isset($columnConfig['reactComponent'])) $this->setTitle($columnConfig['reactComponent']);
     if (isset($columnConfig['placeholder'])) $this->setPlaceholder($columnConfig['placeholder']);
     if (isset($columnConfig['readonly'])) $this->setRequired($columnConfig['readonly']);
     if (isset($columnConfig['required'])) $this->setTitle($columnConfig['required']);
@@ -156,6 +163,7 @@ abstract class Column implements \JsonSerializable
       'colorScale' => $this->colorScale,
       'cssClass' => $this->cssClass,
       'tableCellRenderer' => $this->tableCellRenderer,
+      'reactComponent' => $this->reactComponent,
     ];
 
     if (count($this->enumValues) > 0) $column['enumValues'] = $this->enumValues;

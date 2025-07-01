@@ -152,11 +152,12 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     $query = $this;
 
     if (!empty($search)) {
-      $query = $query->where(function($q) use ($search) {
-        foreach ($this->model->columnNames() as $columnName) {
-          $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $search . '%');
-        }
-      });
+      // $query = $query->where(function($q) use ($search) {
+      //   foreach ($this->model->columnNames() as $columnName) {
+      //     $q->orWhere($this->model->table . '.' . $columnName, 'LIKE', '%' . $search . '%');
+      //   }
+      // });
+      $query = $query->having('_LOOKUP', 'like', '%'.$search.'%');
     }
 
     $selectRaw = [];

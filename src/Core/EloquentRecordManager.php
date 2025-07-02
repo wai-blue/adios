@@ -67,16 +67,22 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     foreach ($this->model->getColumns() as $colName => $column) {
       $colDefinition = $column->toArray();
       if ((bool) ($colDefinition['hidden'] ?? false)) continue;
-      $selectRaw[] = $this->model->table . '.' . $colName;
 
-      if (isset($colDefinition['enumValues']) && is_array($colDefinition['enumValues'])) {
-        $tmpSelect = "CASE";
-        foreach ($colDefinition['enumValues'] as $eKey => $eVal) {
-          $tmpSelect .= " WHEN `{$this->model->table}`.`{$colName}` = '{$eKey}' THEN '{$eVal}'";
+      if ($colDefinition['type'] == 'virtual') {
+        $virtSql = $column->getProperty('sql');
+        if (!empty($virtSql)) $selectRaw[] = '(' . $virtSql . ') as `' . $colName . '`';
+      } else {
+        $selectRaw[] = $this->model->table . '.' . $colName;
+
+        if (isset($colDefinition['enumValues']) && is_array($colDefinition['enumValues'])) {
+          $tmpSelect = "CASE";
+          foreach ($colDefinition['enumValues'] as $eKey => $eVal) {
+            $tmpSelect .= " WHEN `{$this->model->table}`.`{$colName}` = '{$eKey}' THEN '{$eVal}'";
+          }
+          $tmpSelect .= " ELSE '' END AS `_ENUM[{$colName}]`";
+
+          $selectRaw[] = $tmpSelect;
         }
-        $tmpSelect .= " ELSE '' END AS `_ENUM[{$colName}]`";
-
-        $selectRaw[] = $tmpSelect;
       }
     }
 
@@ -358,7 +364,7 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
 
   public function recordUpdate(array $record, array $originalRecord = []): array
   {
-    $originalRecord = $record;
+    // $originalRecord = $record;
     $record = $this->model->onBeforeUpdate($record);
     $normalizedRecord = $this->recordNormalize($record);
     $this->find((int) ($record['id'] ?? 0))->update($normalizedRecord);

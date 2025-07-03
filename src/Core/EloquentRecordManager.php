@@ -129,13 +129,13 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
     }
 
     // TODO: Toto je pravdepodobne potencialna SQL injection diera. Opravit.
-    $query = $query->selectRaw(join(',', $selectRaw)); //->with($withs);
+    $query = $query->selectRaw(join(",\n", $selectRaw)); //->with($withs);
     foreach ($this->model->relations as $relName => $relDefinition) {
       // if (count($this->relationsToRead) > 0 && !in_array($relName, $this->relationsToRead)) continue;
 
       $relModel = new $relDefinition[1]($this->app);
 
-      if ($level <= $this->maxReadLevel) {
+      if ($level < $this->maxReadLevel) {
         $query->with([$relName => function($q) use($relModel, $level) {
           return $relModel->record->prepareReadQuery($q, $level + 1);
         }]);
@@ -556,8 +556,13 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
       if (!isset($columns[$colName])) {
         unset($record[$colName]);
       } else {
-        $record[$colName] = $columns[$colName]->normalize($record[$colName]);
-        if ($record[$colName] === null) unset($record[$colName]);
+        $colDefinition = $columns[$colName]->toArray();
+        if ($colDefinition['type'] == 'virtual') {
+          unset($record[$colName]);
+        } else {
+          $record[$colName] = $columns[$colName]->normalize($record[$colName]);
+          if ($record[$colName] === null) unset($record[$colName]);
+        }
       }
     }
 

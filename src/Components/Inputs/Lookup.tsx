@@ -11,6 +11,7 @@ interface LookupInputProps extends InputProps {
   endpoint?: string,
   customEndpointParams?: any,
   urlAdd?: string,
+  uiStyle?: 'default' | 'select' | 'buttons';
 }
 
 interface LookupInputState extends InputState {
@@ -24,6 +25,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
   static defaultProps = {
     inputClassName: 'lookup',
     id: uuid.v4(),
+    uiStyle: 'default',
   }
 
   constructor(props: LookupInputProps) {
@@ -102,6 +104,11 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
     );
   }
 
+  _renderOption(key: number): JSX.Element {
+    if (this.state.data == undefined) return <></>;
+    return <option key={key} value={key}>{this.state.data[key]?._LOOKUP ?? ''}</option>
+  }
+
   renderValueElement() {
 
     if (this.state.data && this.state.data[this.state.value]?._LOOKUP) {
@@ -132,36 +139,73 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
 
   renderInputElement() {
     let urlDetail = this.state.data[this.state.value]?._URL_DETAIL ?? '';
+    let value = this.state.data[this.state.value]?.id ?? 0;
 
-    return <>
-      <AsyncSelect
-        ref={this.refInput}
-        value={{
-          id: this.state.data[this.state.value]?.id ?? 0,
-          _LOOKUP: this.state.data[this.state.value]?._LOOKUP ?? '',
-        }}
-        isClearable={true}
-        isDisabled={this.state.readonly || !this.state.isInitialized}
-        loadOptions={(inputValue: string, callback: any) => this.loadData(inputValue, callback)}
-        defaultOptions={Object.values(this.state.data ?? {})}
-        getOptionLabel={(option: any) => { return option._LOOKUP }}
-        getOptionValue={(option: any) => { return option.id }}
-        onChange={(item: any) => { this.onChange(item?.id ?? 0); }}
-        placeholder={this.props.description?.placeholder}
-        className="adios-lookup"
-        // allowCreateWhileLoading={false}
-        // formatCreateLabel={(inputValue: string) => <span className="create-new">{this.translate('Create', 'ADIOS\\Core\\Loader::Components\\Inputs\\Lookup') + ': ' + inputValue}</span>}
-        // getNewOptionData={(value, label) => { return { id: {_isNew_: true, _LOOKUP: label}, _LOOKUP: label }; }}
-        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-        menuPosition="fixed"
-        menuPortalTarget={document.body}
-      />
-      {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.app.config.accountUrl + "/" + urlDetail}>
-        <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
-      </a> : null}
-      {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.accountUrl + "/" + this.props.urlAdd}>
-        <span className="icon"><i className="fas fa-plus"></i></span>
-      </a> : null}
-    </>;
+    if (this.props.uiStyle == 'select') {
+      return <>
+        <select
+          ref={this.refInput}
+          value={value}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.onChange(e.target.value)}
+          className={
+            (this.state.invalid ? 'is-invalid' : '')
+            + " " + (this.props.cssClass ?? "")
+            + " " + (this.state.readonly ? "bg-muted" : "")
+          }
+          disabled={this.state.readonly}
+        >
+          {Object.keys(this.state.data).map((key: any) => this._renderOption(key))}
+        </select>
+      </>;
+    } else if (this.props.uiStyle == 'buttons') {
+      return <div ref={this.refInput} className="btn-group gap-1">{Object.keys(this.state.data).map((key: any) => {
+        const value = this.state.data ? (this.state.data[key]?.id ?? 0) : 0;
+        const lookup = this.state.data ? (this.state.data[key]?._LOOKUP ?? '') : '';
+        const color = this.state.data ? (this.state.data[key]?._LOOKUP_COLOR ?? '') : '';
+        return <>
+          <button
+            className={
+              "btn " + (this.state.readonly && this.state.value != value ? "btn-disabled" : "")
+              + " " + (this.state.value == value ? "btn-primary" : "btn-transparent")
+            }
+            style={{borderLeft: "0.5em solid " + color}}
+            onClick={() => { if (!this.state.readonly) this.onChange((this.state.value == value ? null : value)); }}
+          >
+            <span className="text">{lookup}</span>
+          </button>
+        </>;
+      })}</div>;
+    } else {
+      return <>
+        <AsyncSelect
+          ref={this.refInput}
+          value={{
+            id: value,
+            _LOOKUP: this.state.data[this.state.value]?._LOOKUP ?? '',
+          }}
+          isClearable={true}
+          isDisabled={this.state.readonly || !this.state.isInitialized}
+          loadOptions={(inputValue: string, callback: any) => this.loadData(inputValue, callback)}
+          defaultOptions={Object.values(this.state.data ?? {})}
+          getOptionLabel={(option: any) => { return option._LOOKUP }}
+          getOptionValue={(option: any) => { return option.id }}
+          onChange={(item: any) => { this.onChange(item?.id ?? 0); }}
+          placeholder={this.props.description?.placeholder}
+          className="adios-lookup"
+          // allowCreateWhileLoading={false}
+          // formatCreateLabel={(inputValue: string) => <span className="create-new">{this.translate('Create', 'ADIOS\\Core\\Loader::Components\\Inputs\\Lookup') + ': ' + inputValue}</span>}
+          // getNewOptionData={(value, label) => { return { id: {_isNew_: true, _LOOKUP: label}, _LOOKUP: label }; }}
+          styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+          menuPosition="fixed"
+          menuPortalTarget={document.body}
+        />
+        {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.app.config.accountUrl + "/" + urlDetail}>
+          <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
+        </a> : null}
+        {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.accountUrl + "/" + this.props.urlAdd}>
+          <span className="icon"><i className="fas fa-plus"></i></span>
+        </a> : null}
+      </>;
+    }
   }
 }

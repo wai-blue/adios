@@ -14,14 +14,12 @@ class Config
 
     $this->config = $config;
 
-    if (empty($this->config['dir'])) $this->config['dir'] = "";
-    if (empty($this->config['url'])) $this->config['url'] = "";
-    if (empty($this->config['rewriteBase'])) $this->config['rewriteBase'] = "";
-    if (empty($this->config['appDir'])) $this->config['appDir'] = $this->config['dir'];
-    if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
-    if (empty($this->config['accountDir'])) $this->config['accountDir'] = $this->config['dir'];
-    if (empty($this->config['accountUrl'])) $this->config['accountUrl'] = $this->config['url'];
-    if (empty($this->config['sessionSalt'])) $this->config['sessionSalt'] = $this->config['appNamespace'] ?? 'adios-session';
+    // if (empty($this->config['rewriteBase'])) $this->config['rewriteBase'] = "";
+    // if (empty($this->config['srcFolder'])) $this->config['srcFolder'] = $this->config['dir'];
+    // if (empty($this->config['srcUrl'])) $this->config['srcUrl'] = $this->config['url'];
+    // if (empty($this->config['appDir'])) $this->config['appDir'] = $this->config['dir'];
+    // if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
+    // if (empty($this->config['sessionSalt'])) $this->config['sessionSalt'] = $this->config['appNamespace'] ?? 'adios-session';
 
     $this->set('requestUri', $_SERVER['REQUEST_URI'] ?? "");
 
@@ -168,10 +166,10 @@ class Config
   //   $this->config['protocol'] = (strtoupper($_SERVER['HTTPS'] ?? "") == "ON" ? "https" : "http");
   //   $this->config['timezone'] = $this->config['timezone'] ?? 'Europe/Bratislava';
 
-  //   $this->config['uploadDir'] = $this->config['uploadDir'] ?? "{$this->config['accountDir']}/upload";
-  //   $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['accountUrl']}/upload";
+  //   $this->config['uploadFolder'] = $this->config['uploadFolder'] ?? "{$this->config['appDir']}/upload";
+  //   $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['appUrl']}/upload";
 
-  //   $this->config['uploadDir'] = str_replace("\\", "/", $this->config['uploadDir']);
+  //   $this->config['uploadFolder'] = str_replace("\\", "/", $this->config['uploadFolder']);
   // }
 
 }

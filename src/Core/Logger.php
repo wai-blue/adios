@@ -22,13 +22,13 @@ class Logger {
   public array $loggers = [];
 
   public bool $cliEchoEnabled = false;
-  public string $logDir = "";
+  public string $logFolder = "";
   public bool $enabled = false;
  
   public function __construct($app) {
     $this->app = $app;
-    $this->logDir = $this->app->config->getAsString('logDir');
-    $this->enabled = !empty($this->logDir) && is_dir($this->logDir);
+    $this->logFolder = $this->app->config->getAsString('logFolder');
+    $this->enabled = !empty($this->logFolder) && is_dir($this->logFolder);
 
     $this->initLogger('core');
   }
@@ -38,13 +38,13 @@ class Logger {
 
     // inicializacia loggerov
     $this->loggers[$loggerName] = new \Monolog\Logger($loggerName);
-    $infoStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-info.log", 1000, \Monolog\Logger::INFO);
+    $infoStreamHandler = new RotatingFileHandler("{$this->logFolder}/{$loggerName}-info.log", 1000, \Monolog\Logger::INFO);
     $infoStreamHandler->setFilenameFormat('{date}/{filename}', 'Y/m/d');
 
-    $warningStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-warning.log", 1000, \Monolog\Logger::WARNING);
+    $warningStreamHandler = new RotatingFileHandler("{$this->logFolder}/{$loggerName}-warning.log", 1000, \Monolog\Logger::WARNING);
     $warningStreamHandler->setFilenameFormat('{date}/{filename}', 'Y/m/d');
 
-    $errorStreamHandler = new RotatingFileHandler("{$this->logDir}/{$loggerName}-error.log", 1000, \Monolog\Logger::ERROR);
+    $errorStreamHandler = new RotatingFileHandler("{$this->logFolder}/{$loggerName}-error.log", 1000, \Monolog\Logger::ERROR);
     $errorStreamHandler->setFilenameFormat('{date}/{filename}', 'Y/m/d');
 
     $this->loggers[$loggerName]->pushHandler($infoStreamHandler);

@@ -29,8 +29,8 @@ class File extends \ADIOS\Core\Db\Column
 
     $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-    if (empty($this->model->app->config->getAsString('uploadDir'))) throw new \Exception("{$title}: Upload folder is not configured.");
-    if (!is_dir($this->model->app->config->getAsString('uploadDir'))) throw new \Exception("{$title}: Upload folder does not exist.");
+    if (empty($this->model->app->config->getAsString('uploadFolder'))) throw new \Exception("{$title}: Upload folder is not configured.");
+    if (!is_dir($this->model->app->config->getAsString('uploadFolder'))) throw new \Exception("{$title}: Upload folder does not exist.");
     if (in_array($fileExtension, ['php', 'sh', 'exe', 'bat', 'htm', 'html', 'htaccess'])) {
       throw new \Exception("{$title}: This file type cannot be uploaded.");
     }
@@ -62,15 +62,15 @@ class File extends \ADIOS\Core\Db\Column
 
     if (empty($folderPath)) $folderPath = ".";
 
-    $uploadDir = $this->model->app->config->getAsString('uploadDir');
+    $uploadFolder = $this->model->app->config->getAsString('uploadFolder');
 
-    if (!is_dir("{$uploadDir}/{$folderPath}")) {
-      mkdir("{$uploadDir}/{$folderPath}", 0775, TRUE);
+    if (!is_dir("{$uploadFolder}/{$folderPath}")) {
+      mkdir("{$uploadFolder}/{$folderPath}", 0775, TRUE);
     }
 
     $fileNameNoVersion = $fileName;
 
-    $destinationFileNoVersion = "{$uploadDir}/{$folderPath}/{$fileName}";
+    $destinationFileNoVersion = "{$uploadFolder}/{$folderPath}/{$fileName}";
     $destinationFile = $destinationFileNoVersion;
 
     $verCnt = 1;

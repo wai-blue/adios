@@ -158,7 +158,7 @@ import { ADIOS } from "adios/Loader";
 
 class MyApp extends ADIOS { }
 
-const app: MyApp = new MyApp({'accountUrl': 'http://localhost/adios-test-app'});
+const app: MyApp = new MyApp({'appUrl': 'http://localhost/adios-test-app'});
 
 globalThis.app = app;
 globalThis.app.renderReactElements();
@@ -204,7 +204,7 @@ Now we have our UI components ready. Create the view and use them.
 {# ./src/View/Users.twig #}
 <html>
 <head>
-  <script src='{{ config.accountUrl }}/?route=adios/cache.js'></script>
+  <script src='{{ config.appUrl }}/?route=adios/cache.js'></script>
   <script defer src='{{ config.url }}/assets/app.js'></script>
   <link rel="stylesheet" type="text/css" href="{{ config.url }}/assets/app.css">
 </head>

@@ -23,7 +23,7 @@
   aside#default-sidebar > nav .btn .icon { @apply w-6 text-sm text-left flex justify-center content-center flex-wrap border-none bg-transparent; }
   aside#default-sidebar > nav .btn .text { @apply border-none text-base; }
   aside#default-sidebar > nav .btn.btn-active { @apply bg-white text-gray-800 dark:bg-primary dark:text-white dark:hover:bg-primary/80; }
-  aside#default-sidebar > div { @apply h-full w-32 p-1 shadow-lg overflow-y-auto bg-gray-50; }
+  aside#default-sidebar > div { @apply h-full w-48 p-1 shadow-lg overflow-y-auto bg-gray-50; }
   aside#default-sidebar > div > ul > li a { @apply flex items-center px-1 py-0.5 text-gray-900 rounded no-underline hover:bg-gray-100 hover:text-primary; }
   aside#default-sidebar > div > ul a .icon { @apply block w-8 text-center; }
   aside#default-sidebar > div > ul a .text { @apply block; }

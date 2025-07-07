@@ -185,7 +185,7 @@ function _ajax_read(controller, params, onsuccess, onreadystatechange) {
   document.body.classList.add("ajax-loading");
   $.ajax({
     'type': 'POST',
-    'url': globalThis.app.config.accountUrl + '/' + controller,
+    'url': globalThis.app.config.appUrl + '/' + controller,
     'data': _ajax_post_data(params),
 
     'success': function(res) {
@@ -252,7 +252,7 @@ function _ajax_read_json(controller, params, onsuccess, onwarning, onfatal) {
   document.body.classList.add("ajax-loading");
   $.ajax({
     'type': 'POST',
-    'url': globalThis.app.config.accountUrl + '/' + controller,
+    'url': globalThis.app.config.appUrl + '/' + controller,
     'data': _ajax_post_data(params),
 
     'dataType': 'json',
@@ -440,7 +440,7 @@ function _ajax_multiupload(options){
             formData.append('upload', files[item]);
 
             $.ajax({
-              url: globalThis.app.config.accountUrl + '/UI/FileBrowser/Upload?__IS_AJAX__=1&output=json&type=' + options.type + '&rename_file=' + options.rename_file + '&subdir=' + options.subdir,
+              url: globalThis.app.config.appUrl + '/UI/FileBrowser/Upload?__IS_AJAX__=1&output=json&type=' + options.type + '&rename_file=' + options.rename_file + '&subdir=' + options.subdir,
               type: 'post',
               data: formData,
               enctype: 'multipart/form-data',

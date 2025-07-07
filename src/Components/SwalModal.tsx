@@ -11,7 +11,7 @@ export function SwalModalPageLarge(
 ): void {
   const iframeContent = `
     <iframe 
-      src="` + globalThis.app.config.accountUrl + params.url + `" 
+      src="` + globalThis.app.config.appUrl + params.url + `" 
       width="100%" 
       height="800px" 
       frameborder="0"

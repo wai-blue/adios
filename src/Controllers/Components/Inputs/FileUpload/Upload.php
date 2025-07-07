@@ -71,13 +71,13 @@ class Upload extends \ADIOS\Core\Controller {
 
     if (empty($folderPath)) $folderPath = ".";
 
-    $uploadDir = $this->app->config->getAsString('uploadDir');
+    $uploadFolder = $this->app->config->getAsString('uploadFolder');
 
-    if (!is_dir("{$uploadDir}/{$folderPath}")) {
-      mkdir("{$uploadDir}/{$folderPath}", 0775, TRUE);
+    if (!is_dir("{$uploadFolder}/{$folderPath}")) {
+      mkdir("{$uploadFolder}/{$folderPath}", 0775, TRUE);
     }
 
-    $destinationFile = "{$uploadDir}/{$folderPath}/{$fileName}";
+    $destinationFile = "{$uploadFolder}/{$folderPath}/{$fileName}";
 
     if (in_array($uploadedFileExtension, ['php', 'sh', 'exe', 'bat', 'htm', 'html', 'htaccess'])) {
       throw new \Exception('This file type cannot be uploaded');

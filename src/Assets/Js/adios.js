@@ -22,7 +22,7 @@ const ADIOS = {
       let paramsObj = _ajax_params(params);
       let formHtml = '';
 
-      formHtml = '<form action="' + globalThis.app.config.appUrl + '/' + _controller_url(url, {}, true) + '" method=POST>';
+      formHtml = '<form action="' + globalThis.app.config.rootUrl + '/' + _controller_url(url, {}, true) + '" method=POST>';
       for (var i in paramsObj) {
        formHtml += '<input type="hidden" name="' + i + '" value="' + paramsObj[i] + '" />';
       }
@@ -30,7 +30,7 @@ const ADIOS = {
 
       $(formHtml).appendTo('body').submit();
     } else {
-      window.location.href = globalThis.app.config.appUrl + '/' + _controller_url(url, params, true);
+      window.location.href = globalThis.app.config.rootUrl + '/' + _controller_url(url, params, true);
     }
   },
 

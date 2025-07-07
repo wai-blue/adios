@@ -159,7 +159,7 @@ class Router {
   }
 
   public function redirectTo(string $url, int $code = 302) {
-    header("Location: " . $this->app->config->getAsString('appUrl') . "/" . trim($url, "/"), true, $code);
+    header("Location: " . $this->app->config->getAsString('rootUrl') . "/" . trim($url, "/"), true, $code);
     exit;
   }
 

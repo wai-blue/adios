@@ -12,14 +12,14 @@ interface ApiError {
 
 class Request {
 
-  getAppUrl(): string {
-    if (!globalThis.app.config.appUrl) {
-      console.warn('ADIOS.Request: appUrl is not set. Your AJAX requests might not work. To suppress this warning, set appUrl to empty value.')
-      console.warn('To set the value add a script tag in HTML head section and set window.configEnv.appUrl..')
-      console.warn('To suppress this warning, set may set appUrl to an empty value.')
+  getRootUrl(): string {
+    if (!globalThis.app.config.rootUrl) {
+      console.warn('ADIOS.Request: rootUrl is not set. Your AJAX requests might not work. To suppress this warning, set rootUrl to empty value.')
+      console.warn('To set the value add a script tag in HTML head section and set window.configEnv.rootUrl..')
+      console.warn('To suppress this warning, set may set rootUrl to an empty value.')
     };
 
-    return globalThis.app.config.appUrl + '/';
+    return globalThis.app.config.rootUrl + '/';
   }
 
   alertOnError(responseData: any) {
@@ -42,7 +42,7 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     document.body.classList.add("ajax-loading");
-    axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getAppUrl() + url, {
+    axios.get<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -60,7 +60,7 @@ class Request {
     errorCallback?: (data: any) => void,
   ): void {
     document.body.classList.add("ajax-loading");
-    axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getAppUrl() + url, postData, {
+    axios.post<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, postData, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -77,7 +77,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getAppUrl() + url, putData, {
+    axios.put<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, putData, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -93,7 +93,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getAppUrl() + url, patchData, {
+    axios.patch<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, patchData, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
@@ -108,7 +108,7 @@ class Request {
     successCallback?: (data: ApiResponse<T>) => void,
     errorCallback?: (data: any) => void,
   ): void {
-    axios.delete<T, AxiosResponse<ApiResponse<T>>>(this.getAppUrl() + url, {
+    axios.delete<T, AxiosResponse<ApiResponse<T>>>(this.getRootUrl() + url, {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;

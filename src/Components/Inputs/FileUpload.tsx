@@ -51,7 +51,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
       ...this.state,
       files: files,
       isInitialized: true,
-      endpoint: globalThis.app.config.appUrl + '/components/inputs/fileupload/upload?__IS_AJAX__=1'
+      endpoint: globalThis.app.config.rootUrl + '/components/inputs/fileupload/upload?__IS_AJAX__=1'
         + (props.folderPath ? '&folderPath=' + props.folderPath : '')
         + (props.renamePattern ? '&renamePattern=' + props.renamePattern : '')
         + (props.accept ? '&accept=' + props.accept : '')
@@ -125,7 +125,7 @@ export default class FileUpload extends Input<FileUploadInputProps, FileUploadIn
 
   onUploadedImageClick(fileFullPath: string) {
     Swal.fire({
-      imageUrl: globalThis.app.config.appUrl + '/upload/' + fileFullPath,
+      imageUrl: globalThis.app.config.rootUrl + '/upload/' + fileFullPath,
       imageAlt: 'Image',
       showConfirmButton: false
     });

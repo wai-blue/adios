@@ -18,7 +18,7 @@ class Config
     // if (empty($this->config['srcFolder'])) $this->config['srcFolder'] = $this->config['dir'];
     // if (empty($this->config['srcUrl'])) $this->config['srcUrl'] = $this->config['url'];
     // if (empty($this->config['appDir'])) $this->config['appDir'] = $this->config['dir'];
-    // if (empty($this->config['appUrl'])) $this->config['appUrl'] = $this->config['url'];
+    // if (empty($this->config['rootUrl'])) $this->config['rootUrl'] = $this->config['url'];
     // if (empty($this->config['sessionSalt'])) $this->config['sessionSalt'] = $this->config['appNamespace'] ?? 'adios-session';
 
     $this->set('requestUri', $_SERVER['REQUEST_URI'] ?? "");
@@ -167,7 +167,7 @@ class Config
   //   $this->config['timezone'] = $this->config['timezone'] ?? 'Europe/Bratislava';
 
   //   $this->config['uploadFolder'] = $this->config['uploadFolder'] ?? "{$this->config['appDir']}/upload";
-  //   $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['appUrl']}/upload";
+  //   $this->config['uploadUrl'] = $this->config['uploadUrl'] ?? "{$this->config['rootUrl']}/upload";
 
   //   $this->config['uploadFolder'] = str_replace("\\", "/", $this->config['uploadFolder']);
   // }

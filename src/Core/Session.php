@@ -25,6 +25,8 @@ class Session
   public function start(bool $persist, array $options = []): void
   {
     if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
+      if (empty($this->salt)) throw new \Exception('ADIOS: Cannot start session, salt is empty.');
+
       session_id();
       session_name($this->salt);
 

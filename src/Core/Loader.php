@@ -654,7 +654,7 @@ class Loader
     } catch (\ADIOS\Core\Exceptions\NotEnoughPermissionsException $e) {
       $message = $e->getMessage();
       if ($this->auth->isUserInSession()) {
-        $message .= " Hint: Sign out and sign in again. {$this->config->getAsString('appUrl')}?sign-out";
+        $message .= " Hint: Sign out and sign in again. {$this->config->getAsString('rootUrl')}?sign-out";
       }
       return $this->renderFatal($message, false);
       // header('HTTP/1.1 401 Unauthorized', true, 401);

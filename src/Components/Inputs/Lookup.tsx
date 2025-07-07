@@ -127,7 +127,7 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
         >
           <span className={"text " + (value._LOOKUP_CLASS ? value._LOOKUP_CLASS : "text-primary")}>{value._LOOKUP}</span>
         </a>
-        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.appUrl + "/" + urlDetail}>
+        {urlDetail && this.state.value ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.rootUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
       </>;
@@ -199,10 +199,10 @@ export default class Lookup extends Input<LookupInputProps, LookupInputState> {
           menuPosition="fixed"
           menuPortalTarget={document.body}
         />
-        {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.app.config.appUrl + "/" + urlDetail}>
+        {urlDetail ? <a className="btn btn-transparent" target="_blank" href={globalThis.app.config.rootUrl + "/" + urlDetail}>
           <span className="icon"><i className="fas fa-arrow-up-right-from-square"></i></span>
         </a> : null}
-        {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.appUrl + "/" + this.props.urlAdd}>
+        {this.props.urlAdd ? <a className="btn btn-transparent ml-2" target="_blank" href={globalThis.app.config.rootUrl + "/" + this.props.urlAdd}>
           <span className="icon"><i className="fas fa-plus"></i></span>
         </a> : null}
       </>;

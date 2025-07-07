@@ -11,7 +11,7 @@
       let paramsObj = _ajax_params(params);
       let formHtml = '';
 
-      formHtml = '<form action="' + globalThis.app.config.appUrl + '/' + _controller_url(controller, {}, true) + '" method=POST target="adios_popup">';
+      formHtml = '<form action="' + globalThis.app.config.rootUrl + '/' + _controller_url(controller, {}, true) + '" method=POST target="adios_popup">';
       for (var i in paramsObj) {
        formHtml += '<input type="hidden" name="' + i + '" value="' + paramsObj[i] + '" />';
       }
@@ -19,7 +19,7 @@
 
       $(formHtml).appendTo('body').submit();
     } else {
-      window.open(globalThis.app.config.appUrl + '/' + _controller_url(controller, params));
+      window.open(globalThis.app.config.rootUrl + '/' + _controller_url(controller, params));
     }
   }
 
@@ -73,7 +73,7 @@
   function window_close(windowId, oncloseParams) {
     if (!ADIOS_windows[windowId]) {
       // okno bolo otvarane cez URL
-      window.location.href = globalThis.app.config.appUrl;
+      window.location.href = globalThis.app.config.rootUrl;
     } else {
 
       if ($('.adios.main-content .adios.ui.Window').length == 1) {

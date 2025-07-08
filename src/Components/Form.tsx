@@ -491,7 +491,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   /**
    * Render tab
    */
-  renderContent(): JSX.Element {
+  renderContent(): null|JSX.Element {
     // if (this.state.description?.inputs == null) {
     //   return adiosError(`No inputs specified for ${this.props.model}. Did the controller return definition of inputs?`);
     // }
@@ -699,7 +699,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return <div className="divider"><div><div><div></div></div><div><span>{content}</span></div></div></div>;
   }
 
-  renderSaveButton(): JSX.Element {
+  renderSaveButton(): null|JSX.Element {
     let id = this.state.id ? this.state.id : 0;
     let showButton = 
       this.state.description?.ui?.showSaveButton
@@ -727,7 +727,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderCopyButton(): JSX.Element {
+  renderCopyButton(): null|JSX.Element {
     let id = this.state.id ? this.state.id : 0;
 
     return <>
@@ -741,7 +741,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderDeleteButton(): JSX.Element {
+  renderDeleteButton(): null|JSX.Element {
     return <>
       {this.state.updatingRecord && this.state.description?.ui?.showDeleteButton && this.state.permissions.canDelete ? <button
         onClick={() => {
@@ -766,7 +766,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderPrevRecordButton(): JSX.Element {
+  renderPrevRecordButton(): null|JSX.Element {
     const prevId = this.state?.prevId ?? 0;
 
     return (
@@ -783,7 +783,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  renderNextRecordButton(): JSX.Element {
+  renderNextRecordButton(): null|JSX.Element {
     const nextId = this.state?.nextId ?? 0;
 
     return (
@@ -800,7 +800,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  renderEditButton(): JSX.Element {
+  renderEditButton(): null|JSX.Element {
     return <>
       {this.state.permissions.canUpdate ? <button
         onClick={() => this.setState({ isInlineEditing: true })}
@@ -812,7 +812,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderCloseButton(): JSX.Element {
+  renderCloseButton(): null|JSX.Element {
     return (
       <button
         className="btn btn-close"
@@ -828,18 +828,18 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     );
   }
 
-  renderHeaderLeft(): JSX.Element {
+  renderHeaderLeft(): null|JSX.Element {
     return <>{this.state.isInlineEditing ? this.renderSaveButton() : this.renderEditButton()}</>;
   }
 
-  renderHeaderRight(): JSX.Element {
+  renderHeaderRight(): null|JSX.Element {
     return <>
       {this.renderDeleteButton()}
       {this.props.showInModal ? this.renderCloseButton() : null}
     </>;
   }
 
-  renderFooter(): JSX.Element {
+  renderFooter(): null|JSX.Element {
     const prevId = this.state?.prevId ?? 0;
     const nextId = this.state?.nextId ?? 0;
 
@@ -853,7 +853,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     </>;
   }
 
-  renderSubTitle(): JSX.Element {
+  renderSubTitle(): null|JSX.Element {
     let subTitle = this.state.description?.ui?.subTitle;
     if (subTitle) {
       return <small>{subTitle}</small>;
@@ -862,7 +862,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderTitle(): JSX.Element {
+  renderTitle(): null|JSX.Element {
     let title = this.state.description?.ui?.title ??
       (this.state.updatingRecord
         ? this.translate('Record', 'ADIOS\\Core\\Loader::Components\\Form') + ' #' + (this.state.record?.id ?? '-')
@@ -904,6 +904,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     return null;
   }
 
+  renderTopMenu(): null|JSX.Element {
+    return null;
+  }
+
   render() {
     try {
       globalThis.app.setTranslationContext(this.translationContext);
@@ -913,6 +917,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       const formTitle = this.renderTitle();
       const formContent = (warningsOrErrors ? warningsOrErrors : this.renderContent());
       const formFooter = this.renderFooter();
+      const formTopMenu = (this.state.isInitialized ? this.renderTopMenu() : null);
       const headerLeft = (warningsOrErrors ? null : this.renderHeaderLeft());
       const headerRight = (warningsOrErrors ? this.renderCloseButton() : this.renderHeaderRight());
 
@@ -923,7 +928,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             <div className="modal-header-title">{formTitle}</div>
             <div className="modal-header-right">{headerRight}</div>
           </div>
-          <div className="modal-body">{formContent}</div>
+          {formTopMenu ? <div className="modal-top-menu">{formTopMenu}</div> : null}
+          <div className="modal-body">
+            {formContent}
+          </div>
           {formFooter ? <div className="modal-footer">{formFooter}</div> : null}
         </>;
       } else {
@@ -934,7 +942,10 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
               <div className="form-header-title">{formTitle}</div>
               <div className="form-header-right">{headerRight}</div>
             </div>
-            <div className="form-body">{formContent}</div>
+            {formTopMenu ? <div className="form-top-menu">{formTopMenu}</div> : null}
+            <div className="form-body">
+              {formContent}
+            </div>
             {formFooter ? <div className="form-footer">{formFooter}</div> : null}
           </div>
         </>;

@@ -109,7 +109,7 @@
   
   .btn.btn-dropdown { @apply items-baseline relative; }
   .btn.btn-dropdown > .menu { @apply cursor-default invisible absolute bg-white shadow-lg; left: 0%; top: 110%; z-index: 9999999; }
-  .btn.btn-dropdown > .menu > .list { @apply divide-none  mt-1 bg-white shadow-xl rounded absolute z-10; }
+  .btn.btn-dropdown > .menu > .list { @apply divide-none mt-1 bg-white shadow-xl rounded absolute z-10; }
   .btn.btn-dropdown:focus-within { @apply bg-gray-100 text-gray-800 border-gray-100; }
   .btn.btn-dropdown:focus-within > .menu { @apply visible; }
   .btn.btn-dropdown:focus-within > .menu > .list .btn { @apply text-nowrap; }
@@ -164,6 +164,7 @@
   .form .form-header .modal-header-right { @apply flex flex-1 gap-1 justify-end; }
   .form .form-body { @apply p-2 flex-1 overflow-y-auto; }
   .form .form-body .form-content.not-initialized { opacity: 0.5; }
+  .form .form-body .form-top-menu { @apply flex gap-2 p-2 mb-2 border-b border-b-gray-700; }
   .form .form-footer { @apply p-2 border-t border-t-slate-200 bg-gray-50; }
 
   .input-wrapper { @apply relative justify-between items-center border border-transparent rounded-sm p-1 hover:bg-gray-50 dark:hover:bg-white/10; box-sizing: border-box; }
@@ -202,6 +203,8 @@
   .modal > .modal-inner > .modal-header > .modal-header-title { @apply flex-1 text-center text-xl; }
   .modal > .modal-inner > .modal-header > .modal-header-title h2 { @apply m-0 p-0 text-primary; }
   .modal > .modal-inner > .modal-header > .modal-header-right { @apply flex flex-1 gap-1 justify-end; }
+  .modal > .modal-inner > .modal-top-menu { @apply flex border-b border-gray-100 mb-2 bg-white border-b border-b-primary/20; }
+  .modal > .modal-inner > .modal-top-menu .btn { @apply flex border-none rounded-none shadow-none bg-white text-gray-800 hover:bg-gray-100; }
   .modal > .modal-inner > .modal-body { @apply p-2 flex-1 overflow-y-auto relative; }
   .modal > .modal-inner > .modal-footer { @apply flex gap-2 p-2 border-t border-t-gray-200 bg-gray-50 dark:bg-slate-900 dark:border-slate-800; }
 

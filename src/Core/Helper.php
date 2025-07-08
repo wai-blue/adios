@@ -244,6 +244,10 @@ class Helper {
     return strtolower(preg_replace("/[A-Z]/", "-$0", $s));
   }
 
+  public static function pascalToKebab(string $s) {
+    return trim(self::camelToKebab($s), '-');
+  }
+
   public static function pluck(string $key, array $data): array
   {
     $pluck = [];

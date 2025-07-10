@@ -49,4 +49,18 @@ export default class Hyperlink extends Varchar<InputProps, HyperlinkInputState> 
       return <span className="no-value"></span>;
     }
   }
+
+  renderInputElement() {
+    return <div className="w-full flex gap-2">
+      {super.renderInputElement()}
+      <a
+        href={this.state.value}
+        target='_blank'
+        onClick={(e) => { e.stopPropagation(); }}
+        className="btn btn-transparent"
+      >
+        <span className="icon"><i className="fa-solid fa-up-right-from-square"></i></span>
+      </a>
+    </div>
+  }
 }

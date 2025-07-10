@@ -104,7 +104,11 @@ class Input implements \JsonSerializable
     if (!empty($this->cssClass)) $json['cssClass'] = $this->cssClass;
 
     foreach ($this->properties as $pName => $pValue) {
-      $json[$pName] = (string) $pName;
+      if (is_array($pValue)) {
+        $json[$pName] = $pValue;
+      } else {
+        $json[$pName] = (string) $pValue;
+      }
     }
 
     return $json;

@@ -170,6 +170,14 @@ abstract class Column implements \JsonSerializable
     if (count($this->enumCssClasses) > 0) $column['enumCssClasses'] = $this->enumCssClasses;
     if (count($this->predefinedValues) > 0) $column['predefinedValues'] = $this->predefinedValues;
 
+    foreach ($this->properties as $pName => $pValue) {
+      if (is_array($pValue)) {
+        $column[$pName] = $pValue;
+      } else {
+        $column[$pName] = (string) $pValue;
+      }
+    }
+
     return $column;
   }
 

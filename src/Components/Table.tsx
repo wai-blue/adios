@@ -345,6 +345,13 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     return tableProps;
   }
 
+  reload() {
+    this.setState({isInitialized: false}, () => {
+      this.loadTableDescription();
+      this.loadData();
+    });
+  }
+
   loadTableDescription(successCallback?: (params: any) => void) {
 
     if (this.props.descriptionSource == 'props') return;

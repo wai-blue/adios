@@ -34,6 +34,7 @@ export default class ModalSimple extends Modal {
                 </div>
               </div>
             </> : null}
+            {this.props.topMenu ? <div className="modal-top-menu">{this.props.topMenu}</div> : null}
             <div className="modal-body">{this.props.children}</div>
           </div>
         </div>

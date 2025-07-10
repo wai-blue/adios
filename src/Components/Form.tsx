@@ -62,6 +62,11 @@ export interface FormDescription {
   includeRelations?: Array<string>,
 }
 
+export interface FormTabs {
+  title: string,
+  icon: string,
+}
+
 export interface FormProps {
   isInitialized?: boolean,
   parentTable?: any,
@@ -77,6 +82,9 @@ export interface FormProps {
   showInModalSimple?: boolean,
   isInlineEditing?: boolean,
   customEndpointParams?: any,
+
+  tabs?: FormTabs,
+  activeTab?: string,
 
   tag?: string,
   context?: any,
@@ -101,6 +109,9 @@ export interface FormState {
   readonly?: boolean,
   content?: Content,
 
+  tabs?: FormTabs,
+  activeTab?: string,
+
   description: FormDescription,
   record: FormRecord,
   endpoint: FormEndpoint,
@@ -113,7 +124,6 @@ export interface FormState {
   deleteButtonDisabled: boolean,
   isInlineEditing: boolean,
   invalidInputs: Object,
-  tabs?: any,
   folderUrl?: string,
   params: any,
   invalidRecordId: boolean,
@@ -186,7 +196,9 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       customEndpointParams: props.customEndpointParams ?? {},
       recordChanged: false,
       deleteButtonDisabled: false,
-      permissions: this.calculatePermissions()
+      permissions: this.calculatePermissions(),
+      tabs: this.props.tabs,
+      activeTab: this.props.activeTab,
     };
   }
 
@@ -259,7 +271,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   }
 
   componentDidMount() {
-    this.initTabs();
     this.loadFormDescription();
   }
 
@@ -445,20 +456,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   onAfterFormInitialized() {
   }
 
-  changeTab(changeTabName: string) {
-    let tabs: any = {};
-
-    Object.keys(this.state.tabs).map((tabName: string) => {
-      tabs[tabName] = {
-        active: tabName == changeTabName
-      };
-    });
-
-    this.setState({
-      tabs: tabs
-    });
-  }
-
   closeForm() {
     if (this.props.onClose) {
       this.props.onClose();
@@ -466,135 +463,44 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  /*
-    * Initialize form tabs is are defined
-    */
-  initTabs() {
-    if (this.state.content?.tabs == undefined) return;
-
-    let tabs: any = {};
-    let firstIteration: boolean = true;
-
-    Object.keys(this.state.content?.tabs).map((tabName: string) => {
-      tabs[tabName] = {
-        active: firstIteration
-      };
-
-      firstIteration = false;
-    });
-
-    this.setState({
-      tabs: tabs
-    });
-  }
-
-  /**
-   * Render tab
-   */
-  renderContent(): null|JSX.Element {
-    // if (this.state.description?.inputs == null) {
-    //   return adiosError(`No inputs specified for ${this.props.model}. Did the controller return definition of inputs?`);
-    // }
-
-    let content = <></>;
-
-    if (this.state.content?.tabs) {
-      let tabs: any = Object.keys(this.state.content.tabs).map((tabName: string) => {
-        return this.renderTabs(tabName, this.state.content?.tabs[tabName]);
-      })
-
-      content = tabs;
-    } else {
-      content = this.renderTabs("default", this.state.content);
-    }
-
-    return <div className={"form-content " + (this.state.isInitialized ? "initialized" : "not-initialized")}>{content}</div>
-  }
-
-  /*
-    * Render tab content
-    * If tab is not set, use default tabName else use activated one
-    */
-  renderTabs(tabName: string, content: any) {
-    if (
-      tabName == "default"
-      || (this.state.tabs && this.state.tabs[tabName]['active'])
-    ) {
-
-      let key = 0;
-
-      return (
-        <div
-          key={tabName}
+  renderTopMenu(): JSX.Element {
+    if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
+      const tabs = this.state.tabs ?? {};
+      const activeTab = this.state.activeTab ?? 'default';
+      return <>{Object.keys(tabs).map((i: any) => {
+        return <button
+          key={i}
+          className={"btn " + (activeTab == i ? "btn-primary" : "btn-transparent")}
+          onClick={() => { this.setState({activeTab: i}); }}
         >
-          {content != null
-            ? Object.keys(content).map((contentArea: string) => {
-              return this._renderContentItem(key++, contentArea, content[contentArea]);
-            })
-            : this.state.record != null ? (
-              Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
-                return this.inputWrapper(inputName);
-              })
-            ) : ''
-          }
-        </div>
-      );
+          {tabs[i].icon ? <span className="icon"><i className={tabs[i].icon}></i></span> : null}
+          <span className="text">{tabs[i].title}</span>
+        </button>;
+      })}</>;
     } else {
       return <></>;
     }
   }
 
-  /**
-   * Render content item
-   */
-  _renderContentItem(key: number, contentItemArea: string, contentItemParams: undefined | string | Object | Array<string>): JSX.Element {
-    if (contentItemParams == undefined) return <b style={{color: 'red'}}>Content item params are not defined</b>;
-
-    let contentItemKeys = Object.keys(contentItemParams);
-    if (contentItemKeys.length == 0) return <b style={{color: 'red'}}>Bad content item definition</b>;
-
-    let contentItemName = contentItemArea == "inputs"
-      ? contentItemArea : contentItemKeys[0];
-
-    let contentItem: JSX.Element | null;
-
-    switch (contentItemName) {
-      case 'input':
-        contentItem = this.inputWrapper(contentItemParams['input'] as string);
-        break;
-      case 'inputs':
-        //@ts-ignore
-        contentItem = (contentItemParams['inputs'] as Array<string>).map((inputName: string) => {
-          return this.inputWrapper(inputName)
-        });
-        break;
-      case 'html':
-        contentItem = (<div dangerouslySetInnerHTML={{__html: contentItemParams['html']}}/>);
-        break;
-      default:
-        contentItem = globalThis.app.renderReactElement(
-          contentItemName,
-          {
-            ...contentItemParams[contentItemName],
-            ...{
-              parentRecordId: this.state.id,
-              parentFormModel: this.props.model,
-            }
-          }
-        );
-
-        if (contentItem !== null) {
-          this.components.push(contentItem);
-        }
-
-        break;
+  renderTab(tab: string): null|JSX.Element {
+    if (tab == 'default') {
+      return <div>
+        {this.state.record != null ? (
+          Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
+            return this.inputWrapper(inputName);
+          })
+        ) : null}
+      </div>;
     }
 
-    return (
-      <div key={key} style={{gridArea: contentItemArea}}>
-        {contentItem}
-      </div>
-    );
+    return null;
+  }
+
+  /**
+   * Render content
+   */
+  renderContent(): null|JSX.Element {
+    return this.renderTab(this.state.activeTab ?? 'default');
   }
 
   getInputProps(inputName: string, customInputProps?: any): InputProps {
@@ -901,10 +807,6 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
       </>
     }
 
-    return null;
-  }
-
-  renderTopMenu(): null|JSX.Element {
     return null;
   }
 

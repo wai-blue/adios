@@ -7,10 +7,11 @@ export interface ModalProps {
   uid: string,
   type?: string,
   children?: any;
-  title?: string;
+  title?: any;
   showHeader?: boolean;
   headerLeft?: any;
   isOpen?: boolean;
+  topMenu?: any;
 }
 
 interface ModalState {

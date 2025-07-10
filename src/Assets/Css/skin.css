@@ -183,7 +183,7 @@
   .key-value-table > div div:nth-child(2) { @apply font-bold; }
 
   .modal { @apply flex flex-col h-screen w-full overflow-auto bg-white dark:bg-gray-950; }
-  .modal.right { @apply fixed top-0 right-0 md:w-1/2 z-50 h-full shadow-2xl border-l border-l-primary dark:border-l-slate-800 dark:shadow-black; }
+  .modal.right { @apply fixed bottom-0 right-0 md:w-1/2 z-50 h-full shadow-2xl border-l border-primary dark:border-slate-800 dark:shadow-black; }
   .modal.right.wide { @apply md:w-[80%]; }
   .modal.right.wider { @apply md:w-[90vw] ;}
 
@@ -204,7 +204,7 @@
   .modal > .modal-inner > .modal-header > .modal-header-title h2 { @apply m-0 p-0 text-primary; }
   .modal > .modal-inner > .modal-header > .modal-header-right { @apply flex flex-1 gap-1 justify-end; }
   .modal > .modal-inner > .modal-top-menu { @apply flex border-b border-gray-100 mb-2 bg-white border-b border-b-primary/20; }
-  .modal > .modal-inner > .modal-top-menu .btn { @apply flex border-none rounded-none shadow-none bg-white text-gray-800 hover:bg-gray-100; }
+  .modal > .modal-inner > .modal-top-menu > .btn { @apply p-1 border-none rounded-none shadow-none; }
   .modal > .modal-inner > .modal-body { @apply p-2 flex-1 overflow-y-auto relative; }
   .modal > .modal-inner > .modal-footer { @apply flex gap-2 p-2 border-t border-t-gray-200 bg-gray-50 dark:bg-slate-900 dark:border-slate-800; }
 

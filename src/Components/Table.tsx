@@ -1100,7 +1100,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         {this.state.description?.ui?.showHeader ? this.renderHeader() : null}
         {this.state.description?.ui?.showFilter ? this.renderFilter() : null}
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-col md:flex-row">
           <div className="table-sidebar-filter">
             {this.state.description?.ui?.showSidebarFilter ? this.renderSidebarFilter() : null}
           </div>

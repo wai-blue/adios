@@ -154,7 +154,8 @@
   .divider > div > div:nth-child(2) > span { @apply flex justify-between items-center text-gray-600 font-semibold leading-6 ml-3 px-3 bg-white dark:bg-slate-600 dark:text-white; }
 
   .list { @apply list-none border border-slate-200 rounded divide-y; }
-  .list .list-item { @apply border-none; }
+  .list .list-item { @apply border-none [&:nth-child(2)]:bg-slate-50; }
+  .list > *:nth-child(2n) { @apply bg-slate-50; }
   .list.bordered .list-item { @apply border-b-slate-100; }
 
   .form { @apply shadow-sm rounded-sm border border-slate-200; }
@@ -187,7 +188,7 @@
   .modal.right.wide { @apply md:w-[80%]; }
   .modal.right.wider { @apply md:w-[90vw] ;}
 
-  .modal.right.wide .modal.right.wide { @apply w-[80%]; }
+  .modal.right.wide .modal.right.wide { @apply md:w-[80%]; }
   
   .modal.centered { @apply fixed mx-auto md:my-4 md:w-2/3 md:h-[calc(100vh-theme(space.8))] z-50 shadow-2xl rounded border border-primary dark:border-slate-800; top: 0; left: 50%; transform: translate(-50%, 0%);}
   .modal.centered.large { @apply md:w-[90vw] md:h-[90vh];}

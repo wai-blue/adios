@@ -4,7 +4,7 @@
 
   .adios.component.table { @apply w-full; }
   .adios.component.table.loading { opacity: 0.25; }
-  .adios.component.table .table-header { @apply flex flex-row items-center gap-2 mb-2 justify-between; }
+  .adios.component.table .table-header { @apply flex flex-col md:flex-row items-center gap-2 mb-2 justify-between; }
   .adios.component.table .table-header-left { @apply w-full flex flex-1 gap-1 items-center; }
   .adios.component.table .table-header-title { @apply flex-1 text-left text-primary text-center text-2xl mr-2 dark:text-white; }
   .adios.component.table .table-header-right { @apply flex flex-1 text-center gap-1 justify-end; }
@@ -30,13 +30,14 @@
   .adios.component.table .table-body tbody tr td .to-be-deleted { @apply bg-red-500; }
   .adios.component.table .table-body tbody tr td .to-be-deleted input { @apply text-red-500; }
 
-  .adios.component.table .table-cell-content { @apply truncate whitespace-nowrap; }
+  .adios.component.table .table-cell-content { @apply truncate whitespace-nowrap w-24 truncate md:w-auto; }
   .adios.component.table .table-cell-content.column-lookup { @apply text-primary dark:text-white; }
   .adios.component.table .table-cell-content.column-int { @apply text-right font-semibold; }
   .adios.component.table .table-cell-content.column-float { @apply text-right font-semibold; }
   .adios.component.table .table-cell-content.column-date { @apply text-right; }
   .adios.component.table .table-cell-content.column-datetime { @apply text-right; }
   .adios.component.table .table-cell-content.column-boolean { @apply text-center; }
+  .adios.component.table .table-sidebar-filter { @apply hidden md:block; }
 
   .adios.component.table .column-search .input-element { @apply bg-white dark:bg-slate-800; }
 

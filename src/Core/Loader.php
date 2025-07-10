@@ -22,7 +22,7 @@ spl_autoload_register(function ($class) {
   }
 
   if (str_starts_with($class, $appNamespace . '/')) {
-    @include($app->config->getAsString('srcDir') . '/' . str_replace($appNamespace . '/', '', $class) . '.php');
+    @include($app->config->getAsString('srcFolder') . '/' . str_replace($appNamespace . '/', '', $class) . '.php');
   }
 
 });
@@ -257,8 +257,8 @@ class Loader
   {
     if (class_exists('\\Twig\\Environment')) {
       $twigLoader = new \Twig\Loader\FilesystemLoader();
-      $twigLoader->addPath($this->config->getAsString('srcDir'));
-      $twigLoader->addPath($this->config->getAsString('srcDir'), 'app');
+      $twigLoader->addPath($this->config->getAsString('srcFolder'));
+      $twigLoader->addPath($this->config->getAsString('srcFolder'), 'app');
 
       $this->twig = new \Twig\Environment($twigLoader, array(
         'cache' => false,

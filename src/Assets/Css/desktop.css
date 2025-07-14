@@ -17,7 +17,7 @@
 
 
   /* SPECIAL components, idetified by # id */
-  aside#default-sidebar { @apply flex fixed top-0 left-0 z-10 pt-12 h-full transition-transform -translate-x-full md:translate-x-0; }
+  aside#default-sidebar { @apply flex fixed top-0 left-0 z-10 mt-12 h-full transition-transform -translate-x-full md:translate-x-0; }
   aside#default-sidebar > nav { @apply bg-primary p-1 flex gap-0.5 flex-col w-36 dark:bg-slate-900 dark:border-r dark:border-r-slate-800; }
   aside#default-sidebar > nav .btn { @apply w-full rounded bg-transparent hover:bg-white/20 dark:bg-transparent dark:hover:bg-primary; }
   aside#default-sidebar > nav .btn .icon { @apply w-6 text-sm text-left flex justify-center content-center flex-wrap border-none bg-transparent; }

@@ -514,7 +514,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
 
     let value = null;
     if (this.state.updatingRecord) value = record[inputName];
-    else value = formDescription.defaultValues ? formDescription.defaultValues[inputName] : null;
+    else value = record[inputName] ?? (formDescription.defaultValues ? formDescription.defaultValues[inputName] : null);
 
     return {
       inputName: inputName,
@@ -619,14 +619,14 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             <span className="icon"><i className="fas fa-save"></i></span>
             <span className="text">
               {this.state.description?.ui?.saveButtonText ?? this.translate("Save", 'ADIOS\\Core\\Loader::Components\\Form')}
-              {this.state.recordChanged ? ' *' : ''}
             </span>
+            {this.state.recordChanged ? <span className="text">*</span> : null}
           </> : <>
             <span className="icon"><i className="fas fa-plus"></i></span>
             <span className="text">
               {this.state.description?.ui?.addButtonText ?? this.translate("Add", 'ADIOS\\Core\\Loader::Components\\Form')}
-              {this.state.recordChanged ? ' *' : ''}
             </span>
+            {this.state.recordChanged ? <span className="text">*</span> : null}
           </>
         }
       </button> : null}
@@ -659,7 +659,11 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
             }
           }
         }}
-        className={"btn " + (this.state.deletingRecord ? "font-bold" : "") + " " + (this.state.deleteButtonDisabled ? "btn-light" : "btn-delete")}
+        className={
+          "btn "
+          + (this.state.deletingRecord ? "font-bold" : "") + " " + (this.state.deleteButtonDisabled ? "btn-light" : "btn-delete")
+          + " hidden md:flex"
+        }
       >
         <span className="icon"><i className="fas fa-trash-alt"></i></span>
         <span className="text">

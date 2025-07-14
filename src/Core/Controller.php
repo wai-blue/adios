@@ -81,12 +81,12 @@ class Controller implements \ADIOS\Core\Testable {
       $this->renderer = $this->app->twig;
     }
 
-    $this->shortName = $this->name;
-    $this->shortName = str_replace('Controllers/', '', $this->shortName);
-
     $this->permission = $this->shortName;
 
     $this->fullName = str_replace("\\", "/", $reflection->getName());
+
+    $tmp = explode("/", $this->fullName);
+    $this->shortName = end($tmp);
 
     if (empty($this->translationContext)) {
       $this->translationContext = trim(str_replace('/', '\\', $this->fullName), '\\');

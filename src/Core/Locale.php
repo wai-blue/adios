@@ -64,7 +64,7 @@ class Locale {
   {
     if (is_string($dateOrTimestamp)) $ts = strtotime($dateOrTimestamp);
     else $ts = $dateOrTimestamp;
-    return date($this->getDateShortFormat(), $ts);
+    return $ts . '-' . date($this->getDateShortFormat(), $ts);
   }
 
   public function formatDateLong(string|int $dateOrTimestamp): string

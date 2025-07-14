@@ -91,7 +91,7 @@ class Permissions {
     return in_array($idRole, $this->app->auth->getUserRoles());
   }
 
-  public function grantedForRole(string $permission, int|string $userRole) : bool
+  public function grantedForRole(string $permission, int|string $userRole): bool
   {
     if (empty($permission)) return TRUE;
 
@@ -103,7 +103,7 @@ class Permissions {
     return $granted;
   }
 
-  public function granted(string $permission, array $userRoles = []) : bool
+  public function granted(string $permission, array $userRoles = []): bool
   {
     if (empty($permission)) return TRUE;
     if (count($userRoles) == 0) $userRoles = $this->app->auth->getUserRoles();

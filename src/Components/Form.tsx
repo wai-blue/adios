@@ -725,7 +725,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         }
       >
         <span className="icon"><i className="fas fa-trash-alt"></i></span>
-        <span className="text">
+        <span className="text text-nowrap">
           {this.state.deletingRecord ?
             this.translate("Confirm delete", 'ADIOS\\Core\\Loader::Components\\Form')
             : this.state.description?.ui?.deleteButtonText ?? this.translate("Delete", 'ADIOS\\Core\\Loader::Components\\Form')

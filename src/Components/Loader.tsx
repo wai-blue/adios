@@ -145,16 +145,14 @@ export class ADIOS {
   }
 
   showDialogWarning(content: JSX.Element, props?: any) {
-    let defaultProps = {
+    let defaultProps: any = {
       headerClassName: 'dialog-warning-header',
       contentClassName: 'dialog-warning-content',
-      header: "🥴 Ooops",
+      header: "Warning",
       footer: <div className={"flex w-full justify-start"}>
         <button
           className="btn btn-transparent"
-          onClick={() => {
-            this.lastShownDialogRef.current.hide()
-          }}
+          onClick={() => { this.lastShownDialogRef.current.hide() }}
         >
           <span className="icon"><i className="fas fa-check"></i></span>
           <span className="text">OK, I understand</span>
@@ -162,9 +160,11 @@ export class ADIOS {
       </div>
     };
 
+    if (!props) props = {};
+
     if (!props.headerClassName) props.headerClassName = defaultProps.headerClassName;
     if (!props.contentClassName) props.contentClassName = defaultProps.contentClassName;
-    if (!props.header) props.footer = defaultProps.header;
+    if (!props.header) props.header = defaultProps.header;
     if (!props.footer) props.footer = defaultProps.footer;
 
     this.showDialog(content, props);

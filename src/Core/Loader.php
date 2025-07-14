@@ -775,7 +775,8 @@ class Loader
     return $this->renderFatal($message, true);
   }
 
-  public function renderExceptionHtml($exception) {
+  public function renderExceptionHtml($exception, array $args = []): string
+  {
 
     $traceLog = "";
     foreach ($exception->getTrace() as $item) {

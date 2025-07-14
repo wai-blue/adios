@@ -23,16 +23,7 @@ class Request {
   }
 
   alertOnError(responseData: any) {
-    Swal.fire({
-      title: '<div style="text-align:left">🥴 Ooops</div>',
-      html: responseData.errorHtml,
-      width: '80vw',
-      padding: '1em',
-      color: "#ad372a",
-      background: "white",
-      backdrop: `rgba(123,12,0,0.2)`
-    });
-    // Notification.error(response.error);
+    globalThis.app.showDialogWarning(responseData.errorHtml);
   }
 
   public get<T>(

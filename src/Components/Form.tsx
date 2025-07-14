@@ -42,6 +42,7 @@ export interface FormRecord {
 }
 
 export interface FormUi {
+  templateJson?: string,
   title?: string,
   subTitle?: string,
   showSaveButton?: boolean;
@@ -148,6 +149,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
   components: Array<React.JSX.Element> = [];
   translationContext: string = 'form';
 
+  // DEPRECATED
   jsxContentRendered: boolean = false;
   jsxContent: JSX.Element;
 
@@ -463,7 +465,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
     }
   }
 
-  renderTopMenu(): JSX.Element {
+  renderTopMenu(): null|JSX.Element {
     if (this.state.tabs && Object.keys(this.state.tabs).length > 1) {
       const tabs = this.state.tabs ?? {};
       const activeTab = this.state.activeTab ?? 'default';
@@ -478,22 +480,79 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         </button>;
       })}</>;
     } else {
-      return <></>;
+      return null;
     }
   }
 
+  renderTemplateElement(elRenderer: string, elData: any): JSX.Element {
+    switch (elRenderer) {
+      case 'form.columns':
+        if (!elData.props) elData.props = {};
+        elData.props.className = (elData.props?.className ?? '') + ' flex gap-2 flex-col md:flex-row';
+        return React.createElement('div', elData.props, this.renderFromTemplate(elData.columns));
+      break;
+      case 'form.column':
+        if (!elData.props) elData.props = {};
+        elData.props.className = (elData.props?.className ?? '') + ' w-full flex gap-2 flex-col';
+        return React.createElement('div', elData.props, this.renderFromTemplate(elData.items));
+      break;
+      case 'form.text':
+        return <div>{elData}</div>;
+      break;
+      case 'form.divider':
+        return this.divider(elData.text);
+      break;
+      case 'form.input':
+        return this.inputWrapper(elData.input);
+      break;
+      default:
+        return <>Unknown element renderer: {elRenderer}</>;
+      break;
+    }
+  }
+
+  renderFromTemplate(template: any): Array<JSX.Element> {
+    let content: Array<JSX.Element> = [];
+    Object.keys(template).map((elDefinition: string) => {
+      let tmp = elDefinition.split('#');
+      let elRenderer = tmp[0] ?? '';
+      let elId = tmp[1] ?? '';
+      let elData = template[elDefinition] ?? null;
+
+      content.push(this.renderTemplateElement(elRenderer, { elId, ...elData }));
+    });
+
+    return content;
+  }
+
   renderTab(tab: string): null|JSX.Element {
-    if (tab == 'default') {
-      return <div>
-        {this.state.record != null ? (
-          Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
-            return this.inputWrapper(inputName);
-          })
-        ) : null}
-      </div>;
+    let template: any = {};
+
+    if (this.state.description?.ui?.templateJson) {
+      try {
+        template = JSON.parse(this.state.description?.ui?.templateJson);
+      } catch(ex) {
+        console.error('Failed to render form from template.');
+        console.error(this.state.description?.ui?.templateJson);
+        return <div>Failed to render form from template. Check console for more details.</div>;
+      }
+    } else {
+      template = null;
     }
 
-    return null;
+    let tabTemplate = template && template.tabs && template.tabs[tab] ? template.tabs[tab] : null;
+
+    if (tab == 'default' && !tabTemplate) {
+      let tabInputs = {};
+
+      Object.keys(this.state.description?.inputs ?? {}).map((inputName: string) => {
+        tabInputs['form.input#' + inputName] = {input: inputName};
+      });
+      tabTemplate = {'form.column': { items: tabInputs } };
+    }
+
+    //@ts-ignore
+    return this.renderFromTemplate(tabTemplate);
   }
 
   /**

@@ -18,6 +18,7 @@ class Form implements \JsonSerializable
     'copyButtonText' => '',
     'deleteButtonText' => '',
     'headerClassName' => '',
+    'templateJson' => '',
   ];
 
   /** @property array{ canCreate: bool, canRead: bool, canUpdate: bool, canDelete: bool } */
@@ -47,6 +48,7 @@ class Form implements \JsonSerializable
     if (!empty($this->ui['copyButtonText'])) $ui['copyButtonText'] = $this->ui['copyButtonText'];
     if (!empty($this->ui['deleteButtonText'])) $ui['deleteButtonText'] = $this->ui['deleteButtonText'];
     if (!empty($this->ui['headerClassName'])) $ui['headerClassName'] = $this->ui['headerClassName'];
+    if (!empty($this->ui['templateJson'])) $ui['templateJson'] = $this->ui['templateJson'];
     if ($this->ui['showSaveButton']) $ui['showSaveButton'] = true;
     if ($this->ui['showCopyButton']) $ui['showCopyButton'] = true;
     if ($this->ui['showDeleteButton']) $ui['showDeleteButton'] = true;

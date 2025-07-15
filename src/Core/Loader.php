@@ -68,7 +68,7 @@ class Loader
   public \ADIOS\Core\Logger $logger;
   public \ADIOS\Core\Locale $locale;
   public \ADIOS\Core\Router $router;
-  public \ADIOS\Core\Email $email;
+  // public \ADIOS\Core\Email $email;
   public \ADIOS\Core\Permissions $permissions;
   public \ADIOS\Core\Test $test;
   public \ADIOS\Core\Auth $auth;

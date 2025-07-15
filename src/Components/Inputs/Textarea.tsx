@@ -20,7 +20,7 @@ export default class Textarea extends Input<InputProps, InputState> {
   renderInputElement() {
     return <textarea
       ref={this.refInput}
-      value={this.state.value}
+      value={this.state.value ?? ''}
       onChange={(e) => this.setState({value: e.currentTarget.value})}
       onBlur={(e) => this.onChange(e.currentTarget.value)}
       aria-describedby="passwordHelpInline"

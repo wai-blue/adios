@@ -90,17 +90,16 @@ export default class EnumValues extends Input<EnumValuesInputProps, InputState> 
       return <div ref={this.refInput} className="btn-group">{Object.keys(this.props.enumValues).map((key: string|number) => {
         const enumValue = this.props.enumValues ? (this.props.enumValues[key] ?? '') : '';
         const enumCssClass = this.props.enumCssClasses ? (this.props.enumCssClasses[key] ?? '') : '';
-        return <>
-          <button
-            className={
-              "btn " + (this.state.readonly && this.state.value != key ? "btn-disabled" : "")
-              + " " + (this.state.value == key ? "btn-primary " + enumCssClass : "btn-transparent")
-            }
-            onClick={() => { if (!this.state.readonly) this.onChange((this.state.value == key ? null : key)); }}
-          >
-            <span className="text">{enumValue}</span>
-          </button>
-        </>;
+        return <button
+          key={key}
+          className={
+            "btn " + (this.state.readonly && this.state.value != key ? "btn-disabled" : "")
+            + " " + (this.state.value == key ? "btn-primary " + enumCssClass : "btn-transparent")
+          }
+          onClick={() => { if (!this.state.readonly) this.onChange((this.state.value == key ? null : key)); }}
+        >
+          <span className="text">{enumValue}</span>
+        </button>;
       })}</div>;
     } else {
       return <></>;

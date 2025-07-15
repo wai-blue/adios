@@ -557,7 +557,7 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
         onClick={() => this.onAddClick()}
       >
         <span className="icon"><i className="fas fa-plus"/></span>
-        {this.state.description?.ui?.addButtonText ? <span className="text">{this.state.description?.ui?.addButtonText}</span> : null}
+        {this.state.description?.ui?.addButtonText ? <span className="text text-nowrap">{this.state.description?.ui?.addButtonText}</span> : null}
       </button>
     );
   }

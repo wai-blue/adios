@@ -38,8 +38,10 @@ class Request {
     }).then(res => {
       const responseData: any = res.data;
       document.body.classList.remove("ajax-loading");
-      if (responseData.errorHtml) this.alertOnError(responseData);
-      else if (successCallback) successCallback(responseData);
+      if (responseData.errorHtml) {
+        this.alertOnError(responseData);
+        if (errorCallback) errorCallback(responseData);
+      } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -56,8 +58,10 @@ class Request {
     }).then(res => {
       const responseData: any = res.data;
       document.body.classList.remove("ajax-loading");
-      if (responseData.errorHtml) this.alertOnError(responseData);
-      else if (successCallback) successCallback(responseData);
+      if (responseData.errorHtml) {
+        this.alertOnError(responseData);
+        if (errorCallback) errorCallback(responseData);
+      } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -72,8 +76,10 @@ class Request {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
-      if (responseData.errorHtml) this.alertOnError(responseData);
-      else if (successCallback) successCallback(responseData);
+      if (responseData.errorHtml) {
+        this.alertOnError(responseData);
+        if (errorCallback) errorCallback(responseData);
+      } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -88,8 +94,10 @@ class Request {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
-      if (responseData.errorHtml) this.alertOnError(responseData);
-      else if (successCallback) successCallback(responseData);
+      if (responseData.errorHtml) {
+        this.alertOnError(responseData);
+        if (errorCallback) errorCallback(responseData);
+      } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 
@@ -103,8 +111,10 @@ class Request {
       params: queryParams
     }).then(res => {
       const responseData: any = res.data;
-      if (responseData.errorHtml) this.alertOnError(responseData);
-      else if (successCallback) successCallback(responseData);
+      if (responseData.errorHtml) {
+        this.alertOnError(responseData);
+        if (errorCallback) errorCallback(responseData);
+      } else if (successCallback) successCallback(responseData);
     }).catch((err: AxiosError<ApiError>) => this.catchHandler(url, err, errorCallback));
   }
 

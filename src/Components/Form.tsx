@@ -437,7 +437,7 @@ export default class Form<P, S> extends TranslatedComponent<FormProps, FormState
         this.onAfterDeleteRecord(saveResponse);
       },
       (err: any) => {
-        alert('An error ocured while deleting the record.');
+        this.setState({deletingRecord: false});
       }
     );
   }

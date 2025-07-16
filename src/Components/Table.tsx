@@ -7,6 +7,8 @@ import ModalForm from "./ModalForm";
 import Form, { FormEndpoint, FormProps, FormState } from "./Form";
 import Notification from "./Notification";
 import TranslatedComponent from "./TranslatedComponent";
+import Flatpickr from "react-flatpickr";
+import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 
 import {
   DataTable,
@@ -1022,6 +1024,19 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
     }
   }
 
+  setColumnSearch(columnName: string, value: any)
+  {
+    console.log('setColumnSearch', columnName, value);
+    let columnSearch: any = this.state.columnSearch;
+
+    if (value === null) delete columnSearch[columnName];
+    else columnSearch[columnName] = value;
+
+    this.setState({columnSearch: columnSearch}, () => {
+      this.loadData();
+    });
+  }
+
   renderColumns(): JSX.Element[] {
     let columns: JSX.Element[] = [];
 
@@ -1031,31 +1046,61 @@ export default class Table<P, S> extends TranslatedComponent<TableProps, TableSt
 
     Object.keys(this.state.description?.columns ?? {}).map((columnName: string) => {
       const column: any = this.state.description?.columns[columnName] ?? {};
+
+      const columnSearchValue = this.state.columnSearch[columnName] ?? null;
+
+      let columnSearchInput: any = null;
+      if (this.state.description?.ui?.showColumnSearch) {
+        switch (column.type) {
+          case 'date':
+            columnSearchInput = <Flatpickr
+              onChange={(data: Date[]) => {
+                this.setColumnSearch(columnName, data);
+              }}
+              options={{mode: 'range'}}
+            />
+          break;
+          case 'boolean':
+            columnSearchInput = <TriStateCheckbox
+              value={columnSearchValue}
+              onChange={(event) => {
+                let next:any = null;
+
+                if (columnSearchValue === null) next = true;
+                else if (columnSearchValue === true) next = false;
+                else next = null;
+
+                this.setColumnSearch(columnName, next);
+              }}
+            />
+          break;
+          default:
+            columnSearchInput = <input
+              onKeyUp={(event: any) => {
+                if (event.keyCode == 13) {
+                  this.setColumnSearch(columnName, event.currentTarget.value);
+                }
+              }}
+            ></input>;
+          break;
+        }
+      }
+
       columns.push(<Column
         key={columnName}
         field={columnName}
         header={column.title + (column.unit ? ' [' + column.unit + ']' : '')}
-        filter={this.state.description?.ui?.showColumnSearch}
+        filter={columnSearchInput !== null}
         showFilterMenu={false}
-        filterElement={this.state.description?.ui?.showColumnSearch ? <>
+        filterElement={columnSearchInput ? (
           <div className="column-search input-wrapper">
             <div className="input-body"><div className="adios component input">
               <div className="input-element">
-                <input
-                  onKeyUp={(event: any) => {
-                    if (event.keyCode == 13) {
-                      let columnSearch: any = this.state.columnSearch;
-                      columnSearch[columnName] = event.currentTarget.value;
-                      this.setState({columnSearch: columnSearch}, () => {
-                        this.loadData();
-                      });
-                    }
-                  }}
-                ></input>
+                {columnSearchInput}
               </div>
             </div></div>
           </div>
-        </> : null}
+        ) : null}
         body={(data: any, options: any) => {
           return (
             <div

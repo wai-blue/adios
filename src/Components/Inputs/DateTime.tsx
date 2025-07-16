@@ -156,7 +156,7 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       return <div className="flex gap-2 items-center">
         <i className="fas fa-calendar-days mr-2"></i>
         {valueFormatted}
-        {this.renderReadableInfo(value)}
+        <div className="text-xs">{this.renderReadableInfo(value)}</div>
       </div>
     } else {
       return super.renderValueElement();
@@ -191,36 +191,40 @@ export default class DateTime extends Input<DateTimeInputProps, InputState> {
       break;
     }
 
-    return <>
-      <div style={{minWidth: "8em"}}>
-        <Flatpickr
-          ref={this.refInput}
-          value={value}
-          onChange={(data: Date[]) => {
-            this.onChange(data[0] ?? null)
-          }}
-          className={
-            (this.state.invalid ? 'is-invalid' : '')
-            + " " + (this.props.cssClass ?? "")
-            + " " + (this.state.readonly ? "bg-muted" : "")
+    return <div className="flex-col">
+      <div className="flex">
+        <div style={{minWidth: "8em"}}>
+          <Flatpickr
+            ref={this.refInput}
+            value={value}
+            onChange={(data: Date[]) => {
+              this.onChange(data[0] ?? null)
+            }}
+            className={
+              (this.state.invalid ? 'is-invalid' : '')
+              + " " + (this.props.cssClass ?? "")
+              + " " + (this.state.readonly ? "bg-muted" : "")
+            }
+            placeholder={this.props.description?.placeholder ?? defaultPlaceholder}
+            disabled={this.state.readonly}
+            options={this.options}
+          />
+        </div>
+        <div>
+          {this.state.readonly ? null :
+            <button
+              className="btn btn-small btn-transparent ml-2"
+              onClick={() => {
+                if (!this.refInput?.current?.flatpickr) return;
+                this.refInput.current.flatpickr.clear();
+              }}
+            >
+              <span className="icon"><i className="fas fa-times"></i></span>
+            </button>
           }
-          placeholder={this.props.description?.placeholder ?? defaultPlaceholder}
-          disabled={this.state.readonly}
-          options={this.options}
-        />
+        </div>
       </div>
-      {this.state.readonly ? null :
-        <button
-          className="btn btn-small btn-transparent ml-2"
-          onClick={() => {
-            if (!this.refInput?.current?.flatpickr) return;
-            this.refInput.current.flatpickr.clear();
-          }}
-        >
-          <span className="icon"><i className="fas fa-times"></i></span>
-        </button>
-      }
-      {this.renderReadableInfo(this.state.value)}
-    </>;
+      <div className="text-xs">{this.renderReadableInfo(this.state.value)}</div>
+    </div>;
   }
 }

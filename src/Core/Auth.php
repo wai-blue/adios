@@ -29,7 +29,7 @@ class Auth {
   public function isUserInSession(): bool
   {
     $user = $this->getUserFromSession();
-    return is_array($user);// && isset($user['id']);
+    return isset($user['id']) && $user['id'] > 0;
   }
 
   public function loadUserFromSession()

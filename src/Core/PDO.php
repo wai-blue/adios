@@ -11,7 +11,7 @@
 namespace ADIOS\Core;
 
 class PDO {
-  public ?\ADIOS\Core\Loader $app = null;
+  public \ADIOS\Core\Loader $app;
   public ?\PDO $connection = null;
   public bool $isConnected = false;
   

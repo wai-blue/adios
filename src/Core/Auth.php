@@ -4,31 +4,26 @@ namespace ADIOS\Core;
 
 class Auth {
   public \ADIOS\Core\Loader $app;
-  public array $params;
   protected ?array $user = null;
 
-  function __construct(\ADIOS\Core\Loader $app, array $params = [])
+  function __construct(\ADIOS\Core\Loader $app)
   {
     $this->app = $app;
-    $this->params = $params;
-
-    // if ($this->isUserInSession()) $this->loadUserFromSession();
   }
 
-  public function getSessionKey(): string
+  public function getUserFromSession(): array
   {
-    $cfg = $this->app->config->getAsArray('auth');
-    return $cfg['sessionKey'] ?? '';
-  }
-
-  public function getUserFromSession(): ?array
-  {
-    return $this->app->session->get('userProfile', $this->getSessionKey());
+    $tmp = $this->app->session->get('userProfile') ?? [];
+    return [
+      'id' => (int) ($tmp['id'] ?? 0),
+      'login' => (string) ($tmp['login'] ?? ''),
+      'is_active' => (bool) ($tmp['is_active'] ?? false),
+    ];
   }
 
   public function updateUserInSession(array $user): void
   {
-    $this->app->session->set('userProfile', $user, $this->getSessionKey());
+    $this->app->session->set('userProfile', $user);
   }
 
   public function isUserInSession(): bool

@@ -16,9 +16,9 @@ class DefaultProvider extends \ADIOS\Core\Auth {
   public $activeAttribute = 'is_active';
   public $verifyMethod = 'password_verify';
 
-  function __construct(\ADIOS\Core\Loader $app, array $params = [])
+  function __construct(\ADIOS\Core\Loader $app)
   {
-    parent::__construct($app, $params);
+    parent::__construct($app);
 
     $this->app->registerModel(\ADIOS\Models\User::class);
     $this->app->registerModel(\ADIOS\Models\UserRole::class);
@@ -27,7 +27,7 @@ class DefaultProvider extends \ADIOS\Core\Auth {
 
   public function createUserModel(): \ADIOS\Core\Model
   {
-    return new \ADIOS\Models\User($this->app);
+    return $this->main->di->create('model.user');
   }
 
   public function findUsersByLogin(string $login): array

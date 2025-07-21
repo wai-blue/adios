@@ -11,7 +11,7 @@
 namespace ADIOS\Core;
 
 class Locale {
-  public ?\ADIOS\Core\Loader $app = null;
+  public \ADIOS\Core\Loader $app;
 
   private array $locale = [];
   

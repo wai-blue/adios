@@ -13,7 +13,7 @@ namespace ADIOS\Core;
 class Router {
   const HTTP_GET = 'HTTP_GET';
 
-  public ?\ADIOS\Core\Loader $app = null;
+  public \ADIOS\Core\Loader $app;
 
   public $routing = [];
 

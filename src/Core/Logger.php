@@ -17,7 +17,7 @@ use Monolog\Handler\RotatingFileHandler;
  * Debugger console for ADIOS application.
  */
 class Logger {
-  public ?\ADIOS\Core\Loader $app = null;
+  public \ADIOS\Core\Loader $app;
 
   public array $loggers = [];
 

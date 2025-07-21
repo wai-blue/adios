@@ -46,7 +46,6 @@ class Model
    */
   public Loader $app;
 
-  // public \ADIOS\Core\Record $record;
   public object $record;
 
   /**

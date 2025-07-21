@@ -8,9 +8,8 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   public $timestamps = false;
   public static $snakeAttributes = false;
   
-
-  public ?\ADIOS\Core\Loader $app;
-  public ?\ADIOS\Core\Model $model;
+  public \ADIOS\Core\Loader $app;
+  public \ADIOS\Core\Model $model;
 
   // /** What relations to be included in loaded record. If null, default relations will be selected. */
   // /** @property array<string> */
@@ -21,8 +20,8 @@ class EloquentRecordManager extends \Illuminate\Database\Eloquent\Model implemen
   public function __construct(array $attributes = [])
   {
     parent::__construct($attributes);
-    $this->app = null;
-    $this->model = null;
+    // $this->app = null;
+    // $this->model = null;
   }
 
   // public function getRelationsToRead(): array

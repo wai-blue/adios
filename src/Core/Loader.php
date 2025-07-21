@@ -14,7 +14,7 @@ namespace ADIOS\Core;
 
 spl_autoload_register(function ($class) {
   $class = trim(str_replace("\\", "/", $class), "/");
-  $app = \ADIOS\Core\Helper::getGlobalApp();
+  $app = Helper::getGlobalApp();
   $appNamespace = $app->config->getAsString('appNamespace');
 
   if (preg_match('/ADIOS\/([\w\/]+)/', $class, $m)) {
@@ -48,32 +48,22 @@ class Loader
   public string $uid = "";
   public string $route = "";
 
-  // public ?\ADIOS\Core\Controller $controllerObject;
-
-  // public bool $logged = false;
-
-  // protected array $config = [];
-
   public array $modelObjects = [];
   public array $registeredModels = [];
 
-  // public bool $userLogged = false;
-  // public array $userProfile = [];
-  // public array $userPasswordReset = [];
-
   public bool $testMode = false; // Set to TRUE only in DEVELOPMENT. Disables authentication.
 
-  public \ADIOS\Core\Config $config;
-  public \ADIOS\Core\Session $session;
-  public \ADIOS\Core\Logger $logger;
-  public \ADIOS\Core\Locale $locale;
-  public \ADIOS\Core\Router $router;
-  // public \ADIOS\Core\Email $email;
-  public \ADIOS\Core\Permissions $permissions;
-  public \ADIOS\Core\Test $test;
-  public \ADIOS\Core\Auth $auth;
-  public \ADIOS\Core\Translator $translator;
-  public \ADIOS\Core\PDO $pdo;
+  public Config $config;
+  public DependencyInjection $di;
+  public Session $session;
+  public Logger $logger;
+  public Locale $locale;
+  public Router $router;
+  public Permissions $permissions;
+  public Test $test;
+  public Auth $auth;
+  public Translator $translator;
+  public PDO $pdo;
 
   public \Illuminate\Database\Capsule\Manager $eloquent;
   public \Twig\Environment $twig;
@@ -92,7 +82,7 @@ class Loader
 
     try {
 
-      \ADIOS\Core\Helper::setGlobalApp($this);
+      Helper::setGlobalApp($this);
 
       $this->config = $this->createConfigManager($config);
 
@@ -112,6 +102,9 @@ class Loader
         // render static assets, if requested
         $this->renderAssets();
       }
+
+      // inicializacia dependency injection
+      $this->di = $this->createDependencyInjection();
 
       // inicializacia session managementu
       $this->session = $this->createSessionManager();
@@ -140,7 +133,7 @@ class Loader
       // Twig renderer
       $this->createTwig();
 
-      $this->pdo = new \ADIOS\Core\PDO($this);
+      $this->pdo = new PDO($this);
 
       if ($mode == self::ADIOS_MODE_FULL) {
         $this->initDatabaseConnections();
@@ -207,50 +200,54 @@ class Loader
     }
   }
 
-
-  public function createTestProvider(): \ADIOS\Core\Test
+  public function createDependencyInjection(): DependencyInjection
   {
-    return new Test($this);
+    return new DependencyInjection($this);
   }
 
-  public function createAuthProvider(): \ADIOS\Core\Auth
+  public function createTestProvider(): Test
   {
-    return new \ADIOS\Auth\DefaultProvider($this, []);
+    return $this->di->create(Test::class);
   }
 
-  public function createSessionManager(): \ADIOS\Core\Session
+  public function createAuthProvider(): Auth
   {
-    return new Session($this);
+    return $this->di->create(DefaultProvider::class);
   }
 
-  public function createConfigManager(array $config): \ADIOS\Core\Config
+  public function createSessionManager(): Session
+  {
+    return $this->di->create(Session::class);
+  }
+
+  public function createConfigManager(array $config): Config
   {
     return new Config($this, $config);
   }
 
-  public function createPermissionsManager(): \ADIOS\Core\Permissions
+  public function createPermissionsManager(): Permissions
   {
-    return new Permissions($this);
+    return $this->di->create(Permissions::class);
   }
 
-  public function createRouter(): \ADIOS\Core\Router
+  public function createRouter(): Router
   {
-    return new Router($this);
+    return $this->di->create(Router::class);
   }
 
-  public function createLogger(): \ADIOS\Core\Logger
+  public function createLogger(): Logger
   {
-    return new Logger($this);
+    return $this->di->create(Logger::class);
   }
 
-  public function createLocale(): \ADIOS\Core\Locale
+  public function createLocale(): Locale
   {
-    return new Locale($this);
+    return $this->di->create(Locale::class);
   }
 
-  public function createTranslator(): \ADIOS\Core\Translator
+  public function createTranslator(): Translator
   {
-    return new Translator($this);
+    return $this->di->create(Translator::class);
   }
   
   public function createTwig()
@@ -296,9 +293,9 @@ class Loader
                 if (is_bool($attributes[$key])){
                   return $attributes[$key] ? $key : '';
                 } else if (is_array($attributes[$key])) {
-                  return \ADIOS\Core\Helper::camelToKebab($key)."='".json_encode($attributes[$key])."'";
+                  return Helper::camelToKebab($key)."='".json_encode($attributes[$key])."'";
                 } else {
-                  return \ADIOS\Core\Helper::camelToKebab($key)."='{$attributes[$key]}'";
+                  return Helper::camelToKebab($key)."='{$attributes[$key]}'";
                 }
               },
               array_keys($attributes)
@@ -313,7 +310,7 @@ class Loader
     $this->twig->addFunction(new \Twig\TwigFunction(
       'str2url',
       function ($string) {
-        return \ADIOS\Core\Helper::str2url($string ?? '');
+        return Helper::str2url($string ?? '');
       }
     ));
     $this->twig->addFunction(new \Twig\TwigFunction(
@@ -363,17 +360,17 @@ class Loader
    * The returned object is cached into modelObjects property.
    *
    * @param  string $modelName Reference of the model. E.g. 'ADIOS/Models/User'.
-   * @throws \ADIOS\Core\Exception If $modelName is not available.
+   * @throws Exception If $modelName is not available.
    * @return object Instantiated object of the model.
    */
-  public function getModel(string $modelName): \ADIOS\Core\Model
+  public function getModel(string $modelName): Model
   {
     if (!isset($this->modelObjects[$modelName])) {
       try {
         $modelClassName = $this->getModelClassName($modelName);
         $this->modelObjects[$modelName] = new $modelClassName($this);
       } catch (\Exception $e) {
-        throw new \ADIOS\Core\Exceptions\GeneralException("Can't find model '{$modelName}'. ".$e->getMessage());
+        throw new Exceptions\GeneralException("Can't find model '{$modelName}'. ".$e->getMessage());
       }
     }
 
@@ -411,13 +408,13 @@ class Loader
 
         $model->install();
         $this->logger->info("Model {$modelName} installed.", ["duration" => round((microtime(true) - $start) * 1000, 2)." msec"]);
-      } catch (\ADIOS\Core\Exceptions\ModelInstallationException $e) {
+      } catch (Exceptions\ModelInstallationException $e) {
         $this->logger->warning("Model {$modelName} installation skipped.", ["exception" => $e->getMessage()]);
       } catch (\Exception $e) {
         $this->logger->error("Model {$modelName} installation failed.", ["exception" => $e->getMessage()]);
       } catch (\Illuminate\Database\QueryException $e) {
         //
-      } catch (\ADIOS\Core\Exceptions\DBException $e) {
+      } catch (Exceptions\DBException $e) {
         // Moze sa stat, ze vytvorenie tabulky zlyha napr. kvoli
         // "Cannot add or update a child row: a foreign key constraint fails".
         // V takom pripade budem instalaciu opakovat v dalsom kole
@@ -438,7 +435,7 @@ class Loader
       }
       $route = $_SERVER['argv'][1] ?? "";
     } else {
-      $params = \ADIOS\Core\Helper::arrayMergeRecursively(
+      $params = Helper::arrayMergeRecursively(
         array_merge($_GET, $_POST),
         json_decode(file_get_contents("php://input"), true) ?? []
       );
@@ -466,8 +463,8 @@ class Loader
    * string requested dynamically using AJAX and further processed in Javascript.
    *
    * @param  mixed $params Parameters (a.k.a. arguments) of the requested controller.
-   * @throws \ADIOS\Core\Exception When running in CLI and requested controller is blocked for the CLI.
-   * @throws \ADIOS\Core\Exception When running in SAPI and requested controller is blocked for the SAPI.
+   * @throws Exception When running in CLI and requested controller is blocked for the CLI.
+   * @throws Exception When running in SAPI and requested controller is blocked for the SAPI.
    * @return string Rendered content.
    */
   public function render(string $route = '', array $params = []): string
@@ -486,7 +483,7 @@ class Loader
 
       // Apply routing and find-out which controller, permision and rendering params will be used
       // First, try the new routing principle with httpGet
-      $routeData = $this->router->parseRoute(\ADIOS\Core\Router::HTTP_GET, $this->route);
+      $routeData = $this->router->parseRoute(Router::HTTP_GET, $this->route);
 
       $this->controller = $routeData['controller'];
       $this->permission = '';
@@ -511,7 +508,7 @@ class Loader
       if (empty($this->controller)) {
         $controllerClassName = $this->router->createNotFoundController();
       } else if (!$this->controllerExists($this->controller)) {
-        throw new \ADIOS\Core\Exceptions\ControllerNotFound($this->controller);
+        throw new Exceptions\ControllerNotFound($this->controller);
       } else {
         $controllerClassName = $this->getControllerClassName($this->controller);
       }
@@ -530,11 +527,11 @@ class Loader
       // Perform some basic checks
       if (php_sapi_name() === 'cli') {
         if (!$controllerClassName::$cliSAPIEnabled) {
-          throw new \ADIOS\Core\Exceptions\GeneralException("Controller is not enabled in CLI interface.");
+          throw new Exceptions\GeneralException("Controller is not enabled in CLI interface.");
         }
       } else {
         if (!$controllerClassName::$webSAPIEnabled) {
-          throw new \ADIOS\Core\Exceptions\GeneralException("Controller is not enabled in WEB interface.");
+          throw new Exceptions\GeneralException("Controller is not enabled in WEB interface.");
         }
       }
 
@@ -648,17 +645,17 @@ class Loader
 
       return $return;
 
-    } catch (\ADIOS\Core\Exceptions\ControllerNotFound $e) {
+    } catch (Exceptions\ControllerNotFound $e) {
       header('HTTP/1.1 400 Bad Request', true, 400);
       return $this->renderFatal('Controller not found: ' . $e->getMessage(), false);
-    } catch (\ADIOS\Core\Exceptions\NotEnoughPermissionsException $e) {
+    } catch (Exceptions\NotEnoughPermissionsException $e) {
       $message = $e->getMessage();
       if ($this->auth->isUserInSession()) {
         $message .= " Hint: Sign out at {$this->config->getAsString('rootUrl')}?sign-out and sign in again or check your permissions.";
       }
       return $this->renderFatal($message, false);
       // header('HTTP/1.1 401 Unauthorized', true, 401);
-    } catch (\ADIOS\Core\Exceptions\GeneralException $e) {
+    } catch (Exceptions\GeneralException $e) {
       header('HTTP/1.1 400 Bad Request', true, 400);
       return "ADIOS RUN failed: [".get_class($e)."] ".$e->getMessage();
     } catch (\ArgumentCountError $e) {
@@ -930,12 +927,12 @@ class Loader
    * Checks the argument whether it is a valid ADIOS UID string.
    *
    * @param  string $uid The string to validate.
-   * @throws \ADIOS\Core\Exceptions\InvalidUidException If the provided string is not a valid ADIOS UID string.
+   * @throws Exceptions\InvalidUidException If the provided string is not a valid ADIOS UID string.
    * @return void
    */
   public function checkUid($uid) {
     if (preg_match('/[^A-Za-z0-9\-_]/', $uid)) {
-      throw new \ADIOS\Core\Exceptions\InvalidUidException();
+      throw new Exceptions\InvalidUidException();
     }
   }
 

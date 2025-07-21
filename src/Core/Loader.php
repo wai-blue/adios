@@ -75,10 +75,14 @@ class Loader
 
   public ?array $uploadedFiles = null;
 
+  public int $mode = 0;
+
   public function __construct(array $config = [], int $mode = self::ADIOS_MODE_FULL)
   {
 
     $this->params = $this->extractParamsFromRequest();
+
+    $this->mode = $mode;
 
     try {
 
@@ -133,14 +137,28 @@ class Loader
       // Twig renderer
       $this->createTwig();
 
+      // PDO
       $this->pdo = new PDO($this);
 
-      if ($mode == self::ADIOS_MODE_FULL) {
+    } catch (\Exception $e) {
+      echo "ADIOS BOOT failed: [".get_class($e)."] ".$e->getMessage() . "\n";
+      echo $e->getTraceAsString() . "\n";
+      exit;
+    }
+
+    return $this;
+  }
+
+  public function init(): void
+  {
+    try {
+      $this->permissions->init();
+      $this->auth->init();
+
+      if ($this->mode == self::ADIOS_MODE_FULL) {
         $this->initDatabaseConnections();
 
-        // start session
-
-        $this->session->start($this->urlParamAsBool('session-persist'));
+        $this->session->start(true);
 
         $this->config->loadFromDB();
 
@@ -149,18 +167,11 @@ class Loader
         }
       }
 
-
-      $userLanguage = $this->auth->getUserLanguage();
-      if (empty($userLanguage)) $userLanguage = 'en';
-      $this->config->set('language', $userLanguage);
-
     } catch (\Exception $e) {
       echo "ADIOS INIT failed: [".get_class($e)."] ".$e->getMessage() . "\n";
       echo $e->getTraceAsString() . "\n";
       exit;
     }
-
-    return $this;
   }
 
   public function isAjax(): bool
@@ -365,16 +376,8 @@ class Loader
    */
   public function getModel(string $modelName): Model
   {
-    if (!isset($this->modelObjects[$modelName])) {
-      try {
-        $modelClassName = $this->getModelClassName($modelName);
-        $this->modelObjects[$modelName] = new $modelClassName($this);
-      } catch (\Exception $e) {
-        throw new Exceptions\GeneralException("Can't find model '{$modelName}'. ".$e->getMessage());
-      }
-    }
-
-    return $this->modelObjects[$modelName];
+    $modelClassName = $this->getModelClassName($modelName);
+    return $this->di->create($modelClassName);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -469,6 +472,7 @@ class Loader
    */
   public function render(string $route = '', array $params = []): string
   {
+    $this->init();
 
     try {
 

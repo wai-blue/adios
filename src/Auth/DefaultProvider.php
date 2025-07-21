@@ -25,6 +25,13 @@ class DefaultProvider extends \ADIOS\Core\Auth {
     $this->app->registerModel(\ADIOS\Models\UserHasRole::class);
   }
 
+  public function init(): void
+  {
+    $userLanguage = $this->getUserLanguage();
+    if (empty($userLanguage)) $userLanguage = 'en';
+    $this->main->config->set('language', $userLanguage);
+  }
+
   public function createUserModel(): \ADIOS\Core\Model
   {
     return $this->main->di->create('model.user');

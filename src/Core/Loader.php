@@ -522,7 +522,7 @@ class Loader
       $this->config->filterByUser();
 
       // Create the object for the controller
-      $controllerObject = new $controllerClassName($this);
+      $controllerObject = $this->di->create($controllerClassName);
 
       if (empty($this->permission) && !empty($controllerObject->permission)) {
         $this->permission = $controllerObject->permission;

@@ -29,12 +29,12 @@ class DefaultProvider extends \ADIOS\Core\Auth {
   {
     $userLanguage = $this->getUserLanguage();
     if (empty($userLanguage)) $userLanguage = 'en';
-    $this->main->config->set('language', $userLanguage);
+    $this->app->config->set('language', $userLanguage);
   }
 
   public function createUserModel(): \ADIOS\Core\Model
   {
-    return $this->main->di->create('model.user');
+    return $this->app->di->create('model.user');
   }
 
   public function findUsersByLogin(string $login): array

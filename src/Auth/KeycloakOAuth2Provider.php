@@ -22,6 +22,10 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
 
   }
 
+  public function init()
+  {
+  }
+
   public function signOut()
   {
     $accessToken = $this->getAccessToken();
@@ -40,6 +44,22 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
       header("Location: {$rootUrl}");
       exit;
     }
+  }
+
+  public function getUserFromSession(): array
+  {
+    $tmp = $this->app->session->get('userProfile') ?? [];
+    return [
+      'id' => (int) ($tmp['id'] ?? 0),
+      'login' => (string) ($tmp['email'] ?? ''),
+      'is_active' => (bool) ($tmp['is_active'] ?? false),
+    ];
+  }
+
+  public function isUserInSession(): bool
+  {
+    $user = $this->getUserFromSession();
+    return isset($user['login']) && !empty($user['login']);
   }
 
   public function getAccessToken()
@@ -70,11 +90,17 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
     }
 
     if ($accessToken) {
+      // $this->app->logger->info('Keycloak: if accessToken');
       try {
         $resourceOwner = $this->provider->getResourceOwner($accessToken);
 
-        if ($resourceOwner) $this->signIn($resourceOwner->toArray());
-        else $this->deleteSession();
+        if ($resourceOwner) {
+          // $this->app->logger->info('Keycloak: resourceOwner = ' . print_r($resourceOwner->toArray(), true));
+          $this->signIn($resourceOwner->toArray());
+        } else {
+          // $this->app->logger->info('Keycloak: delete session');
+          $this->deleteSession();
+        }
       } catch (\Exception $e) {
         $this->deleteSession();
       }
@@ -82,6 +108,8 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
 
       $authCode = $this->app->urlParamAsString('code');
       $authState = $this->app->urlParamAsString('state');
+
+      // $this->app->logger->info('Keycloak: authCode = ' . $authCode . ', authState = ' . $authState);
 
       // If we don't have an authorization code then get one
       if (empty($authCode)) {
@@ -130,6 +158,8 @@ class KeycloakOAuth2Provider extends \ADIOS\Core\Auth {
           $resourceOwner = $this->provider->getResourceOwner($accessToken);
 
           $authResult = $resourceOwner->toArray();
+
+          // $this->app->logger->info('Keycloak: authResult' . var_dump($authResult));
 
         } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
 

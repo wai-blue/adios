@@ -36,7 +36,7 @@
   .badge-lime { @apply text-lime-800 bg-lime-100; }
   .badge-violet { @apply text-violet-800 bg-violet-100; }
 
-  .btn { @apply rounded inline-flex text-left p-0 m-0 min-h-8 items-center bg-primary text-white cursor-pointer border-slate-200 hover:bg-secondary hover:text-white hover:no-underline; box-sizing: border-box; }
+  .btn { @apply rounded inline-flex text-left p-0 text-sm m-0 min-h-8 items-center bg-primary text-white cursor-pointer border-slate-200 hover:bg-secondary hover:text-white hover:no-underline; box-sizing: border-box; }
   .btn.btn-small { @apply h-auto; }
   .btn .icon { @apply h-full items-center px-2 py-1 justify-center border-slate-200; }
   .btn .text { @apply h-full items-center px-2 py-1 break-words; max-height: 3.5rem; overflow: hidden; }

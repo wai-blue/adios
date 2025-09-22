@@ -472,8 +472,6 @@ class Loader
    */
   public function render(string $route = '', array $params = []): string
   {
-    $this->init();
-
     try {
 
       // Find-out which route is used for rendering

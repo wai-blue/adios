@@ -508,7 +508,7 @@ class Loader
 
       // Check if controller exists and if it can be used
       if (empty($this->controller)) {
-        $controllerClassName = $this->router->createNotFoundController();
+        $controllerClassName = \ADIOS\Controllers\NotFound::class;
       } else if (!$this->controllerExists($this->controller)) {
         throw new Exceptions\ControllerNotFound($this->controller);
       } else {
